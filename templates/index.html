@@ -192,9 +192,9 @@
             <textarea 
                 id="deckInput"
                 name="deck_list" 
-                rows="10"
-                style="width:100%;"
-                placeholder="4 Lightning Bolt&#10;2 Counterspell">
+                rows="12"
+                style="font-size:16px; line-height:1.4;"
+                >
             </textarea>
 
             <!-- Suggestions -->
@@ -223,16 +223,21 @@
 <!-- =========================
      MODALS
      ========================= -->
-
+<div id="cardModal" class="modal hidden">
 <!-- ===== Add Card Modal ===== -->
-<div id="cardModal" class="hidden" style="
-    position:fixed;
-    top:30%;
-    left:40%;
-    background:white;
-    padding:20px;
-    border-radius:8px;
-">
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    width: 90%;
+    max-width: 400px;
+
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+}
 
     <h3>Add Card</h3>
 
