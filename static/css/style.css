@@ -204,7 +204,7 @@ button {
 }
 
 /* =========================
-   DECK SECTIOPN
+   DECK SECTION
    ========================= */
 .deck-card {
     cursor: pointer;
@@ -212,4 +212,21 @@ button {
 
 .deck-card:hover {
     transform: scale(1.05);
+}
+
+/* =========================
+   PHONE VIEW
+   ========================= */
+.section.flex-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .section.flex-row {
+        flex-direction: column;
+    }
 }
