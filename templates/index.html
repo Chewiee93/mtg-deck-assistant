@@ -184,12 +184,23 @@
         <br><br>
 
         <!-- Deck list -->
-        <textarea 
-            name="deck_list" 
-            rows="10" 
-            style="width:100%;"
-            placeholder="4 Lightning Bolt&#10;2 Counterspell">
-        </textarea>
+        <!-- =========================
+            IMPORT WITH AUTOSUGGEST
+            ========================= -->
+        <div class="input-wrapper">
+
+            <textarea 
+                id="deckInput"
+                name="deck_list" 
+                rows="10"
+                style="width:100%;"
+                placeholder="4 Lightning Bolt&#10;2 Counterspell">
+            </textarea>
+
+            <!-- Suggestions -->
+            <div id="importSuggestions" class="suggestions-box hidden"></div>
+
+        </div>
 
         <br><br>
 

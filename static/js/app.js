@@ -58,7 +58,13 @@ const AutoSuggest = {
 
         if (!this.input || !this.box) return;
 
-        this.input.addEventListener("input", () => this.handleInput());
+        this.input.addEventListener("input", () => {
+            clearTimeout(this.timer);
+
+            this.timer = setTimeout(() => {
+                this.handleInput();
+            }, 300); // 300ms delay
+        });
     },
 
     async handleInput() {
@@ -222,6 +228,112 @@ const Filters = {
     }
 };
 
+// =========================
+// IMPORT AUTOSUGGEST
+// =========================
+const ImportSuggest = {
+
+    init() {
+        this.input = document.getElementById("deckInput");
+        this.box = document.getElementById("importSuggestions");
+
+        if (!this.input || !this.box) return;
+
+        this.input.addEventListener("input", () => this.handleInput());
+    },
+
+    getCurrentLine() {
+        const pos = this.input.selectionStart;
+        const text = this.input.value;
+
+        const start = text.lastIndexOf("\n", pos - 1) + 1;
+        const end = text.indexOf("\n", pos);
+
+        return text.substring(start, end === -1 ? text.length : end);
+    },
+
+    async handleInput() {
+        const line = this.getCurrentLine().trim();
+
+        // Expect format: "4 Lightning Bolt"
+        const parts = line.split(" ", 2);
+
+        if (parts.length < 2) {
+            this.hide();
+            return;
+        }
+
+        const namePart = parts[1];
+
+        if (namePart.length < 2) {
+            this.hide();
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/card_suggest?q=${namePart}`);
+            const data = await res.json();
+
+            this.render(data);
+
+        } catch (err) {
+            console.error("Import suggest failed:", err);
+        }
+    },
+
+    render(list) {
+        this.box.innerHTML = "";
+
+        if (!list.length) {
+            this.hide();
+            return;
+        }
+
+        list.forEach(name => {
+            const div = document.createElement("div");
+            div.textContent = name;
+
+            div.onclick = () => this.applySuggestion(name);
+
+            this.box.appendChild(div);
+        });
+
+        this.show();
+    },
+
+    applySuggestion(name) {
+        const pos = this.input.selectionStart;
+        const text = this.input.value;
+
+        const start = text.lastIndexOf("\n", pos - 1) + 1;
+        const end = text.indexOf("\n", pos);
+
+        const line = text.substring(start, end === -1 ? text.length : end);
+        const parts = line.split(" ", 2);
+
+        if (parts.length < 2) return;
+
+        const qty = parts[0];
+
+        const newLine = `${qty} ${name}`;
+
+        this.input.value =
+            text.substring(0, start) +
+            newLine +
+            text.substring(end === -1 ? text.length : end);
+
+        this.hide();
+    },
+
+    show() {
+        this.box.classList.remove("hidden");
+    },
+
+    hide() {
+        this.box.classList.add("hidden");
+    }
+};
+
 
 // =========================
 // INITIALISATION
@@ -230,6 +342,8 @@ const Filters = {
 document.addEventListener("DOMContentLoaded", () => {
 
     AutoSuggest.init();
+
+    ImportSuggest.init();
 
     // Init filters
     Filters.init();
