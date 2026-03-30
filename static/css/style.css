@@ -43,6 +43,39 @@ h1, h2 {
 }
 
 /* =========================
+   AUTOSUGGEST DROPDOWN
+   ========================= */
+
+.input-wrapper {
+    position: relative;
+}
+
+.suggestions-box {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+
+    max-height: 200px;
+    overflow-y: auto;
+
+    z-index: 200;
+}
+
+.suggestions-box div {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.suggestions-box div:hover {
+    background: #eee;
+}
+
+/* =========================
    LAYOUT / SECTIONS
    Reusable containers for page structure
    ========================= */

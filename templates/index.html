@@ -225,7 +225,21 @@
 
     <h3>Add Card</h3>
 
-    <input id="cardInput" placeholder="Enter card name">
+    <!-- =========================
+     CARD INPUT WITH AUTOSUGGEST
+     ========================= -->
+    <div class="input-wrapper">
+
+        <input 
+            id="cardInput" 
+            placeholder="Enter card name"
+            autocomplete="off"
+        >
+
+        <!-- Suggestions dropdown -->
+        <div id="suggestionsBox" class="suggestions-box hidden"></div>
+
+    </div>
 
     <br><br>
 

@@ -47,6 +47,64 @@ const UI = {
     }
 };
 
+// =========================
+// AUTOSUGGEST SYSTEM
+// =========================
+const AutoSuggest = {
+
+    init() {
+        this.input = document.getElementById("cardInput");
+        this.box = document.getElementById("suggestionsBox");
+
+        if (!this.input || !this.box) return;
+
+        this.input.addEventListener("input", () => this.handleInput());
+    },
+
+    async handleInput() {
+        const query = this.input.value.trim();
+
+        // Hide if too short
+        if (query.length < 2) {
+            this.box.innerHTML = "";
+            this.box.classList.add("hidden");
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/card_suggest?q=${query}`);
+            const data = await res.json();
+
+            this.render(data);
+
+        } catch (err) {
+            console.error("Autosuggest failed:", err);
+        }
+    },
+
+    render(list) {
+        this.box.innerHTML = "";
+
+        if (!list.length) {
+            this.box.classList.add("hidden");
+            return;
+        }
+
+        list.forEach(name => {
+            const div = document.createElement("div");
+            div.textContent = name;
+
+            div.onclick = () => {
+                this.input.value = name;
+                this.box.classList.add("hidden");
+            };
+
+            this.box.appendChild(div);
+        });
+
+        this.box.classList.remove("hidden");
+    }
+};
 
 // =========================
 // API LAYER
@@ -170,6 +228,8 @@ const Filters = {
 // Runs once DOM is ready
 // =========================
 document.addEventListener("DOMContentLoaded", () => {
+
+    AutoSuggest.init();
 
     // Init filters
     Filters.init();

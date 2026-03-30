@@ -1162,6 +1162,7 @@ def rename_deck(deck_id):
 # - remove_card (future)
 # - remove_card_from_deck
 # - mark_owned
+# - card_suggest
 
 # =========================
 # ADD CARD
@@ -1240,6 +1241,30 @@ def mark_owned(card_id):
         db.commit()
 
     return jsonify({"success": True})
+
+# =========================
+# CARD SUGGEST
+# =========================
+@api_bp.route("/api/card_suggest")
+def card_suggest():
+    query = request.args.get("q", "").strip()
+
+    if not query:
+        return jsonify([])
+
+    url = f"https://api.scryfall.com/cards/autocomplete?q={query}"
+
+    try:
+        res = requests.get(url, timeout=3)
+    except requests.RequestException:
+        return jsonify([])
+
+    if res.status_code != 200:
+        return jsonify([])
+
+    data = res.json()
+
+    return jsonify(data.get("data", [])[:10])  # limit results
 
 
 # =========================
