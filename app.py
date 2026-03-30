@@ -332,6 +332,10 @@ def analyze_deck(deck_id):
     banned = BANNED_CARDS.get(deck.format, [])
     for dc in deck_cards:
         card = db.get(Card, dc.card_id)
+
+        if not card:
+            continue  # skip broken reference
+
         if card.name in banned:
             issues.append(f"{card.name} is banned in {deck.format}")
 
@@ -390,6 +394,10 @@ def calculate_deck_stats(deck_cards):
 
     for dc in deck_cards:
         card = db.get(Card, dc.card_id)
+
+        if not card:
+            continue
+
         stats["total"] += dc.quantity
 
         if "Creature" in card.type_line:
@@ -596,6 +604,10 @@ def analyze_deck_roles(deck_cards):
 
     for dc in deck_cards:
         card = db.get(Card, dc.card_id)
+
+        if not card:
+            continue
+
         roles = classify_card_roles(card)
 
         for role in roles:
@@ -696,6 +708,10 @@ def home():
 
         if first_dc:
             card = db.get(Card, first_dc.card_id)
+
+            if not card:
+                continue
+
             if card:
                 image = card.image_url
 
@@ -923,8 +939,9 @@ def view_deck(deck_id):
     cards = []
     for dc in deck_cards:
         card = db.get(Card, dc.card_id)
+
         if not card:
-            continue
+            continue # skip broken reference
 
         cards.append({
             "id": card.id,
@@ -971,6 +988,7 @@ def view_deck(deck_id):
 
     for dc in deck_cards:
         card = db.get(Card, dc.card_id)
+        
         if not card:
             continue
 
