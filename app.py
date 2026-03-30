@@ -916,7 +916,10 @@ def confirm_import():
 
     Then redirects to deck view.
     """
-    imported_cards = session.get("imported_cards", [])
+    import_id = request.form.get("import_id")
+
+    import_cards = db.query(ImportCard).filter_by(import_id=import_id).all()
+
     import_all_owned = session.get("import_all_owned", False)
     deck_name = session.get("imported_deck_name", "Imported Deck")
 
@@ -925,7 +928,8 @@ def confirm_import():
     db.add(deck)
     db.flush()  # get deck.id before commit
 
-    for i, card_data in enumerate(imported_cards):
+    for i, c in enumerate(import_cards):
+        card_data = json.loads(c.data)
 
         selected_set = request.form.get(f"print_{i}")
 
@@ -944,7 +948,7 @@ def confirm_import():
 
             card = Card(
                 name=card_data["name"],
-                quantity=card_data["quantity"] if owned else 0,
+                quantity=c.quantity if owned else 0,
                 color_identity=card_data["color_identity"],
                 type_line=card_data["type_line"],
                 oracle_text=card_data["oracle_text"],
@@ -961,7 +965,7 @@ def confirm_import():
         else:
             # Update existing collection if owned
             if owned:
-                card.quantity += card_data["quantity"]
+                card.quantity += c.quantity
                 card.owned = 1
 
             if selected_set:
@@ -979,24 +983,22 @@ def confirm_import():
 
         if existing:
             # If it exists, increase quantity instead of duplicating
-            existing.quantity += card_data["quantity"]
+            existing.quantity += c.quantity
         else:
             # If not, create new entry
             db.add(DeckCard(
                 deck_id=deck.id,
                 card_id=card.id,
-                quantity=card_data["quantity"]
+                quantity=c.quantity
             ))
 
+    db.query(ImportCard).filter_by(import_id=import_id).delete()
+    db.query(ImportSession).filter_by(id=import_id).delete()
     db.commit()
-    session.pop("imported_cards", None)
     session.pop("import_all_owned", None)
     session.pop("imported_deck_name", None)
 
     return redirect(f"/deck/{deck.id}")
-
-
-
 
 # =========================
 # BLUEPRINT: DECKS
