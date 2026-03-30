@@ -1,0 +1,185 @@
+// =========================
+// APP CONFIG (FROM BACKEND)
+// =========================
+// Injected via Jinja in HTML
+// Example:
+// window.APP_CONFIG = { added: "{{ added }}" }
+const CONFIG = window.APP_CONFIG || {};
+
+
+// =========================
+// UI CONTROLLER
+// Handles visual interactions only
+// =========================
+const UI = {
+
+    openModal(id) {
+        const modal = document.getElementById(id);
+        const overlay = document.getElementById("overlay");
+
+        if (overlay) overlay.classList.remove("hidden");
+        if (modal) modal.classList.remove("hidden");
+    },
+
+    closeAll() {
+        const overlay = document.getElementById("overlay");
+
+        // Close modals safely
+        ["cardModal", "previewModal"].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add("hidden");
+        });
+
+        if (overlay) overlay.classList.add("hidden");
+    },
+
+    preview(cardEl) {
+        const previewImg = cardEl.dataset.preview;
+        const fallback = cardEl.dataset.image;
+
+        const img = previewImg || fallback;
+        if (!img) return;
+
+        const preview = document.getElementById("previewImage");
+        preview.src = img;
+
+        this.openModal("previewModal");
+    }
+};
+
+
+// =========================
+// API LAYER
+// Handles ALL server communication
+// =========================
+const API = {
+
+    // ---- Add Card ----
+    async addCard() {
+        const input = document.getElementById("cardInput");
+        const name = input.value.trim();
+
+        if (!name) {
+            alert("Enter a card name");
+            return;
+        }
+
+        try {
+            const res = await fetch("/api/add_card", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name })
+            });
+
+            const data = await res.json();
+
+            if (!data.success) {
+                alert("Card not found");
+                return;
+            }
+
+            // Simple approach for now
+            location.reload();
+
+        } catch (err) {
+            console.error("Add card failed:", err);
+            alert("Network error");
+        }
+    },
+
+
+    // ---- Update Quantity ----
+    async updateQuantity(id, change) {
+        console.log("CLICKED", id, change);
+
+        try {
+            const res = await fetch("/api/update_quantity", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    card_id: id,
+                    change: change
+                })
+            });
+
+            const data = await res.json();
+
+            if (!data.success) {
+                console.error("Update failed:", data);
+                alert("Update failed");
+                return;
+            }
+
+            const qtyEl = document.getElementById(`qty-${id}`);
+            if (qtyEl) {
+                qtyEl.textContent = data.quantity;
+            }
+
+            // Remove card visually if quantity hits 0
+            if (data.quantity === 0) {
+                const cardEl = document.getElementById(`card-${id}`);
+                if (cardEl) {
+                    cardEl.style.opacity = "0";
+                    setTimeout(() => cardEl.remove(), 200);
+                }
+            }
+
+        } catch (err) {
+            console.error("Quantity update failed:", err);
+        }
+    }
+};
+
+
+// =========================
+// FILTERING SYSTEM
+// Handles search + color filtering
+// =========================
+const Filters = {
+
+    init() {
+        const searchInput = document.getElementById("searchInput");
+        const colorFilter = document.getElementById("colorFilter");
+
+        if (searchInput) searchInput.addEventListener("input", this.apply);
+        if (colorFilter) colorFilter.addEventListener("change", this.apply);
+    },
+
+    apply() {
+        const search = document.getElementById("searchInput").value.toLowerCase();
+        const color = document.getElementById("colorFilter").value;
+
+        document.querySelectorAll(".card").forEach(card => {
+
+            const name = card.dataset.name || "";
+            const cardColors = card.dataset.color || "";
+
+            const matchesSearch = name.includes(search);
+            const matchesColor = !color || cardColors.includes(color);
+
+            card.style.display = (matchesSearch && matchesColor)
+                ? "block"
+                : "none";
+        });
+    }
+};
+
+
+// =========================
+// INITIALISATION
+// Runs once DOM is ready
+// =========================
+document.addEventListener("DOMContentLoaded", () => {
+
+    // Init filters
+    Filters.init();
+
+    // Example: react to backend flags
+    if (CONFIG.added === "True") {
+        UI.closeModal("cardModal");
+    }
+
+});
+
+window.API = API;
+window.UI = UI;

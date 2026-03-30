@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <!-- =========================
+         PAGE SETUP
+         ========================= -->
+    <title>MTG Deck Builder</title>
+
+    <!-- Main stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<!-- =========================
+     OVERLAY (for modals)
+     ========================= -->
+<div id="overlay" class="hidden" onclick="UI.closeAll()"></div>
+
+
+<!-- =========================
+     PAGE TITLE
+     ========================= -->
+<h1>MTG Deck Builder</h1>
+
+
+<!-- =========================
+     ADD CARD SECTION
+     ========================= -->
+<div class="section">
+    <h2>Add Card</h2>
+
+    <!-- Opens modal -->
+    <button class="button" onclick="UI.openModal('cardModal')">
+        Add Card
+    </button>
+</div>
+
+
+<!-- =========================
+     COLLECTION SECTION
+     ========================= -->
+<div class="section">
+
+    <h2>Your Collection</h2>
+
+    <!-- ===== Filters ===== -->
+    <div style="margin-bottom:15px; display:flex; gap:10px; flex-wrap:wrap;">
+
+        <!-- Search -->
+        <input 
+            id="searchInput" 
+            placeholder="Search cards..."
+            style="padding:6px; border-radius:6px; border:1px solid #ccc;"
+        >
+
+        <!-- Color filter -->
+        <select id="colorFilter" style="padding:6px; border-radius:6px;">
+            <option value="">All Colors</option>
+            <option value="R">Red</option>
+            <option value="U">Blue</option>
+            <option value="G">Green</option>
+            <option value="B">Black</option>
+            <option value="W">White</option>
+        </select>
+
+    </div>
+
+
+    <!-- ===== Card Grid ===== -->
+    <div id="collection">
+
+        {% for card in cards %}
+        <div 
+            id="card-{{ card.id }}"
+            class="card"
+            data-name="{{ card.name | lower }}"
+            data-color="{{ card.color_identity }}"
+            data-image="{{ card.image_url }}"
+            data-preview="{{ card.image_large or card.image_url }}"
+            onclick="UI.preview(this)"
+        >
+
+            <!-- Card Image -->
+            {% if card.image_url %}
+                <img src="{{ card.image_url }}" 
+                class="card-img"
+                onerror="this.src='H:\Craig\mtg-deck-assisstant\static\Placeholder.webp'"
+                >
+            {% endif %}
+
+            <!-- Card Name -->
+            <strong style="margin-top:5px;">
+                {{ card.name }}
+            </strong>
+
+            <!-- Quantity Controls -->
+            <div style="display:flex; align-items:center; gap:5px; margin-top:5px;">
+
+                <button onclick="event.stopPropagation(); API.updateQuantity({{ card.id }}, -1)">-</button>
+
+                <span id="qty-{{ card.id }}">
+                    {{ card.quantity }}
+                </span>
+
+                <button onclick="event.stopPropagation(); API.updateQuantity({{ card.id }}, 1)">+</button>
+
+            </div>
+
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+
+<!-- =========================
+     CREATE DECK
+     ========================= -->
+<div class="section">
+    <h2>Create Deck</h2>
+
+    <form action="/create_deck" method="POST" style="display:flex; gap:10px;">
+        <input 
+            name="deck_name" 
+            placeholder="Deck name"
+            required
+            style="padding:6px; border-radius:6px; border:1px solid #ccc;"
+        >
+        <select name="format">
+            <option value="casual">Casual</option>
+            <option value="standard">Standard</option>
+            <option value="modern">Modern</option>
+            <option value="commander">Commander</option>
+        </select>
+
+        <button class="button" type="submit">
+            Create
+        </button>
+    </form>
+
+    <div class="section">
+    <h2>Decks</h2>
+
+    <div class="grid">
+        {% for deck in decks %}
+        <div class="grid-card deck-card"
+            onclick="window.location='/deck/{{ deck.id }}'">
+
+            <img src="{{ deck.image }}">
+
+            <div style="margin-top:5px;">
+                <strong>{{ deck.name }}</strong>
+            </div>
+
+            <div style="margin-top:6px;">
+                <a class="button" href="/delete_deck/{{ deck.id }}"
+                onclick="event.stopPropagation()">Delete</a>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- =========================
+    Import Deck
+    ========================== -->
+
+<div class="section">
+    <h2>Import Deck</h2>
+
+    <form action="/import_deck" method="POST">
+
+        <!-- Deck name -->
+        <input 
+            name="deck_name" 
+            placeholder="Deck name"
+            required
+            style="padding:6px; border-radius:6px; border:1px solid #ccc; width:100%;"
+        >
+
+        <br><br>
+
+        <!-- Deck list -->
+        <textarea 
+            name="deck_list" 
+            rows="10" 
+            style="width:100%;"
+            placeholder="4 Lightning Bolt&#10;2 Counterspell">
+        </textarea>
+
+        <br><br>
+
+        <!-- OWNERSHIP TOGGLE -->
+        <label>
+            <input type="checkbox" name="all_owned" value="1" checked style="cursor:pointer;">
+            I own all these cards
+        </label>
+
+        <br><br>
+
+        <button class="button" type="submit">
+            Import Deck
+        </button>
+
+    </form>
+</div>
+
+
+<!-- =========================
+     MODALS
+     ========================= -->
+
+<!-- ===== Add Card Modal ===== -->
+<div id="cardModal" class="hidden" style="
+    position:fixed;
+    top:30%;
+    left:40%;
+    background:white;
+    padding:20px;
+    border-radius:8px;
+">
+
+    <h3>Add Card</h3>
+
+    <input id="cardInput" placeholder="Enter card name">
+
+    <br><br>
+
+    <button class="button" onclick="API.addCard()">Add</button>
+
+    <br><br>
+
+    <button class="button" onclick="UI.closeModal('cardModal')">Close</button>
+</div>
+
+
+<!-- ===== Preview Modal ===== -->
+<div id="previewModal" class="hidden" style="
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    z-index:101;
+"
+onclick="event.stopPropagation()">
+
+    <img id="previewImage" style="
+        max-height:80vh;
+        border-radius:10px;
+        box-shadow:0 10px 30px rgba(0,0,0,0.5);"
+        onerror="this.src='H:\Craig\mtg-deck-assisstant\static\Placeholder.webp'"
+    >
+
+</div>
+
+
+<!-- =========================
+     CONFIG (FROM FLASK)
+     ========================= -->
+<script>
+    window.APP_CONFIG = {
+        added: "{{ added }}"
+    };
+</script>
+
+
+<!-- =========================
+     MAIN SCRIPT
+     ========================= -->
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+</body>
+</html>

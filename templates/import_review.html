@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <title>Review Import</title>
+
+    <!-- =========================
+         BASIC STYLING
+         ========================= -->
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .card { padding:10px; margin-bottom:10px; border-bottom:1px solid #ccc; }
+        img { width:60px; vertical-align:middle; margin-right:10px; }
+    </style>
+</head>
+
+<body>
+
+<!-- =========================
+     PAGE TITLE
+     ========================= -->
+<h2>Review Deck Import</h2>
+
+<!-- =========================
+     IMPORT CONFIRM FORM
+     ========================= -->
+<form action="/confirm_import" method="POST">
+
+    <br><br>
+
+    <!-- =========================
+         CARD LIST
+         ========================= -->
+    <div class="grid">
+    {% for card in cards %}
+        <div class="grid-card">
+
+            <!-- Card image (if available) -->
+            {% if card.image_url %}
+                <img src="{{ card.image_url }}">
+            {% endif %}
+
+            <!-- Card info -->
+            <div style="margin-top:5px;">
+                <strong>{{ card.quantity }}x {{ card.name }}</strong>
+            </div>
+
+            <!-- Ownership toggle -->
+            <div style="margin-top:5px;">
+                <label>
+                    {% if not all_owned %}
+                        <input type="checkbox" name="owned_{{ loop.index0 }}">
+                    {% else %}
+                        <div>Owned</div>
+                    {% endif %}
+                </label>
+            </div>
+
+        </div>
+    {% endfor %}
+    </div>
+
+    <!-- Submit -->
+    <button type="submit">Confirm Import</button>
+
+</form>
+
+</body>
+</html>

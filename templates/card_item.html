@@ -1,0 +1,28 @@
+<div id="card-{{ card.id }}" class="grid-card {% if card.owned == 0 %}missing{% endif %}">
+
+    {% if card.image_url %}
+        <img src="{{ card.image_url }}">
+    {% endif %}
+
+    <div style="margin-top:5px;">
+        <strong>{{ card.name }}</strong><br>
+        x{{ card.quantity }}
+
+        {% if card.owned == 0 %}
+            <div style="color:red;">Missing</div>
+        {% endif %}
+    </div>
+
+    <div style="font-size:12px; color:#666;">
+        CMC: {{ card.cmc }}
+    </div>
+
+    <div style="margin-top:6px; display:flex; justify-content:center; gap:6px;">
+        <button onclick="removeCard({{ deck.id }}, {{ card.id }})">❌</button>
+
+        {% if card.owned == 0 %}
+            <button onclick="markOwned({{ card.id }})">✔</button>
+        {% endif %}
+    </div>
+
+</div>

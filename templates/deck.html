@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <title>{{ deck.name }}</title>
+</head>
+<body>
+
+<div class="section" style="display:flex; justify-content:space-between; align-items:flex-start; gap:20px; flex-wrap:wrap;">
+
+    <!-- LEFT: Deck name + rename -->
+    <div>
+        <h2>{{ deck.name }}</h2>
+
+        <!-- Rename -->
+        <form action="/rename_deck/{{ deck.id }}" method="POST"
+            style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+
+            <input 
+                name="new_name"
+                value="{{ deck.name }}"
+                required
+                style="padding:6px; border-radius:6px; border:1px solid #ccc;"
+                onclick="this.select()"
+            >
+
+            <button class="button" type="submit">
+                Rename
+            </button>
+        </form>
+
+        <!-- =========================
+            SUMMARY
+            ========================= -->
+        <div style="margin-top:15px; padding:10px; background:#f7f9fc; border-radius:8px;">
+
+            <!-- INLINE STATS -->
+            <div style="display:flex; gap:20px; flex-wrap:wrap; font-weight:bold;">
+                <span>Total: {{ stats.total }}</span>
+                <span>Creatures: {{ stats.creatures }}</span>
+                <span>Lands: {{ stats.lands }}</span>
+                <span>Other: {{ stats.others }}</span>
+            </div>
+
+            <!-- MISSING BELOW -->
+            <div style="margin-top:5px; color:#666;">
+                Missing: {{ stats.total - stats.creatures - stats.lands - stats.others }}
+            </div>
+
+            <div style="margin-top:5px; color:#444; font-weight:bold;">
+                <span style="color:#007BFF; font-size:18px;">{{ archetype }}</span>
+            </div>
+
+            <!-- =========================
+                DECK ANALYSIS
+                ========================= -->
+            <div style="margin-top:15px; padding:10px; background:#fff3cd; border-radius:8px;">
+
+                {% if issues %}
+                    <div style="color:red; font-weight:bold;">
+                        {% for issue in issues %}
+                            <div>⚠ {{ issue }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if warnings %}
+                    <div style="margin-top:5px; color:#856404;">
+                        {% for warning in warnings %}
+                            <div>💡 {{ warning }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if strengths %}
+                    <div style="margin-top:5px; color:green;">
+                        {% for s in strengths %}
+                            <div>✅ {{ s }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        <!-- =========================
+            ROLES
+            ========================= -->
+        <div style="margin-top:15px; padding:10px; background:#f7f9fc; border-radius:8px;">
+
+            <!-- INLINE STATS -->
+            <div style="display:flex; gap:20px; flex-wrap:wrap; font-weight:bold;">
+                <span>Mana Ramp: {{ ramp }}</span>
+                <span>Card Draw: {{ card_draw }}</span>
+                <span>Removal: {{ removal }}</span>
+                <span>Board Wipe: {{ board_wipe }}</span>
+            </div>
+
+            <div style="display:flex; gap:20px; flex-wrap:wrap; font-weight:bold;">
+                <span>Recursion: {{ recursion }}</span>
+                <span>Pillowfort: {{ pillowfort }}</span>
+                <span>Tokens: {{ tokens }}</span>
+                <span>Aristocrats: {{ aristocrats }}</span>
+            </div>
+
+            <div style="display:flex; gap:20px; flex-wrap:wrap; font-weight:bold;">
+                <span>Toolbox: {{ toolbox }}</span>
+                <span>Stax: {{ stax }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: Mana Curve -->
+    <div style="min-width:300px; max-width:500px;">
+        <h3 style="margin-bottom:10px;">Mana Curve</h3>
+
+        <!-- FIXED HEIGHT CONTAINER -->
+        <div style="height:250px;">
+            <canvas id="manaChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<div class="section">
+    <div class="section">
+        <h2>Creatures</h2>
+        <div class="grid">
+            {% for card in creatures %}
+                {% include "card_item.html" %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Lands</h2>
+        <div class="grid">
+            {% for card in lands %}
+                {% include "card_item.html" %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Other Spells</h2>
+        <div class="grid">
+            {% for card in others %}
+                {% include "card_item.html" %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<br>
+
+<div class="section">
+    <h2>Smart Recommendations</h2>
+
+    {% if recommended %}
+        {% for card in recommended %}
+            <p>{{ card }}</p>
+        {% endfor %}
+    {% else %}
+        <p>No recommendations</p>
+    {% endif %}
+</div>
+
+<div class="section">
+    <h2>Cards You Own That Fit</h2>
+
+    {% for card in suggestions %}
+        <p>{{ card }}</p>
+    {% endfor %}
+</div>
+
+<div class="section">
+    <h2>Suggested Upgrades</h2>
+
+    {% if missing_cards %}
+        {% for card in missing_cards %}
+            <p>{{ card }}</p>
+        {% endfor %}
+    {% else %}
+        <p>You own all suggested staples.</p>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+async function removeCard(deckId, cardId) {
+    await fetch(`/api/remove_from_deck/${deckId}/${cardId}`);
+
+    // Remove card from UI
+    location.reload();
+}
+
+async function markOwned(cardId) {
+    await fetch(`/api/mark_owned/${cardId}`);
+
+    // Update UI (remove red styling)
+    const cardElement = document.getElementById(`card-${cardId}`);
+    cardElement.classList.remove("missing");
+}
+</script>
+
+<script>
+let manaChart = null;
+
+function renderManaChart() {
+    const canvas = document.getElementById('manaChart');
+
+    // 🔥 HARD RESET CANVAS (THIS IS THE FIX)
+    canvas.replaceWith(canvas.cloneNode(true));
+
+    const newCanvas = document.getElementById('manaChart');
+    const ctx = newCanvas.getContext('2d');
+
+    manaChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ curve_labels | tojson }},
+            datasets: [{
+                label: 'Cards',
+                data: {{ curve_values | tojson }},
+                
+                // 🔥 VISUAL TUNING
+                maxBarThickness: 40,
+                categoryPercentage: 0.7,
+                barPercentage: 0.8,
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+}
+
+// Run once on load
+renderManaChart();
+</script>
+
+</body>
+</html>
