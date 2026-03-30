@@ -82,6 +82,26 @@ class CardCache(Base):
     data = Column(Text)
     timestamp = Column(Integer)
 
+    # =========================
+    # TEMPORARY DATABASE SAVES
+    # =========================
+
+class ImportSession(Base):
+    __tablename__ = "import_sessions"
+
+    id = Column(Integer, primary_key=True)
+    created_at = Column(Integer)
+
+
+class ImportCard(Base):
+    __tablename__ = "import_cards"
+
+    id = Column(Integer, primary_key=True)
+    import_id = Column(Integer)
+    name = Column(String)
+    quantity = Column(Integer)
+    data = Column(Text)  # store full card JSON
+
 
 engine = create_engine("sqlite:///cards.db")
 Base.metadata.create_all(engine)
@@ -710,11 +730,6 @@ def import_deck():
     session["import_all_owned"] = request.form.get("all_owned") == "1"
     session["imported_cards"] = []
 
-    IMPORTED_DECK_NAME = request.form.get("deck_name", "Imported Deck")
-
-    # ✅ SET ONCE, NOT IN LOOP
-    IMPORT_ALL_OWNED = request.form.get("all_owned") == "1"
-
     text = request.form.get("deck_list", "")
     lines = text.split("\n")
 
@@ -783,16 +798,19 @@ def import_deck():
         })
         session["imported_cards"] = cards
 
-    if not IMPORT_ALL_OWNED:
-        for card in IMPORTED_CARDS:
+    import_all_owned = session.get("import_all_owned", False)
+    imported_cards = session.get("imported_cards", [])
+
+    if not import_all_owned:
+        for card in imported_cards:
             card["prints"] = get_card_prints(card["name"])
 
     # Send to review screen
     return render_template(
         "import_review.html", 
-        cards=IMPORTED_CARDS, 
+        cards=imported_cards, 
         invalid_lines=invalid_lines,
-        all_owned=IMPORT_ALL_OWNED
+        all_owned=import_all_owned
     )
 
 # =========================
@@ -814,7 +832,7 @@ def confirm_import():
     import_all_owned = session.get("import_all_owned", False)
     deck_name = session.get("imported_deck_name", "Imported Deck")
 
-    deck_name = IMPORTED_DECK_NAME
+    deck_name = session.get("imported_deck_name", "Imported Deck")
 
     # Create deck
     deck = Deck(name=deck_name)
