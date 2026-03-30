@@ -16,7 +16,7 @@ but structured as if split across modules.
 # =========================
 # IMPORTS
 # =========================
-from flask import Flask, Blueprint, render_template, request, redirect, jsonify
+from flask import Flask, Blueprint, render_template, request, redirect, jsonify, session
 from sqlalchemy import create_engine, Column, Integer, String, Text
 from sqlalchemy.orm import sessionmaker, declarative_base
 import requests
