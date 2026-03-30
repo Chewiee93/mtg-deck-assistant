@@ -26,6 +26,9 @@
      ========================= -->
 <form action="/confirm_import" method="POST">
 
+    <!-- REQUIRED: tells backend which import to use -->
+    <input type="hidden" name="import_id" value="{{ import_id }}">
+
     <br><br>
 
     <!-- =========================

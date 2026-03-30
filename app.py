@@ -831,6 +831,77 @@ def import_deck():
     return redirect(f"/import_review/{import_id}")
 
 # =========================
+# IMPORT: STEP 1.5 (REVIEW FROM DB)
+# =========================
+@main_bp.route("/import_review/<int:import_id>")
+def import_review(import_id):
+    """
+    Displays imported cards for user confirmation.
+
+    Flow:
+    - Load temporary import data from database
+    - Rebuild card structure expected by template
+    - Render review screen
+
+    NOTE:
+    This replaces session-based import storage.
+    """
+
+    # =========================
+    # LOAD IMPORTED CARDS FROM DB
+    # =========================
+    import_cards = db.query(ImportCard).filter_by(import_id=import_id).all()
+
+    parsed_cards = []
+
+    # =========================
+    # REBUILD CARD STRUCTURE
+    # =========================
+    for c in import_cards:
+        data = json.loads(c.data)
+
+        parsed_cards.append({
+            "name": c.name,
+            "quantity": c.quantity,
+
+            # Core card info
+            "color_identity": ",".join(data.get("color_identity", [])),
+            "type_line": data.get("type_line", ""),
+            "oracle_text": data.get("oracle_text", ""),
+
+            # Images
+            "image_url": data.get("image_url", ""),
+            "image_large": data.get("image_large", ""),
+
+            # Metadata
+            "set_name": data.get("set_name", ""),
+            "cmc": data.get("cmc", 0)
+        })
+
+    # =========================
+    # OWNERSHIP FLAG (TEMPORARY SESSION USE)
+    # =========================
+    import_all_owned = session.get("import_all_owned", False)
+
+    # =========================
+    # LOAD PRINT OPTIONS (IF NEEDED)
+    # =========================
+    if not import_all_owned:
+        for card in parsed_cards:
+            card["prints"] = get_card_prints(card["name"])
+
+    # =========================
+    # RENDER REVIEW TEMPLATE
+    # =========================
+    return render_template(
+        "import_review.html",
+        cards=parsed_cards,
+        invalid_lines=[],   # future: track invalid inputs from parser
+        all_owned=import_all_owned,
+        import_id=import_id
+    )
+
+# =========================
 # IMPORT: STEP 2 (CONFIRM + SAVE)
 # =========================
 @main_bp.route("/confirm_import", methods=["POST"])
@@ -923,6 +994,8 @@ def confirm_import():
     session.pop("imported_deck_name", None)
 
     return redirect(f"/deck/{deck.id}")
+
+
 
 
 # =========================
