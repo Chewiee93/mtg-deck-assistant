@@ -832,8 +832,6 @@ def confirm_import():
     import_all_owned = session.get("import_all_owned", False)
     deck_name = session.get("imported_deck_name", "Imported Deck")
 
-    deck_name = db.get("imported_deck_name", "Imported Deck")
-
     # Create deck
     deck = Deck(name=deck_name)
     db.add(deck)
