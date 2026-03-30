@@ -744,12 +744,16 @@ def import_deck():
     
     session["imported_deck_name"] = request.form.get("deck_name", "Imported Deck")
     session["import_all_owned"] = request.form.get("all_owned") == "1"
-    session["imported_cards"] = []
+
+    import_session = ImportSession(created_at=int(time.time()))
+    db.add(import_session)
+    db.flush()
+
+    import_id = import_session.id
 
     text = request.form.get("deck_list", "")
     lines = text.split("\n")
 
-    session["imported_cards"] = []
     invalid_lines = []
     
     parsed_lines = []
@@ -800,19 +804,20 @@ def import_deck():
         images = get_images(data)
 
         # Store clean structured data
-        cards = session.get("imported_cards", [])
-        cards.append({
-            "name": data["name"],
-            "quantity": qty,
-            "color_identity": ",".join(data.get("color_identity", [])),
-            "type_line": data.get("type_line", ""),
-            "oracle_text": data.get("oracle_text", ""),
-            "image_url": images.get("small", ""),
-            "image_large": images.get("normal", ""),
-            "set_name": data.get("set_name", ""),
-            "cmc": int(data.get("cmc", 0))
-        })
-        session["imported_cards"] = cards
+        db.add(ImportCard(
+            import_id=import_id,
+            name=data["name"],
+            quantity=qty,
+            data=json.dumps({
+                "color_identity": data.get("color_identity", []),
+                "type_line": data.get("type_line", ""),
+                "oracle_text": data.get("oracle_text", ""),
+                "image_url": images.get("small", ""),
+                "image_large": images.get("normal", ""),
+                "set_name": data.get("set_name", ""),
+                "cmc": int(data.get("cmc", 0))
+            })
+        ))
 
     import_all_owned = session.get("import_all_owned", False)
     imported_cards = session.get("imported_cards", [])
@@ -822,12 +827,8 @@ def import_deck():
             card["prints"] = get_card_prints(card["name"])
 
     # Send to review screen
-    return render_template(
-        "import_review.html", 
-        cards=imported_cards, 
-        invalid_lines=invalid_lines,
-        all_owned=import_all_owned
-    )
+    db.commit()
+    return redirect(f"/import_review/{import_id}")
 
 # =========================
 # IMPORT: STEP 2 (CONFIRM + SAVE)
