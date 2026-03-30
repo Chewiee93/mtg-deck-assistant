@@ -949,7 +949,7 @@ def confirm_import():
             card = Card(
                 name=c.name,
                 quantity=c.quantity if owned else 0,
-                color_identity=card_data["color_identity"],
+                color_identity=",".join(card_data.get("color_identity", [])),
                 type_line=card_data["type_line"],
                 oracle_text=card_data["oracle_text"],
                 image_url=card_data["image_url"],
