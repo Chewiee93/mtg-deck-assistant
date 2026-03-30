@@ -940,14 +940,14 @@ def confirm_import():
             owned = request.form.get(f"owned_{i}") == "on"
 
         # Check if card already exists in collection
-        card = db.query(Card).filter_by(name=card_data["name"]).first()
+        card = db.query(Card).filter_by(name=c.name).first()
 
         if not card:
             # Create new card entry
             set_name = selected_set if selected_set else card_data["set_name"]
 
             card = Card(
-                name=card_data["name"],
+                name=c.name,
                 quantity=c.quantity if owned else 0,
                 color_identity=card_data["color_identity"],
                 type_line=card_data["type_line"],
