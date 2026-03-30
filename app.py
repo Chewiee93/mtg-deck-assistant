@@ -988,7 +988,7 @@ def view_deck(deck_id):
 
     for dc in deck_cards:
         card = db.get(Card, dc.card_id)
-        
+
         if not card:
             continue
 
@@ -1135,7 +1135,7 @@ def api_update_quantity():
 
     # Optional: remove card if quantity hits 0
     if card.quantity == 0:
-        db.delete(card)
+        card.owned = 0
 
     db.commit()
 
