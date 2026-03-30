@@ -16,7 +16,7 @@ but structured as if split across modules.
 # =========================
 # IMPORTS
 # =========================
-from flask import Flask, Blueprint, render_template, request, redirect, jsonify
+from flask import Flask, Blueprint, render_template, request, redirect, jsonify, session
 from sqlalchemy import create_engine, Column, Integer, String, Text
 from sqlalchemy.orm import sessionmaker, declarative_base
 import requests
@@ -126,7 +126,7 @@ BANNED_CARDS = {
 # APP INIT
 # =========================
 app = Flask(__name__)
-
+app.secret_key = "dev-secret-key"  # required for sessions
 
 # =========================
 # CACHE + API SERVICE
@@ -705,9 +705,11 @@ def import_deck():
     - Stores results in temporary memory
     - Sends to review page for confirmation
     """
-
-    global IMPORTED_CARDS, IMPORTED_DECK_NAME, IMPORT_ALL_OWNED
     
+    session["imported_deck_name"] = request.form.get("deck_name", "Imported Deck")
+    session["import_all_owned"] = request.form.get("all_owned") == "1"
+    session["imported_cards"] = []
+
     IMPORTED_DECK_NAME = request.form.get("deck_name", "Imported Deck")
 
     # ✅ SET ONCE, NOT IN LOOP
@@ -716,7 +718,7 @@ def import_deck():
     text = request.form.get("deck_list", "")
     lines = text.split("\n")
 
-    IMPORTED_CARDS = []  # Reset previous import
+    session["imported_cards"] = []
     invalid_lines = []
     
     parsed_lines = []
@@ -767,7 +769,8 @@ def import_deck():
         images = get_images(data)
 
         # Store clean structured data
-        IMPORTED_CARDS.append({
+        cards = session.get("imported_cards", [])
+        cards.append({
             "name": data["name"],
             "quantity": qty,
             "color_identity": ",".join(data.get("color_identity", [])),
@@ -778,6 +781,7 @@ def import_deck():
             "set_name": data.get("set_name", ""),
             "cmc": int(data.get("cmc", 0))
         })
+        session["imported_cards"] = cards
 
     if not IMPORT_ALL_OWNED:
         for card in IMPORTED_CARDS:
@@ -806,7 +810,9 @@ def confirm_import():
 
     Then redirects to deck view.
     """
-    global IMPORTED_CARDS, IMPORT_ALL_OWNED, IMPORTED_DECK_NAME
+    imported_cards = session.get("imported_cards", [])
+    import_all_owned = session.get("import_all_owned", False)
+    deck_name = session.get("imported_deck_name", "Imported Deck")
 
     deck_name = IMPORTED_DECK_NAME
 
@@ -815,12 +821,12 @@ def confirm_import():
     session.add(deck)
     session.flush()  # get deck.id before commit
 
-    for i, card_data in enumerate(IMPORTED_CARDS):
+    for i, card_data in enumerate(imported_cards):
 
         selected_set = request.form.get(f"print_{i}")
 
         # Check if user marked as owned
-        if IMPORT_ALL_OWNED:
+        if import_all_owned:
             owned = True
         else:
             owned = request.form.get(f"owned_{i}") == "on"
@@ -879,6 +885,9 @@ def confirm_import():
             ))
 
     session.commit()
+    session.pop("imported_cards", None)
+    session.pop("import_all_owned", None)
+    session.pop("imported_deck_name", None)
 
     return redirect(f"/deck/{deck.id}")
 
