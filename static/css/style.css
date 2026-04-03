@@ -285,9 +285,11 @@ h1, h2 {
 }
 
 .suggestions-box div {
-    padding: 12px;
-    font-size: 16px;
+    padding: 16px;
+    font-size: 18px;
     cursor: pointer;
+    max-height: 200px;
+    overflow-y: auto;
 }
 
 .suggestions-box div:hover {

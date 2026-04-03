@@ -172,62 +172,6 @@
 </div>
 
 <!-- =========================
-    Import Deck
-    ========================== -->
-
-<div class="section">
-    <h2>Import Deck</h2>
-
-    <form action="/import_deck" method="POST">
-
-        <!-- Deck name -->
-        <input 
-            name="deck_name" 
-            placeholder="Deck name"
-            required
-            class="input"
-        >
-
-        <br><br>
-
-        <!-- Deck list -->
-        <!-- =========================
-            IMPORT WITH AUTOSUGGEST
-            ========================= -->
-        <div class="input-wrapper">
-
-            <textarea 
-                id="deckInput"
-                name="deck_list" 
-                rows="12"
-                class="textarea"
-                >
-            </textarea>
-
-            <!-- Suggestions -->
-            <div id="importSuggestions" class="suggestions-box hidden"></div>
-
-        </div>
-
-        <br><br>
-
-        <!-- OWNERSHIP TOGGLE -->
-        <label>
-            <input type="checkbox" name="all_owned" value="1" checked style="cursor:pointer;">
-            I own all these cards
-        </label>
-
-        <br><br>
-
-        <button class="button" type="submit">
-            Import Deck
-        </button>
-
-    </form>
-</div>
-
-
-<!-- =========================
      MODALS
      ========================= -->
 <div id="cardModal" class="modal hidden">

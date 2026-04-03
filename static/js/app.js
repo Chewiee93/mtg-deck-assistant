@@ -238,7 +238,26 @@ const ImportSuggest = {
 
         if (!this.input || !this.box) return;
 
-        this.input.addEventListener("input", () => this.handleInput());
+        this.input.addEventListener("input", () => {
+            clearTimeout(this.timer);
+
+            this.timer = setTimeout(() => {
+                this.handleInput();
+            }, 250);
+        });
+
+    document.addEventListener("click", (e) => {
+        if (!this.box.contains(e.target) && e.target !== this.input) {
+            this.hide();
+        }
+    });
+
+    this.input.addEventListener("focus", () => {
+        setTimeout(() => {
+            this.input.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 300);
+    });
+    
     },
 
     getCurrentLine() {
@@ -342,7 +361,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     AutoSuggest.init();
 
-    ImportSuggest.init();
+    document.addEventListener("DOMContentLoaded", () => {
+        ImportSuggest.init();
+    });
 
     // Init filters
     Filters.init();
