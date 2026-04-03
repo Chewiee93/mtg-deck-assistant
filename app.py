@@ -91,6 +91,7 @@ class ImportSession(Base):
 
     id = Column(Integer, primary_key=True)
     created_at = Column(Integer)
+    invalid_lines = Column(Text)
 
 
 class ImportCard(Base):
@@ -762,7 +763,7 @@ def import_deck():
     text = request.form.get("deck_list", "")
     lines = text.split("\n")
 
-    invalid_lines = Column(Text)
+    invalid_lines = []
     
     parsed_lines = []
     names = []
