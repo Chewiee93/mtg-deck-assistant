@@ -43,6 +43,15 @@
             </div>
             {% endif %}
 
+    {% if invalid_lines %}
+            <div class="panel panel-warning">
+                <strong>Could not find:</strong>
+                {% for line in invalid_lines %}
+                    <div>{{ line }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
     <!-- =========================
          CARD LIST
          ========================= -->
@@ -70,15 +79,6 @@
                     {% endif %}
                 </label>
             </div>
-
-            {% if invalid_lines %}
-            <div class="panel panel-warning">
-                <strong>Could not find:</strong>
-                {% for line in invalid_lines %}
-                    <div>{{ line }}</div>
-                {% endfor %}
-            </div>
-            {% endif %}
 
             <div class="grid"></div>
 

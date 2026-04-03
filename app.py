@@ -719,7 +719,7 @@ def collection():
                 image = card.image_url
 
         if not image:
-            image = "/static/placeholder.png"  # fallback
+            image = "/static/placeholder.webp"  # fallback
 
         deck_data.append({
             "id": deck.id,
