@@ -33,11 +33,12 @@
 }
 
 .card-info {
-    margin-top: 5px;
+    margin-top: 2px;
 }
 
 .card-meta {
-    font-size: 12px;
+    font-size: 13px;
+    font-weight: bold;
     color: #666;
 }
 
@@ -223,12 +224,12 @@ h1, h2 {
 /* ===== MODALS ===== */
 .preview-modal {
     cursor: zoom-out;
+    background: rgba(0,0,0,0.6);
 }
 
 .preview-modal img {
     max-height: 80vh;
     border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
 #cardModal,
@@ -375,7 +376,7 @@ button {
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     display: flex;
-    gap: 8px;
+    gap: 4px;
     flex-direction: column;
     align-items: center;
 
@@ -385,9 +386,8 @@ button {
 
 .card-img {
     width: 100%;
-    height: 160px;          /* 🔥 controls visual size */
-    object-fit: contain;      /* keeps it clean */
-    background: #111;
+    aspect-ratio: 2.5 / 3.5;
+    object-fit: cover;
     border-radius: 8px;
 }
 
