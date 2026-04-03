@@ -804,17 +804,25 @@ def import_deck():
     card_map = get_cards_batch(names)
 
     for qty, name in parsed_lines:
-        data = card_map.get(name.lower())
+        clean_name = name.strip()
 
+        # 1. Try batch result first (fast)
+        data = card_map.get(clean_name.lower())
+
+        # 2. Fallback to fuzzy search (reliable)
         if not data:
+            data = get_card_data(clean_name)
+
+        # 3. Still nothing? Track it
+        if not data:
+            invalid_lines.append(clean_name)
             continue
 
         images = get_images(data)
 
-        # Store clean structured data
         db.add(ImportCard(
             import_id=import_id,
-            name=data["name"],
+            name=data["name"],  # IMPORTANT: use canonical name
             quantity=qty,
             data=json.dumps({
                 "color_identity": data.get("color_identity", []),

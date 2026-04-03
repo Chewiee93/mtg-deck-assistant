@@ -34,6 +34,7 @@
 
 .card-info {
     margin-top: 2px;
+    font-size: 14px;
 }
 
 .card-meta {
@@ -113,11 +114,9 @@ textarea {
 .card-controls {
     display: flex;
     align-items: center;
-    gap: 5px;
-    margin-top: 5px;
-    width: 100%;
-    min-height: 200px;
-    resize: vertical;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 6px;
 }
 
 .deck-issue {
