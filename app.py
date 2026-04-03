@@ -42,17 +42,15 @@ class Card(Base):
     set_name = Column(String)
     cmc = Column(Integer, default=0)  # ✅ FIXED
     owned = Column(Integer, default=1)
+    commander = Column(String, nullable=True)
 
 class Deck(Base):
     __tablename__ = "decks"
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
-
-    # =========================
-    # NEW: FORMAT
-    # =========================
     format = Column(String, default="casual")
+    commander = Column(String, nullable=True)  # ✅ NEW
 
 from sqlalchemy import UniqueConstraint
 
@@ -1007,11 +1005,13 @@ def confirm_import():
     import_all_owned = session.get("import_all_owned", False)
     deck_name = session.get("imported_deck_name", "Imported Deck")
     format_type = session.get("import_format", "casual")
+    commander_name = session.get("commander_name")
 
     # Create deck
     deck = Deck(
         name=deck_name,
-        format=format_type
+        format=format_type,
+        commander=commander_name
     )
 
     db.add(deck)

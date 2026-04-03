@@ -7,6 +7,12 @@
     <div class="card-info">
         <strong>{{ card.name }}</strong><br>
         x{{ card.quantity }}
+        
+            <div class="card 
+                {% if deck.commander and card.name == deck.commander %}
+                    commander-card
+                {% endif %}
+            "></div>
 
         {% if card.owned == 0 %}
             <div class="missing-text">Missing</div>
