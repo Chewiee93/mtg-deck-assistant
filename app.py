@@ -753,6 +753,7 @@ def import_deck():
     
     session["imported_deck_name"] = request.form.get("deck_name", "Imported Deck")
     session["import_all_owned"] = request.form.get("all_owned") == "1"
+    session["import_format"] = request.form.get("format", "casual")
 
     import_session = ImportSession(created_at=int(time.time()))
     db.add(import_session)
@@ -804,6 +805,22 @@ def import_deck():
 
     parsed_lines = [(qty, name) for name, qty in merged.items()]
     names = list(merged.keys())
+
+    # =========================
+    # FORMAT DETECTION (SIMPLE)
+    # =========================
+    total_cards = sum(qty for qty, _ in parsed_lines)
+    unique_cards = len(parsed_lines)
+
+    detected_format = "casual"
+
+    if total_cards == 100 and unique_cards == 100:
+        detected_format = "commander"
+    elif total_cards >= 60:
+        detected_format = "modern"
+
+    # Save for later use
+    session["detected_format"] = detected_format
 
     # Fetch card data (cached API call)
     card_map = get_cards_batch(names)
@@ -880,6 +897,8 @@ def import_review(import_id):
 
     import_session = db.get(ImportSession, import_id)
 
+    detected_format = session.get("detected_format", "casual")
+
     invalid_lines = []
     if import_session and import_session.invalid_lines:
         invalid_lines = json.loads(import_session.invalid_lines)
@@ -928,7 +947,8 @@ def import_review(import_id):
         cards=parsed_cards,
         invalid_lines=invalid_lines,
         all_owned=import_all_owned,
-        import_id=import_id
+        import_id=import_id,
+        detected_format=detected_format
     )
 
 # =========================
@@ -956,6 +976,13 @@ def confirm_import():
     deck = Deck(name=deck_name)
     db.add(deck)
     db.flush()  # get deck.id before commit
+
+    format_type = session.get("import_format", "casual")
+
+    deck = Deck(
+        name=deck_name,
+        format=format_type
+    )
 
     for i, c in enumerate(import_cards):
         card_data = json.loads(c.data)
