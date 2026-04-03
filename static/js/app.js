@@ -273,15 +273,14 @@ const ImportSuggest = {
     async handleInput() {
         const line = this.getCurrentLine().trim();
 
-        // Expect format: "4 Lightning Bolt"
-        const parts = line.split(" ", 2);
+        const parts = line.split(" ");
 
-        if (parts.length < 2) {
-            this.hide();
-            return;
+        let namePart = line;
+
+        // If user typed quantity (e.g. "4 Lightning")
+        if (parts.length > 1 && !isNaN(parts[0])) {
+            namePart = parts.slice(1).join(" ");
         }
-
-        const namePart = parts[1];
 
         if (namePart.length < 2) {
             this.hide();
@@ -327,13 +326,15 @@ const ImportSuggest = {
         const end = text.indexOf("\n", pos);
 
         const line = text.substring(start, end === -1 ? text.length : end);
-        const parts = line.split(" ", 2);
+        const parts = line.split(" ");
 
-        if (parts.length < 2) return;
+        let qty = "";
 
-        const qty = parts[0];
+        if (parts.length > 1 && !isNaN(parts[0])) {
+            qty = parts[0] + " ";
+        }
 
-        const newLine = `${qty} ${name}`;
+        const newLine = `${qty}${name}`;
 
         this.input.value =
             text.substring(0, start) +
