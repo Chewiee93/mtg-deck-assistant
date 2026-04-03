@@ -29,15 +29,22 @@
 
         <br><br>
 
-        <label>Deck List</label><br>
-        <textarea 
-            name="deck_list" 
-            rows="12"
-            placeholder="4 Lightning Bolt
-3 Counterspell
-2 Island"
-            class="input"
-        ></textarea>
+        <div class="input-wrapper">
+            
+            <label>Deck List</label><br>
+            <textarea 
+                id="deckInput"
+                name="deck_list" 
+                rows="12"
+                placeholder="4 Lightning Bolt
+                    3 Counterspell
+                    2 Island"
+                class="input"
+            ></textarea>
+
+            <div id="importSuggestions" class="suggestions-box hidden"></div>
+        
+        </div>
 
         <br><br>
 

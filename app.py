@@ -775,7 +775,17 @@ def import_deck():
 
         parts = line.split(" ", 1)
 
-        if len(parts) != 2:
+        if len(parts) == 1:
+            qty = 1
+            name = parts[0]
+        elif len(parts) == 2:
+            try:
+                qty = int(parts[0])
+                name = parts[1]
+            except ValueError:
+                qty = 1
+                name = line
+        else:
             invalid_lines.append(line)
             continue
 
