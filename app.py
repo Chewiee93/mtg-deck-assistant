@@ -779,6 +779,7 @@ def import_deck():
         if len(parts) == 1:
             qty = 1
             name = parts[0]
+
         elif len(parts) == 2:
             try:
                 qty = int(parts[0])
@@ -786,19 +787,12 @@ def import_deck():
             except ValueError:
                 qty = 1
                 name = line
+
         else:
             invalid_lines.append(line)
             continue
 
-        qty_str, name = parts
-
-        try:
-            qty = int(qty_str)
-        except ValueError:
-            continue
-
         name = name.strip()
-
         parsed_lines.append((qty, name))
 
     from collections import defaultdict
@@ -810,7 +804,6 @@ def import_deck():
 
     parsed_lines = [(qty, name) for name, qty in merged.items()]
     names = list(merged.keys())
-    import_session.invalid_lines = json.dumps(invalid_lines)
 
     # Fetch card data (cached API call)
     card_map = get_cards_batch(names)
@@ -853,6 +846,9 @@ def import_deck():
     if not import_all_owned:
         for card in imported_cards:
             card["prints"] = get_card_prints(card["name"])
+
+    # After processing all cards
+    import_session.invalid_lines = json.dumps(invalid_lines)
 
     # Send to review screen
     db.commit()
