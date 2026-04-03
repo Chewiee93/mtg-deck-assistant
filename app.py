@@ -1179,6 +1179,8 @@ def view_deck(deck_id):
     return render_template(
         "deck.html",
         deck=deck,
+        deck_id=deck.id,
+        commander_name=deck.commander,
         creatures=creatures,
         lands=lands,
         others=others,

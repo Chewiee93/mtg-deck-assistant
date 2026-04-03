@@ -1,4 +1,7 @@
-<div id="card-{{ card.id }}" class="grid-card {% if card.owned == 0 %}missing{% endif %}">
+<div id="card-{{ card.id }}" 
+    class="grid-card 
+    {% if card.owned == 0 %}missing{% endif %}
+    {% if commander_name and card.name == commander_name %}commander-card{% endif %}">
 
     {% if card.image_url %}
         <img src="{{ card.image_url }}">
@@ -7,12 +10,6 @@
     <div class="card-info">
         <strong>{{ card.name }}</strong><br>
         x{{ card.quantity }}
-        
-            <div class="card 
-                {% if deck.commander and card.name == deck.commander %}
-                    commander-card
-                {% endif %}
-            "></div>
 
         {% if card.owned == 0 %}
             <div class="missing-text">Missing</div>
@@ -24,7 +21,7 @@
     </div>
 
     <div class="card-actions">
-        <button onclick="removeCard({{ deck.id }}, {{ card.id }})">❌</button>
+        <button onclick="removeCard({{ deck_id }}, {{ card.id }})">❌</button>
 
         {% if card.owned == 0 %}
             <button onclick="markOwned({{ card.id }})">✔</button>
