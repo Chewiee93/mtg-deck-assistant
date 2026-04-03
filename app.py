@@ -762,7 +762,7 @@ def import_deck():
     text = request.form.get("deck_list", "")
     lines = text.split("\n")
 
-    invalid_lines = []
+    invalid_lines = Column(Text)
     
     parsed_lines = []
     names = []
@@ -799,6 +799,7 @@ def import_deck():
 
     parsed_lines = [(qty, name) for name, qty in merged.items()]
     names = list(merged.keys())
+    import_session.invalid_lines = json.dumps(invalid_lines)
 
     # Fetch card data (cached API call)
     card_map = get_cards_batch(names)
@@ -870,6 +871,12 @@ def import_review(import_id):
 
     parsed_cards = []
 
+    import_session = db.get(ImportSession, import_id)
+
+    invalid_lines = []
+    if import_session and import_session.invalid_lines:
+        invalid_lines = json.loads(import_session.invalid_lines)
+
     # =========================
     # REBUILD CARD STRUCTURE
     # =========================
@@ -912,7 +919,7 @@ def import_review(import_id):
     return render_template(
         "import_review.html",
         cards=parsed_cards,
-        invalid_lines=[],   # future: track invalid inputs from parser
+        invalid_lines=invalid_lines,
         all_owned=import_all_owned,
         import_id=import_id
     )
