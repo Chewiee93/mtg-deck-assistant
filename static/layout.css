@@ -1,0 +1,80 @@
+/* =========================
+   LAYOUT SYSTEM
+   ========================= */
+.container {
+    max-width: 1200px;
+    margin: auto;
+}
+
+.row {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.col {
+    flex: 1;
+    min-width: 250px;
+}
+
+.flex {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* =========================
+   SECTIONS
+   ========================= */
+.section {
+    background: rgba(255,255,255,0.95);
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+
+@media (min-width: 768px) {
+    .section {
+        padding: 20px;
+    }
+}
+
+/* =========================
+   GRID SYSTEM
+   ========================= */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+#collection {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+@media (min-width: 768px) {
+    .home-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .home-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .home-card:hover {
+        transform: translateY(-5px);
+    }
+}
+
+@media (max-width: 768px) {
+    .section.flex-row {
+        flex-direction: column;
+    }
+}

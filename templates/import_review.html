@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/base.css">
+    <link rel="stylesheet" href="/static/layout.css">
+    <link rel="stylesheet" href="/static/components.css">
+    <link rel="stylesheet" href="/static/features.css">
     <title>Review Import</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,6 +37,12 @@
 
     <br><br>
 
+    {% if commander_name %}
+            <div class="panel">
+                <strong>Commander:</strong> {{ commander_name }}
+            </div>
+            {% endif %}
+
     <!-- =========================
          CARD LIST
          ========================= -->
@@ -61,12 +70,6 @@
                     {% endif %}
                 </label>
             </div>
-
-            {% if commander_name %}
-            <div class="panel">
-                <strong>Commander:</strong> {{ commander_name }}
-            </div>
-            {% endif %}
 
             {% if invalid_lines %}
             <div class="panel panel-warning">

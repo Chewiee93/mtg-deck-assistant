@@ -1,12 +1,23 @@
-<div id="card-{{ card.id }}" 
-    class="grid-card 
-    {% if card.owned == 0 %}missing{% endif %}
-    {% if commander_name and card.name == commander_name %}commander-card{% endif %}">
+<!-- =========================
+     CARD ITEM (Reusable Component)
+     Used in deck views
+     ========================= -->
 
+<div id="card-{{ card.id }}"
+     class="grid-card
+     {% if card.owned == 0 %}missing{% endif %}
+     {% if commander_name and card.name == commander_name %}commander-card{% endif %}">
+
+    <!-- =========================
+         CARD IMAGE
+         ========================= -->
     {% if card.image_url %}
-        <img src="{{ card.image_url }}">
+        <img src="{{ card.image_url }}" alt="{{ card.name }}">
     {% endif %}
 
+    <!-- =========================
+         CARD INFO
+         ========================= -->
     <div class="card-info">
         <strong>{{ card.name }}</strong><br>
         x{{ card.quantity }}
@@ -16,10 +27,16 @@
         {% endif %}
     </div>
 
+    <!-- =========================
+         CARD META (CMC etc.)
+         ========================= -->
     <div class="card-meta">
         CMC: {{ card.cmc }}
     </div>
 
+    <!-- =========================
+         ACTION BUTTONS
+         ========================= -->
     <div class="card-actions">
         <button onclick="removeCard({{ deck_id }}, {{ card.id }})">❌</button>
 

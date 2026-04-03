@@ -1,0 +1,36 @@
+/* =========================
+   BASE / GLOBAL
+   ========================= */
+body {
+    font-family: Arial, sans-serif;
+    margin: 10px;
+    background: linear-gradient(to right, #f4f4f4, #e9eef5);
+    -webkit-tap-highlight-color: transparent;
+}
+
+h1, h2 {
+    color: #333;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* =========================
+   TEXT HELPERS
+   ========================= */
+.text-muted { color: #666; }
+
+.text-highlight {
+    color: #007BFF;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* =========================
+   UTILITIES
+   ========================= */
+.hidden { display: none; }
+
+.mt-6 { margin-top: 6px; }
+.mb-15 { margin-bottom: 15px; }

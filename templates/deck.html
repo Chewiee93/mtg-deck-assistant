@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/base.css">
+    <link rel="stylesheet" href="/static/layout.css">
+    <link rel="stylesheet" href="/static/components.css">
+    <link rel="stylesheet" href="/static/features.css">
     <title>{{ deck.name }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -140,31 +143,26 @@
 </div>
 
 <div class="section">
-    <div class="section">
-        <h2>Creatures</h2>
-        <div class="grid">
-            {% for card in creatures %}
-                {% include "card_item.html" %}
-            {% endfor %}
-        </div>
+    <h2>Creatures</h2>
+    <div class="grid">
+        {% for card in creatures %}
+            {% include "card_item.html" %}
+        {% endfor %}
+    </div>
+    
+    <h2>Lands</h2>
+    <div class="grid">
+        {% for card in lands %}
+            {% include "card_item.html" %}
+        {% endfor %}
     </div>
 
-    <div class="section">
-        <h2>Lands</h2>
-        <div class="grid">
-            {% for card in lands %}
-                {% include "card_item.html" %}
-            {% endfor %}
-        </div>
-    </div>
-
-    <div class="section">
-        <h2>Other Spells</h2>
-        <div class="grid">
-            {% for card in others %}
-                {% include "card_item.html" %}
-            {% endfor %}
-        </div>
+    
+    <h2>Other Spells</h2>
+    <div class="grid">
+        {% for card in others %}
+            {% include "card_item.html" %}
+        {% endfor %}
     </div>
 </div>
 
