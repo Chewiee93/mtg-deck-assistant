@@ -61,6 +61,12 @@
                 <span class="text-highlight">{{ archetype }}</span>
             </div>
 
+            {% if deck.commander %}
+            <div class="panel">
+                <strong>Commander:</strong> {{ deck.commander }}
+            </div>
+            {% endif %}
+
             <!-- =========================
                 DECK ANALYSIS
                 ========================= -->
