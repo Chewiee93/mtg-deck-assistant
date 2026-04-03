@@ -257,7 +257,7 @@ const ImportSuggest = {
             this.input.scrollIntoView({ behavior: "smooth", block: "center" });
         }, 300);
     });
-    
+
     },
 
     getCurrentLine() {
@@ -361,9 +361,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     AutoSuggest.init();
 
-    document.addEventListener("DOMContentLoaded", () => {
-        ImportSuggest.init();
-    });
+    ImportSuggest.init();
 
     // Init filters
     Filters.init();
