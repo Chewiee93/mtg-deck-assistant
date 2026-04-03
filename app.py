@@ -719,7 +719,7 @@ def collection():
                 image = card.image_url
 
         if not image:
-            image = "/static/placeholder.webp"  # fallback
+            image = '/static/placeholder.webp'  # fallback
 
         deck_data.append({
             "id": deck.id,
@@ -727,7 +727,12 @@ def collection():
             "image": image
         })
 
-    return render_template("index.html", cards=cards, decks=deck_data)
+    return render_template(
+        "index.html", 
+        cards=cards, 
+        decks=deck_data,
+        added=None
+        )
 
 # =========================
 # IMPORT: STEP 1 (PARSE + PREVIEW)
