@@ -733,6 +733,10 @@ def collection():
 # =========================
 # IMPORT: STEP 1 (PARSE + PREVIEW)
 # =========================
+@main_bp.route("/import")
+def import_page():
+    return render_template("import.html")
+
 @main_bp.route("/import_deck", methods=["POST"])
 def import_deck():
     """

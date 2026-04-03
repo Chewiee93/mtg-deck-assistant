@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Import Deck</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="/">Home</a>
+    <a href="/collection">Collection</a>
+</div>
+
+<h1>Import Deck</h1>
+
+<div class="section">
+
+    <form action="/import_deck" method="POST">
+
+        <label>Deck Name</label><br>
+        <input 
+            type="text" 
+            name="deck_name" 
+            placeholder="My Awesome Deck"
+            class="input"
+        >
+
+        <br><br>
+
+        <label>Deck List</label><br>
+        <textarea 
+            name="deck_list" 
+            rows="12"
+            placeholder="4 Lightning Bolt
+3 Counterspell
+2 Island"
+            class="input"
+        ></textarea>
+
+        <br><br>
+
+        <label>
+            <input type="checkbox" name="all_owned" value="1">
+            I own all these cards
+        </label>
+
+        <br><br>
+
+        <button type="submit" class="button">
+            Import Deck
+        </button>
+
+    </form>
+
+</div>
+
+</body>
+</html>

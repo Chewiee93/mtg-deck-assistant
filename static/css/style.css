@@ -114,6 +114,9 @@ textarea {
     align-items: center;
     gap: 5px;
     margin-top: 5px;
+    width: 100%;
+    min-height: 200px;
+    resize: vertical;
 }
 
 .deck-issue {
