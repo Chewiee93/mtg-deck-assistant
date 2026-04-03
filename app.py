@@ -823,20 +823,19 @@ def import_deck():
     parsed_lines = [(qty, name) for name, qty in merged.items()]
     names = list(merged.keys())
 
-    # Fallback: if 100-card deck and no commander detected
+    # =========================
+    # FORMAT DETECTION (SIMPLE)
+    # =========================
+    total_cards = sum(qty for qty, _ in parsed_lines)
+
+    detected_format = "casual"
+
+     # Fallback: if 100-card deck and no commander detected
     if not commander_name and total_cards == 100:
         for qty, name in parsed_lines:
             if qty == 1:
                 commander_name = name
                 break
-
-    # =========================
-    # FORMAT DETECTION (SIMPLE)
-    # =========================
-    total_cards = sum(qty for qty, _ in parsed_lines)
-    unique_cards = len(parsed_lines)
-
-    detected_format = "casual"
 
     # Commander: exactly 100 cards total
     if total_cards == 100:
@@ -1007,18 +1006,16 @@ def confirm_import():
     import_cards = db.query(ImportCard).filter_by(import_id=import_id).all()
     import_all_owned = session.get("import_all_owned", False)
     deck_name = session.get("imported_deck_name", "Imported Deck")
-
-    # Create deck
-    deck = Deck(name=deck_name)
-    db.add(deck)
-    db.flush()  # get deck.id before commit
-
     format_type = session.get("import_format", "casual")
 
+    # Create deck
     deck = Deck(
         name=deck_name,
         format=format_type
     )
+
+    db.add(deck)
+    db.flush()  # get deck.id before commit
 
     for i, c in enumerate(import_cards):
         card_data = json.loads(c.data)
