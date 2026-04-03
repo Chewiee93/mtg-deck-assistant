@@ -814,8 +814,17 @@ def import_deck():
 
     detected_format = "casual"
 
-    if total_cards == 100 and unique_cards == 100:
-        detected_format = "commander"
+    # Commander: exactly 100 cards total
+    if total_cards == 100:
+    # check for duplicates >1 (excluding basics later)
+        duplicates = any(qty > 1 for qty, _ in parsed_lines)
+
+        if not duplicates:
+            detected_format = "commander"
+        else:
+            detected_format = "commander"  # still allow, just less strict
+
+    # Modern/Standard fallback
     elif total_cards >= 60:
         detected_format = "modern"
 
