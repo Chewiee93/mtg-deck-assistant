@@ -62,6 +62,12 @@
                 </label>
             </div>
 
+            {% if commander_name %}
+            <div class="panel">
+                <strong>Commander:</strong> {{ commander_name }}
+            </div>
+            {% endif %}
+
             {% if invalid_lines %}
             <div class="panel panel-warning">
                 <strong>Could not find:</strong>

@@ -765,6 +765,9 @@ def import_deck():
     lines = text.split("\n")
 
     invalid_lines = []
+
+    commander_name = None
+    in_commander_section = False
     
     parsed_lines = []
     names = []
@@ -773,6 +776,15 @@ def import_deck():
         line = line.strip()
 
         if not line:
+            continue
+
+        # Detect sections
+        if line.lower() == "commander":
+            in_commander_section = True
+            continue
+
+        if line.lower() == "deck":
+            in_commander_section = False
             continue
 
         parts = line.split(" ", 1)
@@ -794,6 +806,11 @@ def import_deck():
             continue
 
         name = name.strip()
+
+        # 🎯 Capture commander
+        if in_commander_section and not commander_name:
+            commander_name = name
+
         parsed_lines.append((qty, name))
 
     from collections import defaultdict
@@ -805,6 +822,13 @@ def import_deck():
 
     parsed_lines = [(qty, name) for name, qty in merged.items()]
     names = list(merged.keys())
+
+    # Fallback: if 100-card deck and no commander detected
+    if not commander_name and total_cards == 100:
+        for qty, name in parsed_lines:
+            if qty == 1:
+                commander_name = name
+                break
 
     # =========================
     # FORMAT DETECTION (SIMPLE)
@@ -830,6 +854,7 @@ def import_deck():
 
     # Save for later use
     session["detected_format"] = detected_format
+    session["commander_name"] = commander_name
 
     # Fetch card data (cached API call)
     card_map = get_cards_batch(names)
@@ -907,6 +932,7 @@ def import_review(import_id):
     import_session = db.get(ImportSession, import_id)
 
     detected_format = session.get("detected_format", "casual")
+    commander_name = session.get("commander_name")
 
     invalid_lines = []
     if import_session and import_session.invalid_lines:
@@ -957,7 +983,8 @@ def import_review(import_id):
         invalid_lines=invalid_lines,
         all_owned=import_all_owned,
         import_id=import_id,
-        detected_format=detected_format
+        detected_format=detected_format,
+        commander_name=commander_name,
     )
 
 # =========================
