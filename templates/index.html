@@ -9,10 +9,17 @@
 
     <!-- Main stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 </head>
 
 <body>
+
+<div class="nav">
+    <a href="/">Home</a>
+    <a href="/collection">Collection</a>
+    <a href="/import">Import</a>
+</div>
 
 <!-- =========================
      OVERLAY (for modals)
@@ -47,17 +54,17 @@
     <h2>Your Collection</h2>
 
     <!-- ===== Filters ===== -->
-    <div style="margin-bottom:15px; display:flex; gap:10px; flex-wrap:wrap;">
+    <div class="flex mb-15">
 
         <!-- Search -->
         <input 
             id="searchInput" 
             placeholder="Search cards..."
-            style="padding:6px; border-radius:6px; border:1px solid #ccc;"
+            class="input"
         >
 
         <!-- Color filter -->
-        <select id="colorFilter" style="padding:6px; border-radius:6px;">
+        <select id="colorFilter" class="input">
             <option value="">All Colors</option>
             <option value="R">Red</option>
             <option value="U">Blue</option>
@@ -92,12 +99,12 @@
             {% endif %}
 
             <!-- Card Name -->
-            <strong style="margin-top:5px;">
+            <strong  class="card-info">
                 {{ card.name }}
             </strong>
 
             <!-- Quantity Controls -->
-            <div style="display:flex; align-items:center; gap:5px; margin-top:5px;">
+            <div class="card-controls">
 
                 <button onclick="event.stopPropagation(); API.updateQuantity({{ card.id }}, -1)">-</button>
 
@@ -121,12 +128,12 @@
 <div class="section">
     <h2>Create Deck</h2>
 
-    <form action="/create_deck" method="POST" style="display:flex; gap:10px;">
+    <form action="/create_deck" method="POST" class="form-inline">
         <input 
             name="deck_name" 
             placeholder="Deck name"
             required
-            style="padding:6px; border-radius:6px; border:1px solid #ccc;"
+            class="input"
         >
         <select name="format">
             <option value="casual">Casual</option>
@@ -150,11 +157,11 @@
 
             <img src="{{ deck.image }}">
 
-            <div style="margin-top:5px;">
+            <div class="card-info">
                 <strong>{{ deck.name }}</strong>
             </div>
 
-            <div style="margin-top:6px;">
+            <div class="mt-6">
                 <a class="button" href="/delete_deck/{{ deck.id }}"
                 onclick="event.stopPropagation()">Delete</a>
             </div>
@@ -178,7 +185,7 @@
             name="deck_name" 
             placeholder="Deck name"
             required
-            style="padding:6px; border-radius:6px; border:1px solid #ccc; width:100%;"
+            class="input"
         >
 
         <br><br>
@@ -193,7 +200,7 @@
                 id="deckInput"
                 name="deck_list" 
                 rows="12"
-                style="font-size:16px; line-height:1.4;"
+                class="textarea"
                 >
             </textarea>
 
@@ -225,19 +232,6 @@
      ========================= -->
 <div id="cardModal" class="modal hidden">
 <!-- ===== Add Card Modal ===== -->
-.modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    
-    width: 90%;
-    max-width: 400px;
-
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-}
 
     <h3>Add Card</h3>
 
@@ -268,20 +262,11 @@
 
 
 <!-- ===== Preview Modal ===== -->
-<div id="previewModal" class="hidden" style="
-    position:fixed;
-    top:50%;
-    left:50%;
-    transform:translate(-50%, -50%);
-    z-index:101;
-"
+<div id="previewModal" class="modal hidden preview-modal"
 onclick="event.stopPropagation()">
 
-    <img id="previewImage" style="
-        max-height:80vh;
-        border-radius:10px;
-        box-shadow:0 10px 30px rgba(0,0,0,0.5);"
-        onerror="this.src='H:\Craig\mtg-deck-assisstant\static\Placeholder.webp'"
+    <img id="previewImage"
+        onerror="this.src='/static/Placeholder.webp'"
     >
 
 </div>

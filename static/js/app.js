@@ -183,8 +183,7 @@ const API = {
             if (data.quantity === 0) {
                 const cardEl = document.getElementById(`card-${id}`);
                 if (cardEl) {
-                    cardEl.style.opacity = "0";
-                    setTimeout(() => cardEl.remove(), 200);
+                     cardEl.remove(); //instant removal, no animation
                 }
             }
 

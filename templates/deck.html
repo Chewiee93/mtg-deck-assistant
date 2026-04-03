@@ -3,11 +3,18 @@
 <head>
     <link rel="stylesheet" href="/static/css/style.css">
     <title>{{ deck.name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
     <a href="/" class="button" style="margin-bottom:10px; display:inline-block;">
         ← Back
     </a>
-</head>
-<body>
+
+<div class="nav">
+    <a href="/">Home</a>
+    <a href="/collection">Collection</a>
+    <a href="/import">Import</a>
+</div>
 
 <div class="section flex-row">
 
@@ -17,13 +24,13 @@
 
         <!-- Rename -->
         <form action="/rename_deck/{{ deck.id }}" method="POST"
-            style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+            class="form-inline">
 
             <input 
                 name="new_name"
                 value="{{ deck.name }}"
                 required
-                style="padding:6px; border-radius:6px; border:1px solid #ccc;"
+                class="input"
                 onclick="this.select()"
             >
 
@@ -35,10 +42,10 @@
         <!-- =========================
             SUMMARY
             ========================= -->
-        <div style="margin-top:15px; padding:10px; background:#f7f9fc; border-radius:8px;">
+        <div class="panel">
 
             <!-- INLINE STATS -->
-            <div style="display:flex; gap:20px; flex-wrap:wrap; font-weight:bold;">
+            <div class="flex-stats">
                 <span>Total: {{ stats.total }}</span>
                 <span>Creatures: {{ stats.creatures }}</span>
                 <span>Lands: {{ stats.lands }}</span>
@@ -46,21 +53,21 @@
             </div>
 
             <!-- MISSING BELOW -->
-            <div style="margin-top:5px; color:#666;">
+            <div class="text-muted">
                 Missing: {{ stats.total - stats.creatures - stats.lands - stats.others }}
             </div>
 
-            <div style="margin-top:5px; color:#444; font-weight:bold;">
-                <span style="color:#007BFF; font-size:18px;">{{ archetype }}</span>
+            <div class="text-highlight">
+                <span class="text-highlight">{{ archetype }}</span>
             </div>
 
             <!-- =========================
                 DECK ANALYSIS
                 ========================= -->
-            <div style="margin-top:15px; padding:10px; background:#fff3cd; border-radius:8px;">
+            <div class="panel">
 
                 {% if issues %}
-                    <div style="color:red; font-weight:bold;">
+                    <div class="deck-issue">
                         {% for issue in issues %}
                             <div>⚠ {{ issue }}</div>
                         {% endfor %}
@@ -68,7 +75,7 @@
                 {% endif %}
 
                 {% if warnings %}
-                    <div style="margin-top:5px; color:#856404;">
+                    <div class="deck-warning">
                         {% for warning in warnings %}
                             <div>💡 {{ warning }}</div>
                         {% endfor %}
@@ -76,7 +83,7 @@
                 {% endif %}
 
                 {% if strengths %}
-                    <div style="margin-top:5px; color:green;">
+                    <div class="deck-strengths">
                         {% for s in strengths %}
                             <div>✅ {{ s }}</div>
                         {% endfor %}
@@ -90,24 +97,24 @@
         <!-- =========================
             ROLES
             ========================= -->
-        <div style="margin-top:15px; padding:10px; background:#f7f9fc; border-radius:8px;">
+        <div class="panel">
 
             <!-- INLINE STATS -->
-            <div style="display:flex; gap:20px; flex-wrap:wrap; font-weight:bold;">
+            <div class="flex-stats">
                 <span>Mana Ramp: {{ ramp }}</span>
                 <span>Card Draw: {{ card_draw }}</span>
                 <span>Removal: {{ removal }}</span>
                 <span>Board Wipe: {{ board_wipe }}</span>
             </div>
 
-            <div style="display:flex; gap:20px; flex-wrap:wrap; font-weight:bold;">
+            <div class="flex-stats">
                 <span>Recursion: {{ recursion }}</span>
                 <span>Pillowfort: {{ pillowfort }}</span>
                 <span>Tokens: {{ tokens }}</span>
                 <span>Aristocrats: {{ aristocrats }}</span>
             </div>
 
-            <div style="display:flex; gap:20px; flex-wrap:wrap; font-weight:bold;">
+            <div class="flex-stats">
                 <span>Toolbox: {{ toolbox }}</span>
                 <span>Stax: {{ stax }}</span>
             </div>
@@ -115,11 +122,11 @@
     </div>
 
     <!-- RIGHT: Mana Curve -->
-    <div style="min-width:300px; max-width:500px;">
-        <h3 style="margin-bottom:10px;">Mana Curve</h3>
+    <div class="chart-container">
+        <h3 class="mana-curve">Mana Curve</h3>
 
         <!-- FIXED HEIGHT CONTAINER -->
-        <div style="height:250px;">
+        <div class="chart-box">
             <canvas id="manaChart"></canvas>
         </div>
     </div>

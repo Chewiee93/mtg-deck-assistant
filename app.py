@@ -687,8 +687,12 @@ def suggest_from_collection(missing_roles):
 # =========================
 main_bp = Blueprint("main", __name__)
 
-@main_bp.route("/", methods=["GET", "POST"])
+@main_bp.route("/")
 def home():
+    return render_template("home.html")
+
+@main_bp.route("/collection", methods=["GET", "POST"])
+def collection():
 
     if request.method == "POST":
         add_card_to_collection(request.form["card_name"])
@@ -919,7 +923,6 @@ def confirm_import():
     import_id = request.form.get("import_id")
 
     import_cards = db.query(ImportCard).filter_by(import_id=import_id).all()
-
     import_all_owned = session.get("import_all_owned", False)
     deck_name = session.get("imported_deck_name", "Imported Deck")
 

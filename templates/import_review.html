@@ -4,25 +4,16 @@
     <link rel="stylesheet" href="/static/css/style.css">
     <title>Review Import</title>
 
-    <!-- =========================
-         BASIC STYLING
-         ========================= -->
-    <style>
-        body { font-family: Arial; margin: 20px; }
-       .card {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .card img {
-            width: 70px;
-            border-radius: 6px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
+
+<div class="nav">
+    <a href="/">Home</a>
+    <a href="/collection">Collection</a>
+    <a href="/import">Import</a>
+</div>
 
 <!-- =========================
      PAGE TITLE
@@ -52,12 +43,12 @@
             {% endif %}
 
             <!-- Card info -->
-            <div style="margin-top:5px;">
+            <div class="card-info">
                 <strong>{{ card.quantity }}x {{ card.name }}</strong>
             </div>
 
             <!-- Ownership toggle -->
-            <div style="margin-top:5px;">
+            <div class="card-info">
                 <label>
                     {% if not all_owned %}
                         <input type="checkbox" name="owned_{{ loop.index0 }}">
