@@ -3,22 +3,41 @@
 // =========================
 export const API = {
 
+    // DEV FIX: add logging + force reload so we SEE result
     async addCard() {
         const input = document.getElementById("cardInput");
         const name = input?.value?.trim();
 
-        if (!name) return;
+        if (!name) {
+            alert("Enter a card name");
+            return;
+        }
 
-        const res = await fetch("/api/add_card", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ name })
-        });
+        console.log("Adding card:", name);
 
-        input.value = ""; // clear after add
+        try {
+            const res = await fetch("/api/add_card", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ name })
+            });
 
-        return res.json();
-         
+            console.log("Response status:", res.status);
+
+            const data = await res.json();
+            console.log("Response data:", data);
+
+            if (data.success) {
+                // 🔥 FORCE UI UPDATE (simple + reliable)
+                window.location.reload();
+            } else {
+                alert("Card not found");
+            }
+
+        } catch (err) {
+            console.error("Add card failed:", err);
+            alert("Error adding card");
+        }
     },
 
     async updateQuantity(id, change) {

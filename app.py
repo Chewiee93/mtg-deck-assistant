@@ -1320,9 +1320,12 @@ api_bp = Blueprint("api", __name__)
 @api_bp.route("/api/add_card", methods=["POST"])
 def api_add_card():
     data = request.json
+    print("ADD CARD API HIT:", data)  # DEV DEBUG
+
     card = add_card_to_collection(data.get("name"))
 
     if not card:
+        print("Card fetch failed")  # DEV DEBUG
         return jsonify({"success": False})
 
     return jsonify({
