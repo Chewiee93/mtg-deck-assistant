@@ -1099,7 +1099,7 @@ def confirm_import():
             ))
 
     g.db.query(ImportCard).filter_by(import_id=import_id).delete()
-    g.b.query(ImportSession).filter_by(id=import_id).delete()
+    g.db.query(ImportSession).filter_by(id=import_id).delete()
     g.db.commit()
     session.pop("import_all_owned", None)
     session.pop("imported_deck_name", None)
@@ -1284,7 +1284,7 @@ def delete_deck(deck_id):
 
 @deck_bp.route("/rename_deck/<int:deck_id>", methods=["POST"])
 def rename_deck(deck_id):
-    deck = db.get(Deck, deck_id)
+    deck = g.db.get(Deck, deck_id)
 
     if deck:
         new_name = request.form.get("new_name")
