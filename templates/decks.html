@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/static/base.css">
+    <link rel="stylesheet" href="/static/layout.css">
+    <link rel="stylesheet" href="/static/components.css">
+    <link rel="stylesheet" href="/static/features.css">
+    <title>Decks</title>
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="/">Home</a>
+    <a href="/collection">Collection</a>
+    <a href="/import">Import</a>
+</div>
+
+<h1>Your Decks</h1>
+
+<!-- =========================
+     CREATE DECK
+     ========================= -->
+<div class="section">
+    <h2>Create Deck</h2>
+
+    <form action="/create_deck" method="POST" class="form-inline">
+        <input 
+            name="deck_name" 
+            placeholder="Deck name"
+            required
+            class="input"
+        >
+
+        <select name="format" class="input">
+            <option value="casual">Casual</option>
+            <option value="standard">Standard</option>
+            <option value="modern">Modern</option>
+            <option value="commander">Commander</option>
+        </select>
+
+        <button class="button" type="submit">
+            Create
+        </button>
+    </form>
+</div>
+
+<div class="grid">
+    {% for deck in decks %}
+    <div class="grid-card deck-card"
+         onclick="window.location='/deck/{{ deck.id }}'">
+
+        <img src="{{ deck.image }}">
+
+        <div class="card-info">
+            <strong>{{ deck.name }}</strong>
+        </div>
+
+    </div>
+    {% endfor %}
+</div>
+
+<script type="module" src="{{ url_for('static', filename='main.js') }}"></script>
+
+</body>
+</html>

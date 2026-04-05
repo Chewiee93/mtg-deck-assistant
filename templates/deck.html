@@ -201,22 +201,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-async function removeCard(deckId, cardId) {
-    await fetch(`/api/remove_from_deck/${deckId}/${cardId}`);
-
-    // Remove card from UI
-    location.reload();
-}
-
-async function markOwned(cardId) {
-    await fetch(`/api/mark_owned/${cardId}`);
-
-    // Update UI (remove red styling)
-    const cardElement = document.getElementById(`card-${cardId}`);
-    cardElement.classList.remove("missing");
-}
-</script>
 
 <script>
 let manaChart = null;
@@ -265,6 +249,9 @@ function renderManaChart() {
 // Run once on load
 renderManaChart();
 </script>
+
+<!-- MAIN JS -->
+<script type="module" src="{{ url_for('static', filename='main.js') }}"></script>
 
 </body>
 </html>

@@ -38,10 +38,10 @@
          ACTION BUTTONS
          ========================= -->
     <div class="card-actions">
-        <button onclick="removeCard({{ deck_id }}, {{ card.id }})">❌</button>
+        <button onclick="UI.removeCard({{ deck_id }}, {{ card.id }})">❌</button>
 
         {% if card.owned == 0 %}
-            <button onclick="markOwned({{ card.id }})">✔</button>
+            <button onclick="UI.markOwned({{ card.id }})">✔</button>
         {% endif %}
     </div>
 

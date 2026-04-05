@@ -719,7 +719,7 @@ def collection():
                 image = card.image_url
 
         if not image:
-            image = '/static/placeholder.jpg'  # fallback
+            image = "/static/placeholder.jpg"  # fallback
 
         deck_data.append({
             "id": deck.id,
@@ -733,6 +733,8 @@ def collection():
         decks=deck_data,
         added=None
         )
+
+
 
 # =========================
 # IMPORT: STEP 1 (PARSE + PREVIEW)
@@ -1097,6 +1099,40 @@ def confirm_import():
 # =========================
 # BLUEPRINT: DECKS
 # =========================
+@main_bp.route("/decks")
+def decks_page():
+    decks = db.query(Deck).all()
+
+    deck_data = []
+
+    for deck in decks:
+        first_dc = db.query(DeckCard)\
+            .filter_by(deck_id=deck.id)\
+            .order_by(DeckCard.id)\
+            .first()
+
+        image = None
+
+        if first_dc:
+            card = db.get(Card, first_dc.card_id)
+            if card:
+                image = card.image_url
+
+        if not image:
+            image = "/static/placeholder.jpg"
+
+        deck_data.append({
+            "id": deck.id,
+            "name": deck.name,
+            "image": image
+        })
+
+    return render_template("decks.html", decks=deck_data)
+
+
+# =========================
+# BLUEPRINT: DECK
+# =========================
 deck_bp = Blueprint("deck", __name__)
 
 @deck_bp.route("/deck/<int:deck_id>")
@@ -1213,7 +1249,6 @@ def view_deck(deck_id):
         
     )
 
-
 @deck_bp.route("/create_deck", methods=["POST"])
 def create_deck():
     name = request.form["deck_name"]
@@ -1222,7 +1257,7 @@ def create_deck():
     if name:
         db.add(Deck(name=name, format=format_type))
         db.commit()
-    return redirect("/")
+    return redirect("/decks")
 
 @deck_bp.route("/delete_deck/<int:deck_id>")
 def delete_deck(deck_id):
@@ -1235,7 +1270,7 @@ def delete_deck(deck_id):
         db.delete(deck)
         db.commit()
 
-    return redirect("/")
+    return redirect("/decks")
 
 @deck_bp.route("/rename_deck/<int:deck_id>", methods=["POST"])
 def rename_deck(deck_id):
@@ -1249,6 +1284,13 @@ def rename_deck(deck_id):
 
     return redirect(f"/deck/{deck_id}")
 
+# =========================
+# BLUEPRINT: RULES
+# =========================
+
+@main_bp.route("/rules")
+def rules_page():
+    return render_template("rules.html")
 
 # =========================
 # API ROUTES

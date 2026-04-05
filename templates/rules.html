@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/static/base.css">
+    <link rel="stylesheet" href="/static/layout.css">
+    <link rel="stylesheet" href="/static/components.css">
+    <link rel="stylesheet" href="/static/features.css">
+    <title>Rules</title>
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="/">Home</a>
+    <a href="/collection">Collection</a>
+    <a href="/import">Import</a>
+</div>
+
+<h1>Deck Rules & Formats</h1>
+
+<div class="section">
+    <h2>Commander</h2>
+    <p>100 cards, singleton, includes a commander.</p>
+
+    <h2>Modern</h2>
+    <p>60 cards minimum, up to 4 copies of each card.</p>
+
+    <h2>Standard</h2>
+    <p>60 cards minimum, rotating format.</p>
+
+    <h2>Casual</h2>
+    <p>No restrictions.</p>
+</div>
+
+<script type="module" src="{{ url_for('static', filename='main.js') }}"></script>
+
+</body>
+</html>

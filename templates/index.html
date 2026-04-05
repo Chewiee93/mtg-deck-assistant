@@ -97,7 +97,7 @@
             {% if card.image_url %}
                 <img src="{{ card.image_url }}" 
                 class="card-img"
-                onerror="this.src='/static/Placeholder.jpg'"
+                onerror="this.src='{{ url_for('static', filename='placeholder.jpg') }}'"
                 >
             {% endif %}
 
@@ -122,55 +122,6 @@
         </div>
         {% endfor %}
 
-    </div>
-</div>
-
-<!-- =========================
-     CREATE DECK
-     ========================= -->
-<div class="section">
-    <h2>Create Deck</h2>
-
-    <form action="/create_deck" method="POST" class="form-inline">
-        <input 
-            name="deck_name" 
-            placeholder="Deck name"
-            required
-            class="input"
-        >
-        <select name="format">
-            <option value="casual">Casual</option>
-            <option value="standard">Standard</option>
-            <option value="modern">Modern</option>
-            <option value="commander">Commander</option>
-        </select>
-
-        <button class="button" type="submit">
-            Create
-        </button>
-    </form>
-
-    <div class="section">
-    <h2>Decks</h2>
-
-    <div class="grid">
-        {% for deck in decks %}
-        <div class="grid-card deck-card"
-            onclick="window.location='/deck/{{ deck.id }}'">
-
-            <img src="{{ deck.image }}">
-
-            <div class="card-info">
-                <strong>{{ deck.name }}</strong>
-            </div>
-
-            <div class="mt-6">
-                <a class="button" href="/delete_deck/{{ deck.id }}"
-                onclick="event.stopPropagation()">Delete</a>
-            </div>
-
-        </div>
-        {% endfor %}
     </div>
 </div>
 
@@ -213,7 +164,7 @@
 onclick="event.stopPropagation()">
 
     <img id="previewImage"
-        onerror="this.src='/static/Placeholder.jpg'"
+        onerror="this.src='{{ url_for('static', filename='placeholder.jpg') }}'"
     >
 
 </div>
@@ -229,10 +180,8 @@ onclick="event.stopPropagation()">
 </script>
 
 
-<!-- =========================
-     MAIN SCRIPT
-     ========================= -->
-<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<!-- MAIN JS -->
+<script type="module" src="{{ url_for('static', filename='main.js') }}"></script>
 
 </body>
 </html>
