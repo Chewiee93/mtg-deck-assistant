@@ -16,7 +16,7 @@ but structured as if split across modules.
 # =========================
 # IMPORTS
 # =========================
-from flask import Flask, Blueprint, render_template, request, redirect, jsonify, session
+from flask import Flask, Blueprint, render_template, request, redirect, jsonify, session, g
 from sqlalchemy import create_engine, Column, Integer, String, Text
 from sqlalchemy.orm import sessionmaker, declarative_base
 import requests
@@ -104,8 +104,9 @@ class ImportCard(Base):
 
 engine = create_engine("sqlite:///cards.db")
 Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
-db = Session()
+from sqlalchemy.orm import scoped_session
+
+Session = scoped_session(sessionmaker(bind=engine))
 
 # =========================
 # DECK FORMAT
@@ -147,6 +148,15 @@ BANNED_CARDS = {
 app = Flask(__name__)
 app.secret_key = "dev-secret-key"  # required for sessions
 
+@app.before_request
+def create_session():
+    from flask import g
+    g.db = Session()
+
+@app.teardown_request
+def remove_session(exception=None):
+    Session.remove()
+
 # =========================
 # CACHE + API SERVICE
 # =========================
@@ -156,7 +166,7 @@ def get_card_data(name: str, max_age=86400):
     max_age = 1 day default
     """
 
-    cached = db.query(CardCache).filter_by(name=name.lower()).first()
+    cached = g.db.query(CardCache).filter_by(name=name.lower()).first()
 
     if cached and (time.time() - cached.timestamp < max_age):
         return json.loads(cached.data)
@@ -177,13 +187,13 @@ def get_card_data(name: str, max_age=86400):
         cached.data = json.dumps(data)
         cached.timestamp = int(time.time())
     else:
-        db.add(CardCache(
+        g.db.add(CardCache(
             name=name.lower(),
             data=json.dumps(data),
             timestamp=int(time.time())
         ))
 
-    db.commit()
+    g.db.commit()
     return data
 
 
@@ -195,7 +205,7 @@ def add_card_to_collection(name):
     if not data:
         return None
 
-    card = db.query(Card).filter_by(name=data["name"]).first()
+    card = g.db.query(Card).filter_by(name=data["name"]).first()
 
     if card:
         card.quantity += 1
@@ -224,9 +234,9 @@ def add_card_to_collection(name):
             cmc=int(data.get("cmc", 0)),
             owned=1
         )
-        db.add(card)
+        g.db.add(card)
 
-    db.commit()
+    g.db.commit()
     return card
 
 def chunked(lst, size=75):
@@ -298,10 +308,10 @@ def get_card_prints(name):
     return prints[:10]  # limit for sanity
 
 def analyze_deck(deck_id):
-    deck = db.get(Deck, deck_id)
+    deck = g.db.get(Deck, deck_id)
     rules = FORMAT_RULES.get(deck.format, {})
 
-    deck_cards = db.query(DeckCard).filter_by(deck_id=deck_id).all()
+    deck_cards = g.db.query(DeckCard).filter_by(deck_id=deck_id).all()
 
     total_cards = sum(dc.quantity for dc in deck_cards)
 
@@ -324,13 +334,13 @@ def analyze_deck(deck_id):
     if rules.get("max_copies"):
         for dc in deck_cards:
             if dc.quantity > rules["max_copies"]:
-                card = db.get(Card, dc.card_id)
+                card = g.db.get(Card, dc.card_id)
                 issues.append(f"{card.name}: too many copies ({dc.quantity})")
 
     # Banned cards
     banned = BANNED_CARDS.get(deck.format, [])
     for dc in deck_cards:
-        card = db.get(Card, dc.card_id)
+        card = g.db.get(Card, dc.card_id)
 
         if not card:
             continue  # skip broken reference
@@ -392,7 +402,7 @@ def calculate_deck_stats(deck_cards):
     }
 
     for dc in deck_cards:
-        card = db.get(Card, dc.card_id)
+        card = g.db.get(Card, dc.card_id)
 
         if not card:
             continue
@@ -602,7 +612,7 @@ def analyze_deck_roles(deck_cards):
     }
 
     for dc in deck_cards:
-        card = db.get(Card, dc.card_id)
+        card = g.db.get(Card, dc.card_id)
 
         if not card:
             continue
@@ -670,7 +680,7 @@ def generate_recommendations(deck_cards):
 def suggest_from_collection(missing_roles):
     suggestions = []
 
-    owned_cards = db.query(Card).filter(Card.quantity > 0).all()
+    owned_cards = g.db.query(Card).filter(Card.quantity > 0).all()
 
     for card in owned_cards:
         roles = classify_card_roles(card)
@@ -696,13 +706,13 @@ def collection():
     if request.method == "POST":
         add_card_to_collection(request.form["card_name"])
 
-    cards = db.query(Card).filter(Card.quantity > 0).all()
+    cards = g.db.query(Card).filter(Card.quantity > 0).all()
     deck_data = []
 
-    decks = db.query(Deck).all()
+    decks = g.db.query(Deck).all()
 
     for deck in decks:
-        first_dc = db.query(DeckCard)\
+        first_dc = g.db.query(DeckCard)\
             .filter_by(deck_id=deck.id)\
             .order_by(DeckCard.id)\
             .first()
@@ -710,7 +720,7 @@ def collection():
         image = None
 
         if first_dc:
-            card = db.get(Card, first_dc.card_id)
+            card = g.db.get(Card, first_dc.card_id)
 
             if not card:
                 continue
@@ -761,8 +771,8 @@ def import_deck():
     session["import_format"] = request.form.get("format", "casual")
 
     import_session = ImportSession(created_at=int(time.time()))
-    db.add(import_session)
-    db.flush()
+    g.db.add(import_session)
+    g.db.flush()
 
     import_id = import_session.id
 
@@ -880,7 +890,7 @@ def import_deck():
 
         images = get_images(data)
 
-        db.add(ImportCard(
+        g.db.add(ImportCard(
             import_id=import_id,
             name=data["name"],  # IMPORTANT: use canonical name
             quantity=qty,
@@ -906,7 +916,7 @@ def import_deck():
     import_session.invalid_lines = json.dumps(invalid_lines)
 
     # Send to review screen
-    db.commit()
+    g.db.commit()
     return redirect(f"/import_review/{import_id}")
 
 # =========================
@@ -929,11 +939,11 @@ def import_review(import_id):
     # =========================
     # LOAD IMPORTED CARDS FROM DB
     # =========================
-    import_cards = db.query(ImportCard).filter_by(import_id=import_id).all()
+    import_cards = g.db.query(ImportCard).filter_by(import_id=import_id).all()
 
     parsed_cards = []
 
-    import_session = db.get(ImportSession, import_id)
+    import_session = g.db.get(ImportSession, import_id)
 
     detected_format = session.get("detected_format", "casual")
     commander_name = session.get("commander_name")
@@ -1008,7 +1018,7 @@ def confirm_import():
     """
     import_id = request.form.get("import_id")
 
-    import_cards = db.query(ImportCard).filter_by(import_id=import_id).all()
+    import_cards = g.db.query(ImportCard).filter_by(import_id=import_id).all()
     import_all_owned = session.get("import_all_owned", False)
     deck_name = session.get("imported_deck_name", "Imported Deck")
     format_type = session.get("import_format", "casual")
@@ -1021,8 +1031,8 @@ def confirm_import():
         commander=commander_name
     )
 
-    db.add(deck)
-    db.flush()  # get deck.id before commit
+    g.db.add(deck)
+    g.db.flush()  # get deck.id before commit
 
     for i, c in enumerate(import_cards):
         card_data = json.loads(c.data)
@@ -1036,7 +1046,7 @@ def confirm_import():
             owned = request.form.get(f"owned_{i}") == "on"
 
         # Check if card already exists in collection
-        card = db.query(Card).filter_by(name=c.name).first()
+        card = g.db.query(Card).filter_by(name=c.name).first()
 
         if not card:
             # Create new card entry
@@ -1055,8 +1065,8 @@ def confirm_import():
                 owned=1 if owned else 0
             )
 
-            db.add(card)
-            db.flush()
+            g.db.add(card)
+            g.db.flush()
 
         else:
             # Update existing collection if owned
@@ -1072,7 +1082,7 @@ def confirm_import():
         # =========================
 
         # Check if this card is already in the deck
-        existing = db.query(DeckCard).filter_by(
+        existing = g.db.query(DeckCard).filter_by(
             deck_id=deck.id,
             card_id=card.id
         ).first()
@@ -1082,15 +1092,15 @@ def confirm_import():
             existing.quantity += c.quantity
         else:
             # If not, create new entry
-            db.add(DeckCard(
+            g.db.add(DeckCard(
                 deck_id=deck.id,
                 card_id=card.id,
                 quantity=c.quantity
             ))
 
-    db.query(ImportCard).filter_by(import_id=import_id).delete()
-    db.query(ImportSession).filter_by(id=import_id).delete()
-    db.commit()
+    g.db.query(ImportCard).filter_by(import_id=import_id).delete()
+    g.b.query(ImportSession).filter_by(id=import_id).delete()
+    g.db.commit()
     session.pop("import_all_owned", None)
     session.pop("imported_deck_name", None)
 
@@ -1101,12 +1111,12 @@ def confirm_import():
 # =========================
 @main_bp.route("/decks")
 def decks_page():
-    decks = db.query(Deck).all()
+    decks = g.db.query(Deck).all()
 
     deck_data = []
 
     for deck in decks:
-        first_dc = db.query(DeckCard)\
+        first_dc = g.db.query(DeckCard)\
             .filter_by(deck_id=deck.id)\
             .order_by(DeckCard.id)\
             .first()
@@ -1114,7 +1124,7 @@ def decks_page():
         image = None
 
         if first_dc:
-            card = db.get(Card, first_dc.card_id)
+            card = g.db.get(Card, first_dc.card_id)
             if card:
                 image = card.image_url
 
@@ -1137,14 +1147,14 @@ deck_bp = Blueprint("deck", __name__)
 
 @deck_bp.route("/deck/<int:deck_id>")
 def view_deck(deck_id):
-    deck = db.get(Deck, deck_id)
-    deck_cards = db.query(DeckCard).filter_by(deck_id=deck_id).all()
+    deck = g.db.get(Deck, deck_id)
+    deck_cards = g.db.query(DeckCard).filter_by(deck_id=deck_id).all()
 
     analysis = analyze_deck(deck_id)
 
     cards = []
     for dc in deck_cards:
-        card = db.get(Card, dc.card_id)
+        card = g.db.get(Card, dc.card_id)
 
         if not card:
             continue # skip broken reference
@@ -1164,7 +1174,7 @@ def view_deck(deck_id):
     others = []
 
     for c in cards:
-        card_obj = db.get(Card, c["id"])
+        card_obj = g.db.get(Card, c["id"])
 
         if not card_obj:
             continue
@@ -1193,7 +1203,7 @@ def view_deck(deck_id):
     curve = defaultdict(int)
 
     for dc in deck_cards:
-        card = db.get(Card, dc.card_id)
+        card = g.db.get(Card, dc.card_id)
 
         if not card:
             continue
@@ -1255,20 +1265,20 @@ def create_deck():
     format_type = request.form.get("format", "casual")
 
     if name:
-        db.add(Deck(name=name, format=format_type))
-        db.commit()
+        g.db.add(Deck(name=name, format=format_type))
+        g.db.commit()
     return redirect("/decks")
 
 @deck_bp.route("/delete_deck/<int:deck_id>")
 def delete_deck(deck_id):
-    deck = db.get(Deck, deck_id)
+    deck = g.db.get(Deck, deck_id)
 
     if deck:
         # Remove linked cards first
-        db.query(DeckCard).filter_by(deck_id=deck_id).delete()
+        g.db.query(DeckCard).filter_by(deck_id=deck_id).delete()
 
-        db.delete(deck)
-        db.commit()
+        g.db.delete(deck)
+        g.db.commit()
 
     return redirect("/decks")
 
@@ -1280,7 +1290,7 @@ def rename_deck(deck_id):
         new_name = request.form.get("new_name")
         if new_name:
             deck.name = new_name
-            db.commit()
+            g.db.commit()
 
     return redirect(f"/deck/{deck_id}")
 
@@ -1340,7 +1350,7 @@ def api_update_quantity():
     if card_id is None or change is None:
         return jsonify({"success": False, "error": "Missing fields"})
 
-    card = db.get(Card, card_id)
+    card = g.db.get(Card, card_id)
 
     if not card:
         return jsonify({"success": False, "error": "Card not found"})
@@ -1352,7 +1362,7 @@ def api_update_quantity():
     if card.quantity == 0:
         card.owned = 0
 
-    db.commit()
+    g.db.commit()
 
     return jsonify({
         "success": True,
@@ -1361,22 +1371,22 @@ def api_update_quantity():
 
 @api_bp.route("/api/remove_from_deck/<int:deck_id>/<int:card_id>")
 def remove_from_deck(deck_id, card_id):
-    db.query(DeckCard).filter_by(
+    g.db.query(DeckCard).filter_by(
         deck_id=deck_id,
         card_id=card_id
     ).delete()
 
-    db.commit()
+    g.db.commit()
     return jsonify({"success": True})
 
 
 @api_bp.route("/api/mark_owned/<int:card_id>")
 def mark_owned(card_id):
-    card = db.get(Card, card_id)
+    card = g.db.get(Card, card_id)
     if card:
         card.owned = 1
         card.quantity = max(1, card.quantity)
-        db.commit()
+        g.db.commit()
 
     return jsonify({"success": True})
 
@@ -1417,7 +1427,7 @@ app.register_blueprint(api_bp)
 # =========================
 @app.route("/debug/deck/<int:deck_id>")
 def debug_deck(deck_id):
-    rows = db.query(DeckCard).filter_by(deck_id=deck_id).all()
+    rows = g.db.query(DeckCard).filter_by(deck_id=deck_id).all()
 
     output = []
     for r in rows:
