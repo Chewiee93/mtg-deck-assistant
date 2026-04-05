@@ -45,13 +45,13 @@ export const UI = {
         if (el) el.classList.remove("missing");
     },
 
-    window.updateQty = async function(id, change) {
-        const res = await API.updateQuantity(id, change);
-
+export function updateQty(id, change) {
+    return API.updateQuantity(id, change).then(res => {
         if (res.success) {
             const el = document.getElementById(`qty-${id}`);
             if (el) el.textContent = res.quantity;
         }
-    }
+    });
+}
 
 };

@@ -90,7 +90,6 @@
             data-color="{{ card.color_identity }}"
             data-image="{{ card.image_url }}"
             data-preview="{{ card.image_large or card.image_url }}"
-            onclick="UI.preview(this)"
         >
 
             <!-- Card Image -->
@@ -109,13 +108,13 @@
             <!-- Quantity Controls -->
             <div class="card-controls">
 
-                <button onclick="event.stopPropagation(); updateQty({{ card.id }}, -1)">-</button>
+                <button data-action="qty" data-id="{{ card.id }}" data-change="-1">-</button>
 
                 <span id="qty-{{ card.id }}">
                     {{ card.quantity }}
                 </span>
 
-                <button onclick="event.stopPropagation(); updateQty({{ card.id }}, 1)">+</button>
+                <button data-action="qty" data-id="{{ card.id }}" data-change="1">+</button>
 
             </div>
 
