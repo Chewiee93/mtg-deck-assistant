@@ -109,13 +109,13 @@
             <!-- Quantity Controls -->
             <div class="card-controls">
 
-                <button onclick="event.stopPropagation(); API.updateQuantity({{ card.id }}, -1)">-</button>
+                <button onclick="event.stopPropagation(); updateQty({{ card.id }}, -1)">-</button>
 
                 <span id="qty-{{ card.id }}">
                     {{ card.quantity }}
                 </span>
 
-                <button onclick="event.stopPropagation(); API.updateQuantity({{ card.id }}, 1)">+</button>
+                <button onclick="event.stopPropagation(); updateQty({{ card.id }}, 1)">+</button>
 
             </div>
 

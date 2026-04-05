@@ -12,7 +12,11 @@
          CARD IMAGE
          ========================= -->
     {% if card.image_url %}
-        <img src="{{ card.image_url }}" alt="{{ card.name }}">
+        <img 
+            src="{{ card.image_url }}" 
+            alt="{{ card.name }}"
+            onerror="this.src='{{ url_for('static', filename='placeholder.jpg') }}'"
+        >
     {% endif %}
 
     <!-- =========================
