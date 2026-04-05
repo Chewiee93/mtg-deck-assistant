@@ -9,6 +9,14 @@ document.addEventListener("DOMContentLoaded", () => {
     ImportSuggest.init();
     Filters.init();
 
+    // DEV FIX: attach add card button safely (no inline JS)
+    const addBtn = document.getElementById("addCardBtn");
+    if (addBtn) {
+        addBtn.addEventListener("click", () => {
+            API.addCard();
+        });
+    }
+
 });
 
 // expose globally ONLY if needed
