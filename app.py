@@ -325,7 +325,8 @@ def analyze_deck(deck_id):
     # =========================
     # OUTPUT STRUCTURE
     # =========================
-    issues = []
+    format_issues = []
+    general_warnings = []
     warnings = []
     strengths = []
 
@@ -335,14 +336,14 @@ def analyze_deck(deck_id):
 
     # Deck size
     if rules.get("deck_size") and total_cards != rules["deck_size"]:
-        issues.append(f"Deck should have {rules['deck_size']} cards (currently {total_cards})")
+        format_issues.append(f"Deck should have {rules['deck_size']} cards (currently {total_cards})")
 
     # Max copies
     if rules.get("max_copies"):
         for dc in deck_cards:
             if dc.quantity > rules["max_copies"]:
                 card = g.db.get(Card, dc.card_id)
-                issues.append(f"{card.name}: too many copies ({dc.quantity})")
+                format_issues.append(f"{card.name}: too many copies ({dc.quantity})")
 
     # Banned cards
     banned = BANNED_CARDS.get(deck.format, [])
@@ -353,7 +354,7 @@ def analyze_deck(deck_id):
             continue  # skip broken reference
 
         if card.name in banned:
-            issues.append(f"{card.name} is banned in {deck.format}")
+            format_issues.append(f"{card.name} is banned in {deck.format}")
 
     # =========================
     # COMMANDER RULES
@@ -361,17 +362,17 @@ def analyze_deck(deck_id):
     if deck.format == "commander":
 
         if total_cards != 100:
-            issues.append(f"Commander decks must have 100 cards (currently {total_cards})")
+            format_issues.append(f"Commander decks must have 100 cards (currently {total_cards})")
 
         # Singleton rule
         for dc in deck_cards:
             if dc.quantity > 1:
                 card = g.db.get(Card, dc.card_id)
-                issues.append(f"{card.name}: only 1 copy allowed in Commander")
+                format_issues.append(f"{card.name}: only 1 copy allowed in Commander")
 
         # Commander presence
         if not deck.commander:
-            issues.append("No commander selected")
+            format_issues.append("No commander selected")
 
     # =========================
     # ROLE ANALYSIS
@@ -412,7 +413,7 @@ def analyze_deck(deck_id):
         strengths.append("Excellent ramp package")
 
     return {
-        "issues": issues,
+        "format_issues": format_issues,
         "warnings": warnings,
         "strengths": strengths,
         "archetype": archetype,
@@ -1268,7 +1269,7 @@ def view_deck(deck_id):
         others=others,
         stats=stats,
 
-        issues=analysis["issues"],
+        format_issues=analysis["format_issues"],
         warnings=analysis["warnings"],
         strengths=analysis["strengths"],
         archetype=analysis["archetype"],

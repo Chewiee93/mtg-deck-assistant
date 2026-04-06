@@ -41,21 +41,13 @@
          ACTION BUTTONS
          ========================= -->
     <div class="card-actions">
-        <button data-action="remove" data-deck="{{ deck_id }}" data-card="{{ card.id }}">
-            Remove
-        </button>
+        <button data-action="remove" title="Remove">🗑</button>
 
         {% if card.owned == 0 %}
-        <button data-action="owned" data-card="{{ card.id }}">
-            Mark Owned
-        </button>
+        <button data-action="owned" title="Mark Owned">✔</button>
         {% endif %}
 
-        <button data-action="set-commander"
-                data-deck="{{ deck_id }}"
-                data-card="{{ card.name }}">
-            Set Commander
-        </button>
+        <button data-action="set-commander" title="Set Commander">👑</button>
     </div>
 
 </div>
