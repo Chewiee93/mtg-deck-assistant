@@ -23,6 +23,17 @@
     flex-wrap: wrap;
 }
 
+.deck-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.deck-title {
+    flex: 1;
+}
+
 .deck-left {
     flex: 2;
     min-width: 280px;
@@ -31,6 +42,9 @@
 .deck-right {
     flex: 1;
     min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
 }
 
 /* =========================

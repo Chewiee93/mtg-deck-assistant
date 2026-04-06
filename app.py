@@ -1328,6 +1328,19 @@ def rename_deck(deck_id):
     return redirect(f"/deck/{deck_id}")
 
 # =========================
+# BLUEPRINT: SET COMMANDER
+# =========================
+@deck_bp.route("/set_commander/<int:deck_id>", methods=["POST"])
+def set_commander(deck_id):
+    deck = g.db.get(Deck, deck_id)
+
+    name = request.json.get("name")
+    deck.commander = name
+
+    g.db.commit()
+    return jsonify({"success": True})
+
+# =========================
 # BLUEPRINT: RULES
 # =========================
 

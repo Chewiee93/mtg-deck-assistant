@@ -115,11 +115,10 @@ button {
    ========================= */
 .chart-container {
     width: 100%;
-    max-width: 400px;
 }
 
 .small-chart {
-    height: 160px;
+    height: 220px;
     max-width: 500px;
 }
 

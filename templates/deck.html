@@ -23,13 +23,21 @@
 
     <!-- LEFT: Deck name + rename -->
     <div class="deck-left">
-        <h2>{{ deck.name }}</h2>
+        <div class="deck-header">
+            <div class="deck-title">
+                <h2>{{ deck.name }}</h2>
 
-        {% if commander_image %}
-        <div class="commander-hero">
-            <img src="{{ commander_image }}" alt="{{ commander_name }}">
+                <div class="text-muted">
+                    Format: {{ deck.format|capitalize }}
+                </div>
+            </div>
+
+            {% if commander_image %}
+            <div class="commander-hero">
+                <img src="{{ commander_image }}">
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
 
         <!-- Rename -->
         <form action="/rename_deck/{{ deck.id }}" method="POST"
