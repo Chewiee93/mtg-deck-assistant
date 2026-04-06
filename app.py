@@ -857,24 +857,24 @@ def import_deck():
     names = list(merged.keys())
 
     # =========================
-    # FORMAT DETECTION (IMPROVED)
+    # FORMAT DETECTION (FIXED)
     # =========================
     total_cards = sum(qty for qty, _ in parsed_lines)
 
     detected_format = "casual"
 
-    # Strong signal: commander explicitly provided
+    # 1. Commander explicitly defined
     if commander_name:
         detected_format = "commander"
 
-    # Fallback: 100-card singleton
+    # 2. Heuristic: 100 cards + mostly singleton
     elif total_cards == 100:
-        duplicates = any(qty > 1 for qty, _ in parsed_lines)
+        duplicate_count = sum(1 for qty, _ in parsed_lines if qty > 1)
 
-        if not duplicates:
+        if duplicate_count <= 5:  # allow some flexibility
             detected_format = "commander"
 
-    # Modern fallback
+    # 3. 60+ cards → likely constructed
     elif total_cards >= 60:
         detected_format = "modern"
 
@@ -1033,7 +1033,10 @@ def confirm_import():
     import_cards = g.db.query(ImportCard).filter_by(import_id=import_id).all()
     import_all_owned = session.get("import_all_owned", False)
     deck_name = session.get("imported_deck_name", "Imported Deck")
-    format_type = session.get("detected_format") or session.get("import_format", "casual")
+    format_type = session.get("detected_format")
+    
+    if not format_type:
+        format_type = session.get("import_format", "casual")
     commander_name = session.get("commander_name")
 
     # Create deck
