@@ -309,6 +309,14 @@ def get_card_prints(name):
 
 def analyze_deck(deck_id):
     deck = g.db.get(Deck, deck_id)
+
+    commander_image = None
+
+    if deck.commander:
+        commander_card = g.db.query(Card).filter_by(name=deck.commander).first()
+        if commander_card:
+            commander_image = commander_card.image_large or commander_card.image_url
+
     rules = FORMAT_RULES.get(deck.format, {})
 
     deck_cards = g.db.query(DeckCard).filter_by(deck_id=deck_id).all()
@@ -408,7 +416,8 @@ def analyze_deck(deck_id):
         "issues": issues,
         "warnings": warnings,
         "strengths": strengths,
-        "archetype": archetype
+        "archetype": archetype,
+        "commander_image": commander_image
     }
 
 def calculate_deck_stats(deck_cards):
@@ -1034,7 +1043,7 @@ def confirm_import():
     import_all_owned = session.get("import_all_owned", False)
     deck_name = session.get("imported_deck_name", "Imported Deck")
     format_type = session.get("detected_format")
-    
+
     if not format_type:
         format_type = session.get("import_format", "casual")
     commander_name = session.get("commander_name")
@@ -1271,6 +1280,8 @@ def view_deck(deck_id):
         stax=role_counts["stax"],
         curve_labels=curve_labels,
         curve_values=curve_values,
+        commander_name=deck.commander,
+        commander_image=commander_image,
         
     )
 

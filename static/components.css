@@ -109,3 +109,36 @@ button {
     justify-content: center;
     gap: 6px;
 }
+
+/* =========================
+   SMALL MANA CHART
+   ========================= */
+.chart-container {
+    width: 100%;
+    max-width: 400px;
+}
+
+.small-chart {
+    height: 160px;
+    max-width: 500px;
+}
+
+.chart-box canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* =========================
+   COMMANDER HERO IMAGE
+   ========================= */
+.commander-hero {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.commander-hero img {
+    width: 180px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+}

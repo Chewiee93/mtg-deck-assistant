@@ -25,6 +25,12 @@
     <div>
         <h2>{{ deck.name }}</h2>
 
+        {% if commander_image %}
+        <div class="commander-hero">
+            <img src="{{ commander_image }}" alt="{{ commander_name }}">
+        </div>
+        {% endif %}
+
         <!-- Rename -->
         <form action="/rename_deck/{{ deck.id }}" method="POST"
             class="form-inline">
@@ -143,7 +149,7 @@
         <h3 class="mana-curve">Mana Curve</h3>
 
         <!-- FIXED HEIGHT CONTAINER -->
-        <div class="chart-box">
+        <div class="chart-box small-chart">
             <canvas id="manaChart"></canvas>
         </div>
     </div>

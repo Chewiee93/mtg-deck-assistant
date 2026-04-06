@@ -33,6 +33,12 @@
     border-radius: 10px;
 }
 
+.section.flex-row {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
 @media (min-width: 768px) {
     .section {
         padding: 20px;

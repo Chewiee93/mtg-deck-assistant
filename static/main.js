@@ -89,18 +89,29 @@ document.addEventListener("DOMContentLoaded", () => {
             data: {
                 labels: window.curveLabels,
                 datasets: [{
-                    data: window.curveValues
+                    label: "Cards",
+                    data: window.curveValues,
                 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
             }
         });
     }
 
 });
-
-let manaChart = null;
-
-// Run once on load
-renderManaChart();
 
 // expose globally ONLY if needed
 window.UI = UI;
