@@ -48,7 +48,7 @@
 <div class="grid">
     {% for deck in decks %}
     <div class="grid-card deck-card"
-         onclick="window.location='/deck/{{ deck.id }}'">
+        data-id="{{ deck.id }}">
 
         <img src="{{ deck.image }}">
 

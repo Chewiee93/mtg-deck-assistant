@@ -44,10 +44,10 @@ export const AutoSuggest = {
             const div = document.createElement("div");
             div.textContent = name;
 
-            div.onclick = () => {
+            div.addEventListener("click", () => {
                 this.input.value = name;
                 this.hide();
-            };
+            });
 
             this.box.appendChild(div);
         });
@@ -111,7 +111,7 @@ export const ImportSuggest = {
         list.forEach(name => {
             const div = document.createElement("div");
             div.textContent = name;
-            div.onclick = () => this.apply(name);
+            div.addEventListener("click", () => this.apply(name));
             this.box.appendChild(div);
         });
 

@@ -34,7 +34,6 @@
                 value="{{ deck.name }}"
                 required
                 class="input"
-                onclick="this.select()"
             >
 
             <button class="button" type="submit">
@@ -203,51 +202,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-let manaChart = null;
-
-function renderManaChart() {
-    const canvas = document.getElementById('manaChart');
-
-    // 🔥 HARD RESET CANVAS (THIS IS THE FIX)
-    canvas.replaceWith(canvas.cloneNode(true));
-
-    const newCanvas = document.getElementById('manaChart');
-    const ctx = newCanvas.getContext('2d');
-
-    manaChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: {{ curve_labels | tojson }},
-            datasets: [{
-                label: 'Cards',
-                data: {{ curve_values | tojson }},
-                
-                // 🔥 VISUAL TUNING
-                maxBarThickness: 40,
-                categoryPercentage: 0.7,
-                barPercentage: 0.8,
-                backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                borderRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { precision: 0 }
-                }
-            },
-            plugins: {
-                legend: { display: false }
-            }
-        }
-    });
-}
-
-// Run once on load
-renderManaChart();
+    window.curveLabels = {{ curve_labels | tojson }};
+    window.curveValues = {{ curve_values | tojson }};
 </script>
 
 <!-- MAIN JS -->

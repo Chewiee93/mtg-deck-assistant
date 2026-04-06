@@ -10,7 +10,20 @@ document.addEventListener("DOMContentLoaded", () => {
     ImportSuggest.init();
     Filters.init();
 
-    // DEV FIX: attach add card button safely (no inline JS)
+    // =========================
+    // DECK NAVIGATION
+    // ========================
+
+    document.querySelectorAll(".deck-card").forEach(card => {
+        card.addEventListener("click", () => {
+            const id = card.dataset.id;
+            window.location = `/deck/${id}`;
+        });
+    });
+
+    // =========================
+    // ADD CARD BUTTON
+    // =========================
     const addBtn = document.getElementById("addCardBtn");
     if (addBtn) {
         addBtn.addEventListener("click", () => {
@@ -19,47 +32,75 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================
-    // COLLECTION ACTIONS
+    // CARD PREVIEW (NO INLINE JS)
     // =========================
-
-    // Quantity buttons
-    document.querySelectorAll("[data-action='qty']").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-            e.stopPropagation();
-
-            const id = btn.dataset.id;
-            const change = parseInt(btn.dataset.change);
-
-            updateQty(id, change);
-        });
-    });
-
-    // Card preview
     document.querySelectorAll(".card").forEach(card => {
         card.addEventListener("click", () => {
             UI.preview(card);
         });
     });
 
-    // Remove card
-    document.querySelectorAll("[data-action='remove']").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const deckId = btn.dataset.deck;
-            const cardId = btn.dataset.card;
+    // =========================
+    // QUANTITY BUTTONS
+    // =========================
+    document.querySelectorAll(".qty-btn").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+            e.stopPropagation();
 
-            UI.removeCard(deckId, cardId);
+            const id = btn.dataset.id;
+            const change = parseInt(btn.dataset.change);
+
+            const res = await API.updateQuantity(id, change);
+
+            if (res.success) {
+                const el = document.getElementById(`qty-${id}`);
+                if (el) el.textContent = res.quantity;
+            }
         });
     });
 
-    // Mark owned
-    document.querySelectorAll("[data-action='owned']").forEach(btn => {
+    // =========================
+    // MODALS (NO INLINE JS)
+    // =========================
+    const overlay = document.getElementById("overlay");
+    if (overlay) {
+        overlay.addEventListener("click", () => UI.closeAll());
+    }
+
+    document.querySelectorAll("[data-open-modal]").forEach(btn => {
         btn.addEventListener("click", () => {
-            const cardId = btn.dataset.card;
-            UI.markOwned(cardId);
+            UI.openModal(btn.dataset.openModal);
         });
     });
+
+    document.querySelectorAll("[data-close-modal]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            UI.closeModal(btn.dataset.closeModal);
+        });
+    });
+
+    const canvas = document.getElementById("manaChart");
+
+    if (canvas) {
+        const ctx = canvas.getContext("2d");
+
+        new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: window.curveLabels,
+                datasets: [{
+                    data: window.curveValues
+                }]
+            }
+        });
+    }
 
 });
+
+let manaChart = null;
+
+// Run once on load
+renderManaChart();
 
 // expose globally ONLY if needed
 window.UI = UI;

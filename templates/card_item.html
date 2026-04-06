@@ -15,7 +15,6 @@
         <img 
             src="{{ card.image_url }}" 
             alt="{{ card.name }}"
-            onerror="this.src='{{ url_for('static', filename='placeholder.jpg') }}'"
         >
     {% endif %}
 
@@ -43,9 +42,13 @@
          ========================= -->
     <div class="card-actions">
         <button data-action="remove" data-deck="{{ deck_id }}" data-card="{{ card.id }}">
+            Remove
+        </button>
 
         {% if card.owned == 0 %}
-            <button data-action="owned" data-card="{{ card.id }}">
+        <button data-action="owned" data-card="{{ card.id }}">
+            Mark Owned
+        </button>
         {% endif %}
     </div>
 

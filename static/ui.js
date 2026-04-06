@@ -1,6 +1,8 @@
 // =========================
 // UI CONTROLLER
 // =========================
+import { API } from "./api.js";
+
 export const UI = {
 
     openModal(id) {
@@ -43,8 +45,12 @@ export const UI = {
 
         const el = document.getElementById(`card-${cardId}`);
         if (el) el.classList.remove("missing");
-    },
+    }
+};
 
+// =========================
+// QUANTITY UPDATE (SEPARATE EXPORT)
+// =========================
 export function updateQty(id, change) {
     return API.updateQuantity(id, change).then(res => {
         if (res.success) {
@@ -53,5 +59,3 @@ export function updateQty(id, change) {
         }
     });
 }
-
-};

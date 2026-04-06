@@ -27,7 +27,7 @@
 <!-- =========================
      OVERLAY (for modals)
      ========================= -->
-<div id="overlay" class="hidden" onclick="UI.closeAll()"></div>
+<div id="overlay" class="hidden"></div>
 
 
 <!-- =========================
@@ -43,7 +43,7 @@
     <h2>Add Card</h2>
 
     <!-- Opens modal -->
-    <button class="button" onclick="UI.openModal('cardModal')">
+    <button class="button" data-open-modal="cardModal">
         Add Card
     </button>
 </div>
@@ -95,9 +95,7 @@
             <!-- Card Image -->
             {% if card.image_url %}
                 <img src="{{ card.image_url }}" 
-                class="card-img"
-                onerror="this.src='{{ url_for('static', filename='placeholder.jpg') }}'"
-                >
+                class="card-img">
             {% endif %}
 
             <!-- Card Name -->
@@ -108,13 +106,13 @@
             <!-- Quantity Controls -->
             <div class="card-controls">
 
-                <button data-action="qty" data-id="{{ card.id }}" data-change="-1">-</button>
+                <button class="qty-btn" data-id="{{ card.id }}" data-change="-1">-</button>
 
                 <span id="qty-{{ card.id }}">
                     {{ card.quantity }}
                 </span>
 
-                <button data-action="qty" data-id="{{ card.id }}" data-change="1">+</button>
+                <button class="qty-btn" data-id="{{ card.id }}" data-change="1">+</button>
 
             </div>
 
@@ -154,17 +152,14 @@
 
     <br><br>
 
-    <button class="button" onclick="UI.closeModal('cardModal')">Close</button>
+    <button class="button" data-close-modal="cardModal">Close</button>
 </div>
 
 
 <!-- ===== Preview Modal ===== -->
-<div id="previewModal" class="modal hidden preview-modal"
-onclick="event.stopPropagation()">
+<div id="previewModal" class="modal hidden preview-modal">
 
-    <img id="previewImage"
-        onerror="this.src='{{ url_for('static', filename='placeholder.jpg') }}'"
-    >
+    <img id="previewImage">
 
 </div>
 
