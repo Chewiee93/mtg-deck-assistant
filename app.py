@@ -1033,7 +1033,7 @@ def confirm_import():
     import_cards = g.db.query(ImportCard).filter_by(import_id=import_id).all()
     import_all_owned = session.get("import_all_owned", False)
     deck_name = session.get("imported_deck_name", "Imported Deck")
-    format_type = session.get("import_format", "casual")
+    format_type = session.get("detected_format") or session.get("import_format", "casual")
     commander_name = session.get("commander_name")
 
     # Create deck
