@@ -1280,7 +1280,6 @@ def view_deck(deck_id):
         stax=role_counts["stax"],
         curve_labels=curve_labels,
         curve_values=curve_values,
-        commander_name=deck.commander,
         commander_image=commander_image,
         
     )
