@@ -111,6 +111,29 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // =========================
+    // SET COMMANDER
+    // =========================
+    document.querySelectorAll("[data-action='set-commander']").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+
+            const deckId = btn.dataset.deck;
+            const name = btn.dataset.card;
+
+            await fetch(`/set_commander/${deckId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ name })
+            });
+
+            // reload to reflect change
+            window.location.reload();
+        });
+    });
+
 });
 
 // expose globally ONLY if needed

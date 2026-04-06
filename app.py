@@ -42,7 +42,6 @@ class Card(Base):
     set_name = Column(String)
     cmc = Column(Integer, default=0)  # ✅ FIXED
     owned = Column(Integer, default=1)
-    commander = Column(String, nullable=True)
 
 class Deck(Base):
     __tablename__ = "decks"

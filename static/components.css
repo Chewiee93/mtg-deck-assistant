@@ -119,7 +119,7 @@ button {
 
 .small-chart {
     height: 220px;
-    max-width: 500px;
+    max-width: 100%;
 }
 
 .chart-box canvas {
@@ -131,9 +131,9 @@ button {
    COMMANDER HERO IMAGE
    ========================= */
 .commander-hero {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .commander-hero img {
