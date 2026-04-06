@@ -1176,6 +1176,11 @@ def view_deck(deck_id):
 
     analysis = analyze_deck(deck_id)
 
+    commander_image = analysis.get("commander_image")
+
+    if not commander_image:
+        commander_image = "/static/placeholder.jpg"
+
     cards = []
     for dc in deck_cards:
         card = g.db.get(Card, dc.card_id)
