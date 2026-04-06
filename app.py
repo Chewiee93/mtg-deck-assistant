@@ -1046,7 +1046,10 @@ def confirm_import():
 
     if not format_type:
         format_type = session.get("import_format", "casual")
-    commander_name = session.get("commander_name")
+    commander_name = request.form.get("commander_override")
+
+    if not commander_name:
+        commander_name = session.get("commander_name")
 
     # Create deck
     deck = Deck(

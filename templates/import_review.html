@@ -52,6 +52,19 @@
             </div>
             {% endif %}
 
+    <div class="panel">
+        <label><strong>Select Commander:</strong></label>
+        <select name="commander_override" class="input">
+            <option value="">-- None --</option>
+            {% for card in cards %}
+                <option value="{{ card.name }}"
+                    {% if card.name == commander_name %}selected{% endif %}>
+                    {{ card.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
     <!-- =========================
          CARD LIST
          ========================= -->
