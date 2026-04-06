@@ -49,6 +49,7 @@
     background: white;
     padding: 20px;
     border-radius: 10px;
+    z-index: 200; /* MUST be higher than overlay */
 }
 
 /* =========================
