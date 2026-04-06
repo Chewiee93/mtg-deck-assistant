@@ -349,6 +349,24 @@ def analyze_deck(deck_id):
             issues.append(f"{card.name} is banned in {deck.format}")
 
     # =========================
+    # COMMANDER RULES
+    # =========================
+    if deck.format == "commander":
+
+        if total_cards != 100:
+            issues.append(f"Commander decks must have 100 cards (currently {total_cards})")
+
+        # Singleton rule
+        for dc in deck_cards:
+            if dc.quantity > 1:
+                card = g.db.get(Card, dc.card_id)
+                issues.append(f"{card.name}: only 1 copy allowed in Commander")
+
+        # Commander presence
+        if not deck.commander:
+            issues.append("No commander selected")
+
+    # =========================
     # ROLE ANALYSIS
     # =========================
 
@@ -839,30 +857,24 @@ def import_deck():
     names = list(merged.keys())
 
     # =========================
-    # FORMAT DETECTION (SIMPLE)
+    # FORMAT DETECTION (IMPROVED)
     # =========================
     total_cards = sum(qty for qty, _ in parsed_lines)
 
     detected_format = "casual"
 
-     # Fallback: if 100-card deck and no commander detected
-    if not commander_name and total_cards == 100:
-        for qty, name in parsed_lines:
-            if qty == 1:
-                commander_name = name
-                break
+    # Strong signal: commander explicitly provided
+    if commander_name:
+        detected_format = "commander"
 
-    # Commander: exactly 100 cards total
-    if total_cards == 100:
-    # check for duplicates >1 (excluding basics later)
+    # Fallback: 100-card singleton
+    elif total_cards == 100:
         duplicates = any(qty > 1 for qty, _ in parsed_lines)
 
         if not duplicates:
             detected_format = "commander"
-        else:
-            detected_format = "commander"  # still allow, just less strict
 
-    # Modern/Standard fallback
+    # Modern fallback
     elif total_cards >= 60:
         detected_format = "modern"
 

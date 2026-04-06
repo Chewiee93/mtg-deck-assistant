@@ -41,6 +41,10 @@
             </button>
         </form>
 
+        <div class="text-muted">
+            Format: {{ deck.format|capitalize }}
+        </div>
+
         <!-- =========================
             SUMMARY
             ========================= -->
@@ -48,7 +52,12 @@
 
             <!-- INLINE STATS -->
             <div class="flex-stats">
-                <span>Total: {{ stats.total }}</span>
+                <span>
+                    Total: {{ stats.total }}
+                    {% if deck.format == "commander" %}
+                        / 100
+                    {% endif %}
+                </span>
                 <span>Creatures: {{ stats.creatures }}</span>
                 <span>Lands: {{ stats.lands }}</span>
                 <span>Other: {{ stats.others }}</span>
