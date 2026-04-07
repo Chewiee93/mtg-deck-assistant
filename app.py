@@ -60,6 +60,8 @@ class DeckCard(Base):
     deck_id = Column(Integer)
     card_id = Column(Integer)
     quantity = Column(Integer, default=1)
+    # DEV: distinguish mainboard vs sideboard
+    is_sideboard = Column(Integer, default=0)
 
     # =========================
     # PREVENT DUPLICATE CARDS IN SAME DECK
@@ -99,6 +101,8 @@ class ImportCard(Base):
     name = Column(String)
     quantity = Column(Integer)
     data = Column(Text)  # store full card JSON
+    # DEV: track sideboard during import
+    is_sideboard = Column(Integer, default=0)
 
 
 engine = create_engine("sqlite:///cards.db")
@@ -266,6 +270,27 @@ def get_cards_batch(names):
             result[card["name"].lower()] = card
 
     return result
+
+# =========================
+# DECK IMAGE HELPER
+# =========================
+def get_deck_cover_image(deck_id):
+    """
+    Returns first card image in deck.
+    Used for deck thumbnails.
+    """
+    first_dc = g.db.query(DeckCard)\
+        .filter_by(deck_id=deck_id)\
+        .order_by(DeckCard.id)\
+        .first()
+
+    if first_dc:
+        card = g.db.get(Card, first_dc.card_id)
+        if card and card.image_url:
+            return card.image_url
+
+    # fallback image
+    return "/static/placeholder.jpg"
 
 def get_images(data):
     # Normal cards
@@ -700,11 +725,16 @@ def generate_recommendations(deck_cards):
 
         # Recommend up to deficit (but cap at 3 for UI sanity)
         for card_name in pool[:min(deficit, 3)]:
-            recommendations.append(f"{card_name} ({role})")
+            # DEV: structured recommendation object
+            recommendations.append({
+                "name": card_name,
+                "role": role,
+                "owned": False
+            })
 
     return recommendations, role_counts, missing_roles
 
-def suggest_from_collection(missing_roles):
+def suggest_from_collection(missing_roles, deck_colors):
     suggestions = []
 
     owned_cards = g.db.query(Card).filter(Card.quantity > 0).all()
@@ -712,9 +742,19 @@ def suggest_from_collection(missing_roles):
     for card in owned_cards:
         roles = classify_card_roles(card)
 
+        card_colors = set((card.color_identity or "").split(","))
+
+        # DEV: filter out off-colour cards
+        if deck_colors and not card_colors.issubset(deck_colors):
+            continue
+
         for role in roles:
             if role in missing_roles:
-                suggestions.append(f"{card.name} (you own this)")
+                suggestions.append({
+                    "name": card.name,
+                    "role": role,
+                    "owned": True
+                })
 
     return suggestions[:10]  # cap it
 
@@ -746,17 +786,8 @@ def collection():
 
         image = None
 
-        if first_dc:
-            card = g.db.get(Card, first_dc.card_id)
-
-            if not card:
-                continue
-
-            if card:
-                image = card.image_url
-
-        if not image:
-            image = "/static/placeholder.jpg"  # fallback
+        # DEV: use helper instead of duplicating logic
+        image = get_deck_cover_image(deck.id)
 
         deck_data.append({
             "id": deck.id,
@@ -810,6 +841,8 @@ def import_deck():
 
     commander_name = None
     in_commander_section = False
+    # DEV: track sideboard section
+    in_sideboard_section = False
     
     parsed_lines = []
     names = []
@@ -820,13 +853,20 @@ def import_deck():
         if not line:
             continue
 
-        # Detect sections
+        # =========================
+        # SECTION DETECTION
+        # =========================
         if line.lower() == "commander":
             in_commander_section = True
             continue
 
+        if line.lower() == "sideboard":
+            in_sideboard_section = True
+            continue
+
         if line.lower() == "deck":
             in_commander_section = False
+            in_sideboard_section = False
             continue
 
         parts = line.split(" ", 1)
@@ -853,16 +893,22 @@ def import_deck():
         if in_commander_section and not commander_name:
             commander_name = name
 
-        parsed_lines.append((qty, name))
+        parsed_lines.append((qty, name, in_sideboard_section))
 
     from collections import defaultdict
 
-    merged = defaultdict(int)
+    merged = {}
 
-    for qty, name in parsed_lines:
-        merged[name] += qty
+    for qty, name, is_sideboard in parsed_lines:
+        if name not in merged:
+            merged[name] = {"qty": 0, "sideboard": is_sideboard}
 
-    parsed_lines = [(qty, name) for name, qty in merged.items()]
+        merged[name]["qty"] += qty
+
+    parsed_lines = [
+        (data["qty"], name, data["sideboard"])
+        for name, data in merged.items()
+    ]
     names = list(merged.keys())
 
     # =========================
@@ -894,7 +940,7 @@ def import_deck():
     # Fetch card data (cached API call)
     card_map = get_cards_batch(names)
 
-    for qty, name in parsed_lines:
+    for qty, name, is_sideboard in parsed_lines:
         clean_name = name.strip()
 
         # 1. Try batch result first (fast)
@@ -915,6 +961,7 @@ def import_deck():
             import_id=import_id,
             name=data["name"],  # IMPORTANT: use canonical name
             quantity=qty,
+            is_sideboard=1 if is_sideboard else 0,  # DEV: mark sideboard
             data=json.dumps({
                 "color_identity": data.get("color_identity", []),
                 "type_line": data.get("type_line", ""),
@@ -1122,7 +1169,8 @@ def confirm_import():
             g.db.add(DeckCard(
                 deck_id=deck.id,
                 card_id=card.id,
-                quantity=c.quantity
+                quantity=c.quantity,
+                is_sideboard=c.is_sideboard  # DEV: carry sideboard flag
             ))
 
     g.db.query(ImportCard).filter_by(import_id=import_id).delete()
@@ -1150,13 +1198,8 @@ def decks_page():
 
         image = None
 
-        if first_dc:
-            card = g.db.get(Card, first_dc.card_id)
-            if card:
-                image = card.image_url
-
-        if not image:
-            image = "/static/placeholder.jpg"
+        # DEV: use shared helper for consistency
+        image = get_deck_cover_image(deck.id)
 
         deck_data.append({
             "id": deck.id,
@@ -1184,14 +1227,29 @@ def view_deck(deck_id):
     if not commander_image:
         commander_image = "/static/placeholder.jpg"
 
-    cards = []
+    # =========================
+    # DETERMINE DECK COLOURS (FROM COMMANDER)
+    # =========================
+    deck_colors = set()
+
+    if deck.commander:
+        commander_card = g.db.query(Card).filter_by(name=deck.commander).first()
+        if commander_card and commander_card.color_identity:
+            deck_colors = set(commander_card.color_identity.split(","))
+
+    # =========================
+    # SPLIT MAINBOARD / SIDEBOARD
+    # =========================
+    mainboard = []
+    sideboard = []
+
     for dc in deck_cards:
         card = g.db.get(Card, dc.card_id)
 
         if not card:
-            continue # skip broken reference
+            continue
 
-        cards.append({
+        entry = {
             "id": card.id,
             "name": card.name,
             "quantity": dc.quantity,
@@ -1199,13 +1257,19 @@ def view_deck(deck_id):
             "image_large": card.image_large,
             "owned": card.owned,
             "cmc": card.cmc or 0
-        })
+        }
+
+        # DEV FIX: MUST be inside loop
+        if dc.is_sideboard:
+            sideboard.append(entry)
+        else:
+            mainboard.append(entry)
 
     creatures = []
     lands = []
     others = []
 
-    for c in cards:
+    for c in mainboard:
         card_obj = g.db.get(Card, c["id"])
 
         if not card_obj:
@@ -1228,7 +1292,7 @@ def view_deck(deck_id):
     role_counts = analyze_deck_roles(deck_cards)
 
     recommendations, role_counts, missing_roles = generate_recommendations(deck_cards)
-    suggestions = suggest_from_collection(missing_roles)
+    suggestions = suggest_from_collection(missing_roles, deck_colors)
 
     from collections import defaultdict
 

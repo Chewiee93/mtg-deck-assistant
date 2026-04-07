@@ -135,16 +135,10 @@
                 <span>Card Draw: {{ card_draw }}</span>
                 <span>Removal: {{ removal }}</span>
                 <span>Board Wipe: {{ board_wipe }}</span>
-            </div>
-
-            <div class="flex-stats">
                 <span>Recursion: {{ recursion }}</span>
                 <span>Pillowfort: {{ pillowfort }}</span>
                 <span>Tokens: {{ tokens }}</span>
                 <span>Aristocrats: {{ aristocrats }}</span>
-            </div>
-
-            <div class="flex-stats">
                 <span>Toolbox: {{ toolbox }}</span>
                 <span>Stax: {{ stax }}</span>
             </div>
@@ -185,6 +179,18 @@
             {% include "card_item.html" %}
         {% endfor %}
     </div>
+
+    <!-- =========================
+        SIDEBAR / SIDEBOARD
+        ========================= -->
+    {% if sideboard %}
+    <h2>Sideboard</h2>
+    <div class="grid">
+        {% for card in sideboard %}
+            {% include "card_item.html" %}
+        {% endfor %}
+    </div>
+    {% endif %}
 </div>
 
 <br>
@@ -194,7 +200,9 @@
 
     {% if recommended %}
         {% for card in recommended %}
-            <p>{{ card }}</p>
+            <div>
+                {{ card.name }} ({{ card.role }})
+            </div>
         {% endfor %}
     {% else %}
         <p>No recommendations</p>
@@ -204,9 +212,15 @@
 <div class="section">
     <h2>Cards You Own That Fit</h2>
 
-    {% for card in suggestions %}
-        <p>{{ card }}</p>
-    {% endfor %}
+    {% if suggestions %}
+        {% for card in suggestions %}
+            <div>
+                ✔ {{ card.name }} ({{ card.role }})
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No matching cards in your collection.</p>
+    {% endif %}
 </div>
 
 <div class="section">
