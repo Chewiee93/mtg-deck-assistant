@@ -8,14 +8,12 @@
     <title>{{ deck.name }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
+
 <body>
-    <a href="/" class="button" style="margin-bottom:10px; display:inline-block;">
-        ← Back
-    </a>
 
 <div class="nav">
     <a href="/">Home</a>
-    <a href="/collection">Collection</a>
+    <a href="/decks">Decks</a>
     <a href="/import">Import</a>
 </div>
 
@@ -32,7 +30,7 @@
                 </div>
             </div>
 
-            {% if commander_image %}
+            {% if deck.format == "commander" and commander_image %}
             <div class="commander-hero">
                 <img src="{{ commander_image }}">
             </div>

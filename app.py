@@ -1413,7 +1413,8 @@ def set_commander(deck_id):
     deck = g.db.get(Deck, deck_id)
 
     name = request.json.get("name")
-    deck.commander = name
+    if deck.format == "commander":
+        deck.commander = name
 
     g.db.commit()
     return jsonify({"success": True})
@@ -1481,9 +1482,6 @@ def api_update_quantity():
 
     if not card:
         return jsonify({"success": False, "error": "Card not found"})
-
-    # Update quantity safely
-    card.quantity = max(0, card.quantity + change)
 
     # Update quantity safely
     card.quantity = max(0, card.quantity + change)
