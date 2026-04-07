@@ -53,6 +53,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const res = await API.updateQuantity(id, change);
 
             if (res.success) {
+                if (res.quantity === 0) {
+                    // DEV FIX: remove card from DOM
+                    const cardEl = document.getElementById(`card-${id}`);
+                    if (cardEl) cardEl.remove();
+                    return;
+                }
+
                 const el = document.getElementById(`qty-${id}`);
                 if (el) el.textContent = res.quantity;
             }

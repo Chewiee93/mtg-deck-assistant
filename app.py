@@ -914,7 +914,8 @@ def import_deck():
     # =========================
     # FORMAT DETECTION (FIXED)
     # =========================
-    total_cards = sum(qty for qty, _ in parsed_lines)
+    # DEV FIX: parsed_lines now has 3 values
+    total_cards = sum(qty for qty, _, _ in parsed_lines)
 
     detected_format = "casual"
 
@@ -924,7 +925,8 @@ def import_deck():
 
     # 2. Heuristic: 100 cards + mostly singleton
     elif total_cards == 100:
-        duplicate_count = sum(1 for qty, _ in parsed_lines if qty > 1)
+        # DEV FIX: unpack 3 values
+        duplicate_count = sum(1 for qty, _, _ in parsed_lines if qty > 1)
 
         if duplicate_count <= 5:  # allow some flexibility
             detected_format = "commander"
@@ -1331,6 +1333,7 @@ def view_deck(deck_id):
         creatures=creatures,
         lands=lands,
         others=others,
+        sideboard=sideboard,
         stats=stats,
 
         format_issues=analysis["format_issues"],
@@ -1471,16 +1474,15 @@ def api_update_quantity():
     # Update quantity safely
     card.quantity = max(0, card.quantity + change)
 
-    # Optional: remove card if quantity hits 0
+    # DEV FIX: remove card entirely when qty hits 0
     if card.quantity == 0:
-        card.owned = 0
+        g.db.delete(card)
+        g.db.commit()
 
-    g.db.commit()
-
-    return jsonify({
-        "success": True,
-        "quantity": card.quantity
-    })
+        return jsonify({
+            "success": True,
+            "quantity": 0
+        })
 
 @api_bp.route("/api/remove_from_deck/<int:deck_id>/<int:card_id>")
 def remove_from_deck(deck_id, card_id):
