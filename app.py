@@ -281,11 +281,18 @@ def get_deck_cover_image(deck_id):
     """
     first_dc = g.db.query(DeckCard)\
         .filter_by(deck_id=deck_id)\
-        .order_by(DeckCard.id)\
+        .order_by(DeckCard.id.asc())\
         .first()
 
     if first_dc:
         card = g.db.get(Card, first_dc.card_id)
+        if card and card.image_url:
+            return card.image_url
+        
+    # DEV FIX: fallback to ANY card in deck
+    any_dc = g.db.query(DeckCard).filter_by(deck_id=deck_id).first()
+    if any_dc:
+        card = g.db.get(Card, any_dc.card_id)
         if card and card.image_url:
             return card.image_url
 
@@ -781,7 +788,7 @@ def collection():
     for deck in decks:
         first_dc = g.db.query(DeckCard)\
             .filter_by(deck_id=deck.id)\
-            .order_by(DeckCard.id)\
+            .order_by(DeckCard.id.asc())\
             .first()
 
         image = None
@@ -850,7 +857,11 @@ def import_deck():
     for line in lines:
         line = line.strip()
 
+        # =========================
+        # BLANK LINE = SIDEBOARD SPLIT
+        # =========================
         if not line:
+            in_sideboard_section = True
             continue
 
         # =========================
@@ -1195,7 +1206,7 @@ def decks_page():
     for deck in decks:
         first_dc = g.db.query(DeckCard)\
             .filter_by(deck_id=deck.id)\
-            .order_by(DeckCard.id)\
+            .order_by(DeckCard.id.asc())\
             .first()
 
         image = None
@@ -1474,7 +1485,9 @@ def api_update_quantity():
     # Update quantity safely
     card.quantity = max(0, card.quantity + change)
 
-    # DEV FIX: remove card entirely when qty hits 0
+    # Update quantity safely
+    card.quantity = max(0, card.quantity + change)
+
     if card.quantity == 0:
         g.db.delete(card)
         g.db.commit()
@@ -1483,6 +1496,14 @@ def api_update_quantity():
             "success": True,
             "quantity": 0
         })
+
+    # DEV FIX: must return for normal updates
+    g.db.commit()
+
+    return jsonify({
+        "success": True,
+        "quantity": card.quantity
+    })
 
 @api_bp.route("/api/remove_from_deck/<int:deck_id>/<int:card_id>")
 def remove_from_deck(deck_id, card_id):

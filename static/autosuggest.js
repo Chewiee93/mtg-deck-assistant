@@ -25,6 +25,13 @@ export const AutoSuggest = {
         this.input.addEventListener("input",
             debounce(() => this.handle())
         );
+
+        // DEV FIX: hide suggestions when clicking outside
+        document.addEventListener("click", (e) => {
+            if (!this.input.contains(e.target) && !this.box.contains(e.target)) {
+                this.hide();
+            }
+        });
     },
 
     async handle() {
@@ -75,6 +82,13 @@ export const ImportSuggest = {
         this.input.addEventListener("input",
             debounce(() => this.handle(), 250)
         );
+
+        // DEV FIX: hide suggestions when clicking outside
+        document.addEventListener("click", (e) => {
+            if (!this.input.contains(e.target) && !this.box.contains(e.target)) {
+                this.hide();
+            }
+        });
     },
 
     getLine() {
@@ -97,7 +111,10 @@ export const ImportSuggest = {
             name = parts.slice(1).join(" ");
         }
 
-        if (name.length < 2) return this.hide();
+        if (name.length < 2) {
+            this.hide();
+            return;
+        }
 
         const list = await API.suggest(name);
         this.render(list);
