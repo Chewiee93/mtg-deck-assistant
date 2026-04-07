@@ -128,7 +128,7 @@ button {
 }
 
 .small-chart {
-    height: 220px;
+    height: 200px;
     max-width: 100%;
 }
 
@@ -151,4 +151,16 @@ button {
     max-width: 100%;
     border-radius: 12px;
     box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+}
+
+.panel-recommend {
+    background: #e8f4ff;
+}
+
+.panel-owned {
+    background: #e6ffed;
+}
+
+.panel-upgrade {
+    background: #f3e8ff;
 }

@@ -35,16 +35,28 @@
 }
 
 .deck-left {
-    flex: 1.5;
-    min-width: 280px;
+    flex: 1;
+    min-width: 300px;
 }
 
 .deck-right {
     flex: 1;
-    min-width: 280px;
+    min-width: 300px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+}
+
+.top-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .top-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* =========================
