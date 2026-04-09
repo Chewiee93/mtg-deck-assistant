@@ -54,6 +54,80 @@
         </form>
 
         <!-- =========================
+        SUMMARY
+        ========================= -->
+        <div class="panel">
+
+            <!-- INLINE STATS -->
+            <div class="flex-stats">
+                <span>
+                    Total: {{ stats.total }}
+                    {% if deck.format == "commander" %}
+                        / 100
+                    {% endif %}
+                </span>
+                <span>Creatures: {{ stats.creatures }}</span>
+                <span>Lands: {{ stats.lands }}</span>
+                <span>Other: {{ stats.others }}</span>
+            </div>
+
+            <!-- MISSING BELOW -->
+            <div class="text-muted">
+                Missing: {{ cards | selectattr('owned', 'equalto', 0) | list | length }}
+            </div>
+
+            <div class="text-highlight">
+                <span class="text-highlight">{{ archetype }}</span>
+            </div>
+
+            {% if deck.commander %}
+            <div class="panel">
+                <strong>Commander:</strong> {{ deck.commander }}
+            </div>
+            {% endif %}
+
+            <!-- =========================
+            DECK ANALYSIS
+            ========================= -->
+                <div class="panel">
+
+                {% if format_issues %}
+                    <div class="deck-issue">
+                        <strong>Format Issues</strong>
+                        {% for issue in format_issues %}
+                            <div>⚠ {{ issue }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if warnings %}
+                    <div class="deck-warning">
+                        <strong>Deck Advice</strong>
+                        {% for warning in warnings %}
+                            <div>💡 {{ warning }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if strengths %}
+                    <div class="deck-strengths">
+                        <strong>Strengths</strong>
+                        {% for s in strengths %}
+                            <div>✅ {{ s }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        
+        </div>
+
+    </div>
+
+    <!-- RIGHT: Mana Curve -->
+    <div class="deck-right chart-container">
+        <h3 class="mana-curve">Mana Curve</h3>
+
+        <!-- =========================
             ROLES
             ========================= -->
         <div class="panel">
@@ -72,82 +146,10 @@
                 <span>Stax: {{ stax }}</span>
             </div>
         </div>
-    </div>
-
-    <!-- RIGHT: Mana Curve -->
-    <div class="deck-right chart-container">
-        <h3 class="mana-curve">Mana Curve</h3>
 
         <!-- FIXED HEIGHT CONTAINER -->
         <div class="chart-box small-chart">
             <canvas id="manaChart"></canvas>
-        </div>
-    </div>
-
-        <!-- =========================
-        SUMMARY
-        ========================= -->
-    <div class="panel">
-
-        <!-- INLINE STATS -->
-        <div class="flex-stats">
-            <span>
-                Total: {{ stats.total }}
-                {% if deck.format == "commander" %}
-                    / 100
-                {% endif %}
-            </span>
-            <span>Creatures: {{ stats.creatures }}</span>
-            <span>Lands: {{ stats.lands }}</span>
-            <span>Other: {{ stats.others }}</span>
-        </div>
-
-        <!-- MISSING BELOW -->
-        <div class="text-muted">
-            Missing: {{ cards | selectattr('owned', 'equalto', 0) | list | length }}
-        </div>
-
-        <div class="text-highlight">
-            <span class="text-highlight">{{ archetype }}</span>
-        </div>
-
-        {% if deck.commander %}
-        <div class="panel">
-            <strong>Commander:</strong> {{ deck.commander }}
-        </div>
-        {% endif %}
-
-        <!-- =========================
-        DECK ANALYSIS
-        ========================= -->
-            <div class="panel">
-
-            {% if format_issues %}
-                <div class="deck-issue">
-                    <strong>Format Issues</strong>
-                    {% for issue in format_issues %}
-                        <div>⚠ {{ issue }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            {% if warnings %}
-                <div class="deck-warning">
-                    <strong>Deck Advice</strong>
-                    {% for warning in warnings %}
-                        <div>💡 {{ warning }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            {% if strengths %}
-                <div class="deck-strengths">
-                    <strong>Strengths</strong>
-                    {% for s in strengths %}
-                        <div>✅ {{ s }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
         </div>
 
     </div>
