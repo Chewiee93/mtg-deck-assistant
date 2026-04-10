@@ -1368,7 +1368,7 @@ def view_deck(deck_id):
 
     stats = calculate_deck_stats(deck_cards)
     role_counts = analyze_deck_roles(deck_cards)
-    identity = generate_deck_identity(archetype, role_counts, stats)
+    identity = generate_deck_identity(analysis{"archetype"}, role_counts, stats)
 
     recommendations, role_counts, missing_roles = generate_recommendations(deck_cards)
     suggestions = suggest_from_collection(missing_roles, deck_colors)
