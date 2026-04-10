@@ -6,7 +6,7 @@
 <div id="card-{{ card.id }}"
      class="grid-card
      {% if card.owned == 0 %}missing{% endif %}
-     {% if commander_name and card.name == commander_name %}commander-card{% endif %}">
+     {% if deck.format == "commander" and card.name == commander_name %}commander-card{% endif %}>
 
     <!-- =========================
          CARD IMAGE
@@ -48,7 +48,13 @@
         {% endif %}
 
         {% if deck.format == "commander" and card.name == commander_name %}
-            <button data-action="set-commander" title="Set Commander">👑</button>
+            <button 
+                data-action="set-commander"
+                data-deck="{{ deck.id }}"
+                data-card="{{ card.name }}"
+                title="Set Commander">
+                👑
+            </button>
         {% endif %}
     </div>
 

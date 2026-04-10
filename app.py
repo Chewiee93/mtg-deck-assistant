@@ -762,8 +762,8 @@ def generate_recommendations(deck_cards):
             data = get_card_data(card_name)
 
             color_identity = ""
-            if data:
-                color_identity = ",".join(data.get("color_identity", []))
+            if data and data.get("color_identity"):
+                color_identity = ",".join(data["color_identity"])
 
             recommendations.append({
                 "name": card_name,
