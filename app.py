@@ -614,111 +614,6 @@ def generate_deck_identity(archetype, role_counts, stats):
 
     return identity
 
-    # =========================
-    # AGGRO
-    # =========================
-    scores["Aggro"] = (
-        stats["creatures"] * 2 +
-        role_counts["tokens"] +
-        role_counts["aristocrats"]
-    )
-
-    # =========================
-    # CONTROL
-    # =========================
-    scores["Control"] = (
-        role_counts["removal"] * 2 +
-        role_counts["board_wipe"] * 3 +
-        role_counts["card_draw"]
-    )
-
-    # =========================
-    # MIDRANGE
-    # =========================
-    scores["Midrange"] = (
-        stats["creatures"] +
-        role_counts["removal"] +
-        role_counts["card_draw"]
-    )
-
-    # =========================
-    # RAMP
-    # =========================
-    scores["Ramp"] = (
-        role_counts["ramp"] * 3
-    )
-
-    # =========================
-    # ARISTOCRATS
-    # =========================
-    scores["Aristocrats"] = (
-        role_counts["aristocrats"] * 3 +
-        role_counts["recursion"]
-    )
-
-    # =========================
-    # TOKENS
-    # =========================
-    scores["Tokens"] = (
-        role_counts["tokens"] * 3
-    )
-
-    # =========================
-    # STAX
-    # =========================
-    scores["Stax"] = (
-        role_counts["stax"] * 4
-    )
-
-    # =========================
-    # TOOLBOX
-    # =========================
-    scores["Toolbox"] = (
-        role_counts["toolbox"] * 3
-    )
-
-    # =========================
-    # PILLOWFORT
-    # =========================
-    scores["Pillowfort"] = (
-        role_counts["pillowfort"] * 3
-    )
-
-    # =========================
-    # CONVERT TO PERCENTAGES
-    # =========================
-
-    total_score = sum(scores.values())
-
-    # Avoid divide-by-zero
-    if total_score == 0:
-        return "Unknown"
-
-    percentages = {
-        k: int((v / total_score) * 100)
-        for k, v in scores.items()
-    }
-
-    # =========================
-    # PICK TOP 2 ARCHETYPES
-    # =========================
-    sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-
-    if len(sorted_scores) < 2:
-        return sorted_scores[0][0]
-
-    primary = sorted_scores[0][0]
-    secondary = sorted_scores[1][0]
-
-    primary_pct = percentages[primary]
-    secondary_pct = percentages[secondary]
-
-    # =========================
-    # RETURN FORMATTED RESULT
-    # =========================
-
-    return f"{primary} ({primary_pct}%) / {secondary} ({secondary_pct}%)"
-
 def classify_card_roles(card):
     text = (card.oracle_text or "").lower()
     type_line = (card.type_line or "").lower()
@@ -864,10 +759,17 @@ def generate_recommendations(deck_cards):
         # Recommend up to deficit (but cap at 3 for UI sanity)
         for card_name in pool[:min(deficit, 3)]:
             # DEV: structured recommendation object
+            data = get_card_data(card_name)
+
+            color_identity = ""
+            if data:
+                color_identity = ",".join(data.get("color_identity", []))
+
             recommendations.append({
                 "name": card_name,
                 "role": role,
-                "owned": False
+                "owned": False,
+                "color_identity": color_identity
             })
 
     return recommendations, role_counts, missing_roles

@@ -107,7 +107,12 @@
 
             <!-- MISSING BELOW -->
             <div class="text-muted">
-                Missing: {{ cards | selectattr('owned', 'equalto', 0) | list | length }}
+                Missing: {{
+                    (creatures + lands + others + sideboard)
+                    | selectattr('owned', 'equalto', 0)
+                    | list
+                    | length
+                }}
             </div>
 
             {% if deck.commander %}
@@ -182,22 +187,21 @@
     <h2>Creatures</h2>
     <div class="grid">
         {% for card in creatures %}
-            {% include "card_item.html" %}
+            {% include "card_item.html" with context %}
         {% endfor %}
     </div>
-    
-    <h2>Lands</h2>
-    <div class="grid">
-        {% for card in lands %}
-            {% include "card_item.html" %}
-        {% endfor %}
-    </div>
-
     
     <h2>Other Spells</h2>
     <div class="grid">
         {% for card in others %}
-            {% include "card_item.html" %}
+            {% include "card_item.html" with context %}
+        {% endfor %}
+    </div>
+
+    <h2>Lands</h2>
+    <div class="grid">
+        {% for card in lands %}
+            {% include "card_item.html" with context %}
         {% endfor %}
     </div>
 

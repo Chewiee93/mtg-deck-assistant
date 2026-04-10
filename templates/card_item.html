@@ -44,11 +44,11 @@
         <button data-action="remove" title="Remove">🗑</button>
 
         {% if card.owned == 0 %}
-        <button data-action="owned" title="Mark Owned">✔</button>
+            <button data-action="owned" title="Mark Owned">✔</button>
         {% endif %}
 
-        {% if commander_name %}
-        <button data-action="set-commander" title="Set Commander">👑</button>
+        {% if deck.format == "commander" %}
+            <button data-action="set-commander" title="Set Commander">👑</button>
         {% endif %}
     </div>
 
