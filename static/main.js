@@ -32,30 +32,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================
-    // CARD PREVIEW (NO INLINE JS)
+    // CARD PREVIEW (CLICK + HOVER)
     // =========================
     document.querySelectorAll(".card, .grid-card").forEach(card => {
-        card.addEventListener("click", () => {
-            UI.preview(card);
-        });
-    });
 
-    // =========================
-    // HOVER PREVIEW (DESKTOP)
-    // =========================
-    document.querySelectorAll(".card, .grid-card").forEach(card => {
+        // CLICK (mobile + desktop)
         card.addEventListener("click", (e) => {
-
-            // 🚫 Ignore clicks on buttons
             if (e.target.closest("button")) return;
-
             UI.preview(card);
         });
-    });
+
+        // HOVER (desktop only)
+        card.addEventListener("mouseenter", () => {
+            UI.preview(card);
+        });
 
         card.addEventListener("mouseleave", () => {
             UI.closeModal("previewModal");
         });
+
     });
 
     // =========================
