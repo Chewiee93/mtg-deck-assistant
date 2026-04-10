@@ -6,7 +6,11 @@
 <div id="card-{{ card.id }}"
      class="grid-card
      {% if card.owned == 0 %}missing{% endif %}
-     {% if deck.format == "commander" and card.name == commander_name %}commander-card{% endif %}>
+     {% if deck.format == "commander" and card.name == commander_name %}commander-card{% endif %}"
+     data-name="{{ card.name | lower }}"
+     data-color="{{ card.color_identity }}"
+     data-image="{{ card.image_url }}"
+     data-preview="{{ card.image_large or card.image_url }}">
 
     <!-- =========================
          CARD IMAGE
@@ -15,7 +19,6 @@
         <img 
             src="{{ card.image_url if card.image_url else '/static/placeholder.jpg' }}" 
             alt="{{ card.name }}">
-        >
     {% endif %}
 
     <!-- =========================

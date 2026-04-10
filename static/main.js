@@ -34,9 +34,22 @@ document.addEventListener("DOMContentLoaded", () => {
     // =========================
     // CARD PREVIEW (NO INLINE JS)
     // =========================
-    document.querySelectorAll(".card").forEach(card => {
+    document.querySelectorAll(".card, .grid-card").forEach(card => {
         card.addEventListener("click", () => {
             UI.preview(card);
+        });
+    });
+
+    // =========================
+    // HOVER PREVIEW (DESKTOP)
+    // =========================
+    document.querySelectorAll(".grid-card").forEach(card => {
+        card.addEventListener("mouseenter", () => {
+            UI.preview(card);
+        });
+
+        card.addEventListener("mouseleave", () => {
+            UI.closeModal("previewModal");
         });
     });
 
