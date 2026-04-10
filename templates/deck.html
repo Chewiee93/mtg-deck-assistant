@@ -228,7 +228,8 @@
         {% for card in recommended %}
             <div class="grid-card"
                 data-name="{{ card.name | lower }}"
-                data-color="{{ card.color_identity }}">
+                data-color="{{ card.color_identity }}"
+                data-preview="{{ card.image_large or card.image_url }}">
                 <div class="card-info">
                     <strong>{{ card.name }}</strong>
                 </div>
@@ -259,6 +260,14 @@
 
 <div class="section panel-upgrade">
     <h2>Suggested Upgrades</h2>
+</div>
+<!-- =========================
+     PREVIEW MODAL
+     ========================= -->
+<div id="overlay" class="hidden"></div>
+
+<div id="previewModal" class="modal hidden preview-modal">
+    <img id="previewImage">
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

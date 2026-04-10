@@ -43,10 +43,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // =========================
     // HOVER PREVIEW (DESKTOP)
     // =========================
-    document.querySelectorAll(".grid-card").forEach(card => {
-        card.addEventListener("mouseenter", () => {
+    document.querySelectorAll(".card, .grid-card").forEach(card => {
+        card.addEventListener("click", (e) => {
+
+            // 🚫 Ignore clicks on buttons
+            if (e.target.closest("button")) return;
+
             UI.preview(card);
         });
+    });
 
         card.addEventListener("mouseleave", () => {
             UI.closeModal("previewModal");
