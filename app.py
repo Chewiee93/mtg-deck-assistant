@@ -477,11 +477,74 @@ def calculate_deck_stats(deck_cards):
 
     return stats
 
+# =========================
+# DECK ARCHETYPE
+# =========================
 def detect_archetype(stats, role_counts):
     if stats["total"] == 0:
         return "Unknown"
 
     scores = {}
+
+    scores["Aggro"] = (
+        stats["creatures"] * 2 +
+        role_counts["tokens"] +
+        role_counts["aristocrats"]
+    )
+
+    scores["Control"] = (
+        role_counts["removal"] * 2 +
+        role_counts["board_wipe"] * 3 +
+        role_counts["card_draw"]
+    )
+
+    scores["Midrange"] = (
+        stats["creatures"] +
+        role_counts["removal"] +
+        role_counts["card_draw"]
+    )
+
+    scores["Ramp"] = (
+        role_counts["ramp"] * 3
+    )
+
+    scores["Aristocrats"] = (
+        role_counts["aristocrats"] * 3 +
+        role_counts["recursion"]
+    )
+
+    scores["Tokens"] = (
+        role_counts["tokens"] * 3
+    )
+
+    scores["Stax"] = (
+        role_counts["stax"] * 4
+    )
+
+    scores["Toolbox"] = (
+        role_counts["toolbox"] * 3
+    )
+
+    scores["Pillowfort"] = (
+        role_counts["pillowfort"] * 3
+    )
+
+    total_score = sum(scores.values())
+
+    if total_score == 0:
+        return "Unknown"
+
+    percentages = {
+        k: int((v / total_score) * 100)
+        for k, v in scores.items()
+    }
+
+    sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+
+    primary = sorted_scores[0][0]
+    secondary = sorted_scores[1][0]
+
+    return f"{primary} ({percentages[primary]}%) / {secondary} ({percentages[secondary]}%)"
 
 # =========================
 # DECK IDENTITY GENERATOR
@@ -497,6 +560,9 @@ def generate_deck_identity(archetype, role_counts, stats):
         "strengths": [],
         "weaknesses": []
     }
+
+    if not archetype:
+        archetype = "Unknown"
 
     # -------------------------
     # DESCRIPTION (BASED ON ARCHETYPE)
@@ -1372,7 +1438,8 @@ def view_deck(deck_id):
 
     stats = calculate_deck_stats(deck_cards)
     role_counts = analyze_deck_roles(deck_cards)
-    identity = generate_deck_identity(analysis["archetype"], role_counts, stats)
+    archetype = analysis.get("archetype") or "Unknown"
+    identity = generate_deck_identity(archetype, role_counts, stats)
 
     recommendations, role_counts, missing_roles = generate_recommendations(deck_cards)
     suggestions = suggest_from_collection(missing_roles, deck_colors)
