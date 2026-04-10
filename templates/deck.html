@@ -212,7 +212,7 @@
     <h2>Sideboard</h2>
     <div class="grid">
         {% for card in sideboard %}
-            {% include "card_item.html" %}
+            {% include "card_item.html" with context %}
         {% endfor %}
     </div>
     {% endif %}

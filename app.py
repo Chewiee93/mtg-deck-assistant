@@ -1274,7 +1274,7 @@ def view_deck(deck_id):
 
     commander_image = analysis.get("commander_image")
 
-    if not commander_image:
+    if deck.format == "commander" and not commander_image:
         commander_image = "/static/placeholder.jpg"
 
     # =========================
@@ -1343,7 +1343,7 @@ def view_deck(deck_id):
     archetype = analysis.get("archetype") or "Unknown"
     identity = generate_deck_identity(archetype, role_counts, stats)
 
-    recommendations, role_counts, missing_roles = generate_recommendations(deck_cards)
+    recommendations, _, missing_roles = generate_recommendations(deck_cards)
     suggestions = suggest_from_collection(missing_roles, deck_colors)
 
     from collections import defaultdict

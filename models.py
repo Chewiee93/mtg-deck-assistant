@@ -2,10 +2,6 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import declarative_base
 
-# Base class that all database models inherit from
-Base = declarative_base()
-
-
 # -------------------------
 # CARD MODEL
 # -------------------------

@@ -47,7 +47,7 @@
             <button data-action="owned" title="Mark Owned">✔</button>
         {% endif %}
 
-        {% if deck.format == "commander" %}
+        {% if deck.format == "commander" and card.name == commander_name %}
             <button data-action="set-commander" title="Set Commander">👑</button>
         {% endif %}
     </div>
