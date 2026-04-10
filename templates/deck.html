@@ -127,6 +127,11 @@
     <div class="deck-right chart-container">
         <h3 class="mana-curve">Mana Curve</h3>
 
+        <!-- FIXED HEIGHT CONTAINER -->
+        <div class="chart-box small-chart">
+            <canvas id="manaChart"></canvas>
+        </div>
+
         <!-- =========================
             ROLES
             ========================= -->
@@ -145,11 +150,6 @@
                 <span>Toolbox: {{ toolbox }}</span>
                 <span>Stax: {{ stax }}</span>
             </div>
-        </div>
-
-        <!-- FIXED HEIGHT CONTAINER -->
-        <div class="chart-box small-chart">
-            <canvas id="manaChart"></canvas>
         </div>
 
     </div>
