@@ -1162,12 +1162,12 @@ def confirm_import():
 
     Then redirects to deck view.
     """
-    import_id = request.form.get("import_id")
+    import_id = int(request.form.get("import_id"))
 
     import_cards = g.db.query(ImportCard).filter_by(import_id=import_id).all()
     import_all_owned = session.get("import_all_owned", False)
     deck_name = session.get("imported_deck_name", "Imported Deck")
-    format_type = session.get("detected_format")
+    format_type = session.get("detected_format") or session.get("import_format", "casual")
 
     if not format_type:
         format_type = session.get("import_format", "casual")
@@ -1187,7 +1187,11 @@ def confirm_import():
     g.db.flush()  # get deck.id before commit
 
     for i, c in enumerate(import_cards):
-        card_data = json.loads(c.data)
+        try:
+            card_data = json.loads(c.data)
+        except Exception:
+            print("bad card data", c.data)
+            continue
 
         selected_set = request.form.get(f"print_{i}")
 
