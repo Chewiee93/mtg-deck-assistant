@@ -310,7 +310,10 @@ def get_images(data):
             if "image_uris" in face:
                 return face["image_uris"]
 
-    return {}
+    return {
+        "small": "/static/placeholder.jpg",
+        "normal": "/static/placeholder.jpg"
+    }
 
 def get_card_prints(name):
     url = f"https://api.scryfall.com/cards/search?q=!\"{name}\""
@@ -1182,8 +1185,8 @@ def confirm_import():
                 color_identity=",".join(card_data.get("color_identity", [])),
                 type_line=card_data["type_line"],
                 oracle_text=card_data["oracle_text"],
-                image_url=card_data["image_url"],
-                image_large=card_data.get("image_large", ""),
+                image_url=card_data.get("image_url") or "/static/placeholder.jpg",
+                image_large=card_data.get("image_large") or card_data.get("image_url") or "/static/placeholder.jpg",
                 set_name=set_name,
                 cmc=card_data["cmc"],
                 owned=1 if owned else 0

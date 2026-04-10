@@ -13,8 +13,8 @@
          ========================= -->
     {% if card.image_url %}
         <img 
-            src="{{ card.image_url }}" 
-            alt="{{ card.name }}"
+            src="{{ card.image_url if card.image_url else '/static/placeholder.jpg' }}" 
+            alt="{{ card.name }}">
         >
     {% endif %}
 
