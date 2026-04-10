@@ -53,6 +53,40 @@
             </button>
         </form>
 
+        <div class="panel">
+
+            <h3>Deck Identity</h3>
+
+            <div class="text-highlight">
+                {{ identity.title }}
+            </div>
+
+            <div class="text-muted">
+                {{ identity.description }}
+            </div>
+
+            <!-- Strengths -->
+            {% if identity.strengths %}
+                <div class="mt-6">
+                    <strong>Strengths</strong>
+                    {% for s in identity.strengths %}
+                        <div>✅ {{ s }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Weaknesses -->
+            {% if identity.weaknesses %}
+                <div class="mt-6">
+                    <strong>Weaknesses</strong>
+                    {% for w in identity.weaknesses %}
+                        <div>⚠ {{ w }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+        </div>
+
         <!-- =========================
         SUMMARY
         ========================= -->

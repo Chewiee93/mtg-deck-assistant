@@ -483,6 +483,71 @@ def detect_archetype(stats, role_counts):
 
     scores = {}
 
+# =========================
+# DECK IDENTITY GENERATOR
+# =========================
+def generate_deck_identity(archetype, role_counts, stats):
+    """
+    Returns a readable identity description for the deck.
+    """
+
+    identity = {
+        "title": archetype,
+        "description": "",
+        "strengths": [],
+        "weaknesses": []
+    }
+
+    # -------------------------
+    # DESCRIPTION (BASED ON ARCHETYPE)
+    # -------------------------
+    if "Aggro" in archetype:
+        identity["description"] = "Fast-paced deck focused on early pressure and creature damage."
+
+    elif "Control" in archetype:
+        identity["description"] = "Slows the game down and wins through control and late-game advantage."
+
+    elif "Ramp" in archetype:
+        identity["description"] = "Accelerates mana to play powerful threats ahead of curve."
+
+    elif "Midrange" in archetype:
+        identity["description"] = "Balanced deck with strong creatures and interaction."
+
+    else:
+        identity["description"] = "Flexible strategy with mixed game plan."
+
+    # -------------------------
+    # STRENGTHS
+    # -------------------------
+    if role_counts["card_draw"] >= 7:
+        identity["strengths"].append("Strong card draw engine")
+
+    if role_counts["removal"] >= 6:
+        identity["strengths"].append("Reliable removal suite")
+
+    if role_counts["ramp"] >= 6:
+        identity["strengths"].append("Good mana acceleration")
+
+    if stats["creatures"] >= 20:
+        identity["strengths"].append("High board presence")
+
+    # -------------------------
+    # WEAKNESSES
+    # -------------------------
+    if role_counts["card_draw"] < 4:
+        identity["weaknesses"].append("Low card draw — may run out of resources")
+
+    if role_counts["removal"] < 3:
+        identity["weaknesses"].append("Limited removal options")
+
+    if role_counts["ramp"] < 3:
+        identity["weaknesses"].append("Slow mana development")
+
+    if stats["lands"] < 20:
+        identity["weaknesses"].append("Low land count — risk of inconsistency")
+
+    return identity
+
     # =========================
     # AGGRO
     # =========================
@@ -1303,6 +1368,7 @@ def view_deck(deck_id):
 
     stats = calculate_deck_stats(deck_cards)
     role_counts = analyze_deck_roles(deck_cards)
+    identity = generate_deck_identity(archetype, role_counts, stats)
 
     recommendations, role_counts, missing_roles = generate_recommendations(deck_cards)
     suggestions = suggest_from_collection(missing_roles, deck_colors)
@@ -1346,6 +1412,7 @@ def view_deck(deck_id):
         others=others,
         sideboard=sideboard,
         stats=stats,
+        identity=identity,
 
         format_issues=analysis["format_issues"],
         warnings=analysis["warnings"],
