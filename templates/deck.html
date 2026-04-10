@@ -110,10 +110,6 @@
                 Missing: {{ cards | selectattr('owned', 'equalto', 0) | list | length }}
             </div>
 
-            <div class="text-highlight">
-                <span class="text-highlight">{{ archetype }}</span>
-            </div>
-
             {% if deck.commander %}
             <div class="panel">
                 <strong>Commander:</strong> {{ deck.commander }}
@@ -143,14 +139,6 @@
                     </div>
                 {% endif %}
 
-                {% if strengths %}
-                    <div class="deck-strengths">
-                        <strong>Strengths</strong>
-                        {% for s in strengths %}
-                            <div>✅ {{ s }}</div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
             </div>
         
         </div>
