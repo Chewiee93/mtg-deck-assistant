@@ -375,10 +375,23 @@ def analyze_deck(deck_id):
 
     # Max copies
     if rules.get("max_copies"):
+
+        basic_lands = {"plains", "island", "swamp", "mountain", "forest"}
+
         for dc in deck_cards:
+            card = g.db.get(Card, dc.card_id)
+
+            if not card:
+                continue
+
+            # ✅ IGNORE BASIC LANDS
+            if "basic land" in (card.type_line or "").lower():
+                continue
+
             if dc.quantity > rules["max_copies"]:
-                card = g.db.get(Card, dc.card_id)
-                format_issues.append(f"{card.name}: too many copies ({dc.quantity})")
+                format_issues.append(
+                    f"{card.name}: too many copies ({dc.quantity})"
+                )
 
     # Banned cards
     banned = BANNED_CARDS.get(deck.format, [])
