@@ -412,11 +412,25 @@ def analyze_deck(deck_id):
         if total_cards != 100:
             format_issues.append(f"Commander decks must have 100 cards (currently {total_cards})")
 
-        # Singleton rule
+        # =========================
+        # COMMANDER SINGLETON RULE (FIXED)
+        # =========================
+        basic_lands = {"plains", "island", "swamp", "mountain", "forest"}
+
         for dc in deck_cards:
+            card = g.db.get(Card, dc.card_id)
+
+            if not card:
+                continue
+
+            # ✅ IGNORE BASIC LANDS
+            if "basic land" in (card.type_line or "").lower():
+                continue
+
             if dc.quantity > 1:
-                card = g.db.get(Card, dc.card_id)
-                format_issues.append(f"{card.name}: only 1 copy allowed in Commander")
+                format_issues.append(
+                    f"{card.name}: only 1 copy allowed in Commander"
+                )
 
         # Commander presence
         if not deck.commander:
