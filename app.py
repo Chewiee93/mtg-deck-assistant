@@ -615,6 +615,28 @@ def generate_deck_identity(archetype, role_counts, stats):
     if stats["lands"] < 20:
         identity["weaknesses"].append("Low land count — risk of inconsistency")
 
+    # -------------------------
+    # GAMEPLAN SENTENCE
+    # -------------------------
+    gameplan = ""
+
+    if "Aggro" in archetype:
+        gameplan = "Apply early pressure and win through combat damage."
+
+    elif "Control" in archetype:
+        gameplan = "Control the board and win in the late game."
+
+    elif "Ramp" in archetype:
+        gameplan = "Accelerate mana and overwhelm opponents with big threats."
+
+    elif "Tokens" in archetype:
+        gameplan = "Build a wide board and overwhelm with multiple creatures."
+
+    elif "Aristocrats" in archetype:
+        gameplan = "Sacrifice creatures for incremental value and drain effects."
+
+    identity["gameplan"] = gameplan
+
     return identity
 
 def classify_card_roles(card):
@@ -973,7 +995,17 @@ def import_deck():
     # 2. Heuristic: 100 cards + mostly singleton
     elif total_cards == 100:
         # DEV FIX: unpack 3 values
-        duplicate_count = sum(1 for qty, _, _ in parsed_lines if qty > 1)
+        # =========================
+        # IGNORE BASIC LANDS IN DUPLICATE CHECK
+        # =========================
+        basic_lands = {
+            "plains", "island", "swamp", "mountain", "forest"
+        }
+
+        duplicate_count = sum(
+            1 for qty, name, _ in parsed_lines
+            if qty > 1 and name.lower() not in basic_lands
+        )
 
         if duplicate_count <= 5:  # allow some flexibility
             detected_format = "commander"
@@ -1349,6 +1381,17 @@ def view_deck(deck_id):
     recommendations, _, missing_roles = generate_recommendations(deck_cards)
     suggestions = suggest_from_collection(missing_roles, deck_colors)
 
+    # =========================
+    # PARSE ARCHETYPE LABELS
+    # =========================
+    archetype_parts = []
+
+    if archetype and archetype != "Unknown":
+        parts = archetype.split("/")
+        for p in parts:
+            name = p.strip().split(" (")[0]
+            archetype_parts.append(name)
+
     from collections import defaultdict
 
     curve = defaultdict(int)
@@ -1394,6 +1437,7 @@ def view_deck(deck_id):
         warnings=analysis["warnings"],
         strengths=analysis["strengths"],
         archetype=analysis["archetype"],
+        archetype_parts=archetype_parts,
 
         recommended=recommendations,
         suggestions=suggestions,

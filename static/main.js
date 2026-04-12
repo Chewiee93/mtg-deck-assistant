@@ -32,27 +32,47 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================
-    // CARD PREVIEW (CLICK + HOVER)
+    // CARD PREVIEW (SMOOTH HOVER)
     // =========================
+    let hoverTimer = null;
+    let leaveTimer = null;
+
     document.querySelectorAll(".card, .grid-card").forEach(card => {
 
-        // CLICK (mobile + desktop)
+        // CLICK (mobile safe)
         card.addEventListener("click", (e) => {
             if (e.target.closest("button")) return;
             UI.preview(card);
         });
 
-        // HOVER (desktop only)
+        // HOVER ENTER
         card.addEventListener("mouseenter", () => {
-            UI.preview(card);
+
+            // Cancel any closing
+            clearTimeout(leaveTimer);
+
+            // Start hover delay
+            hoverTimer = setTimeout(() => {
+                UI.preview(card);
+            }, 150); // ⏱ delay before showing
+
         });
 
+        // HOVER LEAVE
         card.addEventListener("mouseleave", () => {
-            UI.closeModal("previewModal");
+
+            // Cancel hover if not triggered yet
+            clearTimeout(hoverTimer);
+
+            // Delay closing slightly (prevents flicker)
+            leaveTimer = setTimeout(() => {
+                UI.closeModal("previewModal");
+            }, 120);
+
         });
 
     });
-
+    
     // =========================
     // QUANTITY BUTTONS
     // =========================

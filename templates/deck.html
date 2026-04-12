@@ -57,6 +57,14 @@
 
             <h3>Deck Identity</h3>
 
+            <div class="archetype-badges">
+                {% for tag in archetype_parts %}
+                    <span class="badge badge-{{ tag | lower }}">
+                        {{ tag }}
+                    </span>
+                {% endfor %}
+            </div>
+
             <div class="text-highlight">
                 {{ identity.title }}
             </div>
@@ -64,6 +72,12 @@
             <div class="text-muted">
                 {{ identity.description }}
             </div>
+
+            {% if identity.gameplan %}
+                <div class="text-muted mt-6">
+                    <em>{{ identity.gameplan }}</em>
+                </div>
+            {% endif %}
 
             <!-- Strengths -->
             {% if identity.strengths %}
