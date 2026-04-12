@@ -1041,8 +1041,17 @@ def import_deck():
     elif total_cards >= 60:
         detected_format = "modern"
 
-    # Save for later use
-    session["detected_format"] = detected_format
+    # =========================
+    # RESPECT USER SELECTED FORMAT
+    # =========================
+    user_format = session.get("import_format")
+
+    if user_format and user_format != "casual":
+        session["detected_format"] = user_format
+    else:
+        session["detected_format"] = detected_format
+
+
     session["commander_name"] = commander_name
 
     # Fetch card data (cached API call)
