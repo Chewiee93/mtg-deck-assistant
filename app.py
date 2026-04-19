@@ -212,7 +212,7 @@ def import_deck():
             import_id=import_session.id,
             name=data["name"],
             quantity=qty,
-            data=json.dumps(data)
+            data=json.dumps(data),
             image_url=data.get("image_uris", {}).get("normal")
         ))
 
