@@ -301,16 +301,107 @@ deck_bp = Blueprint("deck", __name__)
 
 @deck_bp.route("/deck/<int:deck_id>")
 def view_deck(deck_id):
+
     deck = g.db.get(Deck, deck_id)
+
+    # =========================
+    # LOAD DECK CARDS
+    # =========================
+    deck_cards = g.db.query(DeckCard).filter_by(deck_id=deck_id).all()
+
+    # =========================
+    # PRELOAD CARDS (card_map)
+    # =========================
+    card_ids = [dc.card_id for dc in deck_cards]
+
+    if card_ids:
+        cards = g.db.query(Card).filter(Card.id.in_(card_ids)).all()
+    else:
+        cards = []
+
+    card_map = {c.id: c for c in cards}
+
+    # =========================
+    # CARD GROUPS
+    # =========================
+    groups = {
+        "creatures": [],
+        "lands": [],
+        "instants": [],
+        "sorceries": [],
+        "artifacts": [],
+        "enchantments": [],
+        "planeswalkers": [],
+        "battles": [],
+        "others": []
+    }
+
+    for dc in deck_cards:
+        card = card_map.get(dc.card_id)
+
+        if not card:
+            continue
+
+        card.quantity = dc.quantity
+
+        type_line = card.type_line or ""
+
+        if "Creature" in type_line:
+            groups["creatures"].append(card)
+
+        elif "Land" in type_line:
+            groups["lands"].append(card)
+
+        elif "Instant" in type_line:
+            groups["instants"].append(card)
+
+        elif "Sorcery" in type_line:
+            groups["sorceries"].append(card)
+
+        elif "Artifact" in type_line:
+            groups["artifacts"].append(card)
+
+        elif "Enchantment" in type_line:
+            groups["enchantments"].append(card)
+
+        elif "Planeswalker" in type_line:
+            groups["planeswalkers"].append(card)
+
+        elif "Battle" in type_line:
+            groups["battles"].append(card)
+
+        else:
+            groups["others"].append(card)
+
+    total_cards = sum(len(v) for v in groups.values())
+
+    stats = {
+        "total": total_cards,
+        "creatures": len(groups["creatures"]),
+        "lands": len(groups["lands"]),
+        "others": total_cards - (
+            len(groups["creatures"]) + len(groups["lands"])
+        )
+    }
 
     return render_template(
         "deck.html",
         deck=deck,
-        creatures=[],
-        lands=[],
-        others=[],
+        creatures=groups["creatures"],
+        lands=groups["lands"],
+
+        # TEMP (keep compatibility with your template)
+        others=(
+            groups["instants"]
+            + groups["sorceries"]
+            + groups["artifacts"]
+            + groups["enchantments"]
+            + groups["planeswalkers"]
+            + groups["battles"]
+            + groups["others"]
+        ),
         sideboard=[],
-        stats={"total": 0, "creatures": 0, "lands": 0, "others": 0},
+        stats=stats,
         curve_labels=[],
         curve_values=[],
         commander_image=None,

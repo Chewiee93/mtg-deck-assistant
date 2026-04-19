@@ -1,0 +1,10 @@
+Split deck view further include;
+    Instants,
+    Sorceries,
+    Artifacts,
+    Enchantments,
+    Planeswalker,
+    Battle,
+
+Deck synergy
+
