@@ -1351,6 +1351,15 @@ def view_deck(deck_id):
     deck = g.db.get(Deck, deck_id)
     deck_cards = g.db.query(DeckCard).filter_by(deck_id=deck_id).all()
 
+    # =========================
+    # PRELOAD ALL CARDS (PERFORMANCE FIX)
+    # =========================
+    card_ids = [dc.card_id for dc in deck_cards]
+
+    cards = g.db.query(Card).filter(Card.id.in_(card_ids)).all()
+
+    card_map = {c.id: c for c in cards}
+
     analysis = analyze_deck(deck_id)
 
     commander_image = analysis.get("commander_image")
@@ -1375,7 +1384,7 @@ def view_deck(deck_id):
     sideboard = []
 
     for dc in deck_cards:
-        card = g.db.get(Card, dc.card_id)
+        card = card_map.get(dc.card_id)
 
         if not card:
             continue
@@ -1401,7 +1410,7 @@ def view_deck(deck_id):
     others = []
 
     for c in mainboard:
-        card_obj = g.db.get(Card, c["id"])
+        card_obj = card_map.get(c["id"])
 
         if not card_obj:
             continue
@@ -1443,7 +1452,7 @@ def view_deck(deck_id):
     curve = defaultdict(int)
 
     for dc in deck_cards:
-        card = g.db.get(Card, dc.card_id)
+        card = card_map.get(dc.card_id)
 
         if not card:
             continue

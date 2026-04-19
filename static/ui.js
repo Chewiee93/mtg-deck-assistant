@@ -24,10 +24,20 @@ export const UI = {
     },
 
     preview(cardEl) {
-        const img = cardEl.dataset.preview || cardEl.dataset.image;
-        if (!img) return;
+        let img = cardEl.dataset.preview || cardEl.dataset.image;
+
+        // ✅ HARD FALLBACK
+        if (!img || img === "" || img === "null") {
+            img = "/static/placeholder.jpg";
+        }
 
         const preview = document.getElementById("previewImage");
+
+        // ✅ SAFE LOAD (handles broken URLs)
+        preview.onerror = () => {
+            preview.src = "/static/placeholder.jpg";
+        };
+
         preview.src = img;
 
         this.openModal("previewModal");
