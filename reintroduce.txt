@@ -2,17 +2,6 @@ Reintroduce features ONE AT A TIME
 
 In this order:
 
-1. Deck view logic
-card_map preload
-deck splitting (creatures / lands / others)
-
-2. Mana curve
-curve_labels / curve_values
-
-3. Commander system
-commander_image
-set commander route
-
 4. Analysis system
 analyze_deck
 generate_deck_identity

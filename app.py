@@ -252,15 +252,21 @@ def confirm_import():
     for c in cards:
         data = json.loads(c.data)
 
-        card = Card(
-            name=c.name,
-            quantity=c.quantity,
-            type_line=data.get("type_line", ""),
-            cmc=int(data.get("cmc", 0))
-        )
+        card = g.db.query(Card).filter_by(name=c.name).first()
 
-        g.db.add(card)
-        g.db.flush()
+        if not card:
+            card = Card(
+                name=c.name,
+                quantity=0,  # deck uses DeckCard quantity
+                type_line=data.get("type_line", ""),
+                cmc=int(data.get("cmc", 0)),
+                color_identity="".join(data.get("color_identity", [])),
+                image_url=data.get("image_uris", {}).get("normal"),
+                image_large=data.get("image_uris", {}).get("large")
+            )
+
+            g.db.add(card)
+            g.db.flush()
 
         g.db.add(DeckCard(
             deck_id=deck.id,
