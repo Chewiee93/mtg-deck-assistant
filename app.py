@@ -200,12 +200,15 @@ def import_deck():
     g.db.add(import_session)
     g.db.flush()
 
+    invalid_lines = []
+
     parsed = parse_deck_list(request.form.get("deck_list", ""))
 
     for qty, name in parsed:
         data = get_card_data(name)
 
         if not data:
+            invalid_lines.append(name)
             continue
 
         g.db.add(ImportCard(
@@ -217,6 +220,8 @@ def import_deck():
         ))
 
     g.db.commit()
+
+    import_session.invalid_lines = json.dumps(invalid_lines)
 
     return redirect(f"/import_review/{import_session.id}")
 
@@ -230,7 +235,10 @@ def import_review(import_id):
         "import_review.html",
         cards=cards,
         import_id=import_id,
-        all_owned=bool(session_data.all_owned)
+        all_owned=bool(session_data.all_owned),
+        detected_format=session_data.format,
+        commander_name=session_data.commander_name,
+        invalid_lines=json.loads(session_data.invalid_lines or "[]")
     )
 
 @main_bp.route("/confirm_import", methods=["POST"])
@@ -241,9 +249,12 @@ def confirm_import():
     session_data = g.db.get(ImportSession, import_id)
     cards = g.db.query(ImportCard).filter_by(import_id=import_id).all()
 
+    commander_name = request.form.get("commander_override")
+
     deck = Deck(
         name=session_data.deck_name,
-        format=session_data.format
+        format=session_data.format,
+        commander=commander_name
     )
 
     g.db.add(deck)
@@ -448,6 +459,8 @@ def view_deck(deck_id):
         if commander_card:
             commander_image = commander_card.image_large or commander_card.image_url
 
+    commander_name = deck.commander
+
     return render_template(
         "deck.html",
         deck=deck,
@@ -464,6 +477,7 @@ def view_deck(deck_id):
         stats=stats,
         curve_labels=curve_labels,
         curve_values=curve_values,
+        commander_name=commander_name,
         commander_image=commander_image,
         archetype_parts=[],
         identity={"title": "", "description": "", "strengths": [], "weaknesses": []},
