@@ -204,8 +204,50 @@
             {% include "card_item.html" with context %}
         {% endfor %}
     </div>
-    
-    <h2>Other Spells</h2>
+
+    <h2>Instants</h2>
+    <div class="grid">
+        {% for card in instants %}
+            {% include "card_item.html" with context %}
+        {% endfor %}
+    </div>
+
+    <h2>Sorceries</h2>
+    <div class="grid">
+        {% for card in sorceries %}
+            {% include "card_item.html" with context %}
+        {% endfor %}
+    </div>
+
+    <h2>Artifacts</h2>
+    <div class="grid">
+        {% for card in artifacts %}
+            {% include "card_item.html" with context %}
+        {% endfor %}
+    </div>
+
+    <h2>Enchantments</h2>
+    <div class="grid">
+        {% for card in enchantments %}
+            {% include "card_item.html" with context %}
+        {% endfor %}
+    </div>
+
+    <h2>Planeswalkers</h2>
+    <div class="grid">
+        {% for card in planeswalkers %}
+            {% include "card_item.html" with context %}
+        {% endfor %}
+    </div>
+
+    <h2>Battles</h2>
+    <div class="grid">
+        {% for card in battles %}
+            {% include "card_item.html" with context %}
+        {% endfor %}
+    </div>
+
+    <h2>Other</h2>
     <div class="grid">
         {% for card in others %}
             {% include "card_item.html" with context %}

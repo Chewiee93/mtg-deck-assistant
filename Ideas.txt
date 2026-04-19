@@ -8,3 +8,10 @@ Split deck view further include;
 
 Deck synergy
 
+OPTIONAL (don’t do yet, just awareness)
+
+Later we can:
+
+color bars by mana color
+split curve by type
+compare vs ideal curve

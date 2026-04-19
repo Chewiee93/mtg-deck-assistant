@@ -384,26 +384,51 @@ def view_deck(deck_id):
         )
     }
 
+    # =========================
+    # MANA CURVE
+    # =========================
+    curve = {}
+
+    # include ALL non-land cards
+    for group_name, group_cards in groups.items():
+        if group_name == "lands":
+            continue
+
+        for card in group_cards:
+            cmc = int(card.cmc or 0)
+
+            # cap high values into "7+"
+            key = cmc if cmc < 7 else "7+"
+
+            curve[key] = curve.get(key, 0) + card.quantity
+
+    # sort keys properly
+    ordered_keys = list(range(0, 7)) + ["7+"]
+
+    curve_labels = []
+    curve_values = []
+
+    for key in ordered_keys:
+        if key in curve:
+            curve_labels.append(str(key))
+            curve_values.append(curve[key])
+
     return render_template(
         "deck.html",
         deck=deck,
         creatures=groups["creatures"],
         lands=groups["lands"],
-
-        # TEMP (keep compatibility with your template)
-        others=(
-            groups["instants"]
-            + groups["sorceries"]
-            + groups["artifacts"]
-            + groups["enchantments"]
-            + groups["planeswalkers"]
-            + groups["battles"]
-            + groups["others"]
-        ),
+        instants=groups["instants"],
+        sorceries=groups["sorceries"],
+        artifacts=groups["artifacts"],
+        enchantments=groups["enchantments"],
+        planeswalkers=groups["planeswalkers"],
+        battles=groups["battles"],
+        others=groups["others"],
         sideboard=[],
         stats=stats,
-        curve_labels=[],
-        curve_values=[],
+        curve_labels=curve_labels,
+        curve_values=curve_values,
         commander_image=None,
         archetype_parts=[],
         identity={"title": "", "description": "", "strengths": [], "weaknesses": []},
