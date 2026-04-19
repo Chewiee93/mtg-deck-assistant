@@ -1047,6 +1047,8 @@ def import_deck():
     elif total_cards >= 60:
         detected_format = "modern"
 
+    session["auto_detected_format"] = detected_format
+
     # =========================
     # RESPECT USER SELECTED FORMAT
     # =========================
@@ -1138,6 +1140,7 @@ def import_review(import_id):
 
     detected_format = session.get("detected_format", "casual")
     commander_name = session.get("commander_name")
+    auto_format = session.get("auto_detected_format")
 
     invalid_lines = []
     if import_session and import_session.invalid_lines:
@@ -1190,6 +1193,7 @@ def import_review(import_id):
         import_id=import_id,
         detected_format=detected_format,
         commander_name=commander_name,
+        auto_format=auto_format,
     )
 
 # =========================

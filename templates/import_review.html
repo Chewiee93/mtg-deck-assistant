@@ -32,8 +32,13 @@
     <input type="hidden" name="import_id" value="{{ import_id }}">
 
     <div class="panel">
-        Selected format: <strong>{{ detected_format }}</strong>
-        Auto-detected: <strong>{{ auto_format }}</strong>
+        Using format: <strong>{{ detected_format }}</strong>
+
+        {% if detected_format != "casual" %}
+            <div class="text-muted">
+                (Auto-detected may differ based on deck contents)
+            </div>
+        {% endif %}
     </div>
 
     <br><br>
