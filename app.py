@@ -284,6 +284,24 @@ def decks():
 
     # TEMP: no image logic yet
     for d in decks:
+
+        # commander deck → use commander image
+        if d.format == "commander" and d.commander:
+            card = g.db.query(Card).filter_by(name=d.commander).first()
+            if card:
+                d.image = card.image_url or "/static/placeholder.jpg"
+                continue
+
+        # fallback → first card in deck
+        dc = g.db.query(DeckCard).filter_by(deck_id=d.id).first()
+
+        if dc:
+            card = g.db.get(Card, dc.card_id)
+            if card and card.image_url:
+                d.image = card.image_url
+                continue
+
+        # final fallback
         d.image = "/static/placeholder.jpg"
 
     return render_template("decks.html", decks=decks)
@@ -413,6 +431,17 @@ def view_deck(deck_id):
             curve_labels.append(str(key))
             curve_values.append(curve[key])
 
+    # =========================
+    # COMMANDER IMAGE
+    # =========================
+    commander_image = None
+
+    if deck.format == "commander" and deck.commander:
+        commander_card = g.db.query(Card).filter_by(name=deck.commander).first()
+
+        if commander_card:
+            commander_image = commander_card.image_large or commander_card.image_url
+
     return render_template(
         "deck.html",
         deck=deck,
@@ -429,7 +458,7 @@ def view_deck(deck_id):
         stats=stats,
         curve_labels=curve_labels,
         curve_values=curve_values,
-        commander_image=None,
+        commander_image=commander_image,
         archetype_parts=[],
         identity={"title": "", "description": "", "strengths": [], "weaknesses": []},
         format_issues=[],
@@ -437,6 +466,27 @@ def view_deck(deck_id):
         recommended=[],
         suggestions=[]
     )
+
+@deck_bp.route("/set_commander/<int:deck_id>", methods=["POST"])
+def set_commander(deck_id):
+
+    data = request.get_json()
+    name = data.get("name")
+
+    deck = g.db.get(Deck, deck_id)
+
+    if not deck:
+        return jsonify({"success": False, "error": "Deck not found"}), 404
+
+    # only allow for commander decks
+    if deck.format != "commander":
+        return jsonify({"success": False, "error": "Not a commander deck"}), 400
+
+    deck.commander = name
+
+    g.db.commit()
+
+    return jsonify({"success": True})
 
 # =========================
 # 9. API ROUTES

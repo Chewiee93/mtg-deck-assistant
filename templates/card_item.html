@@ -50,7 +50,7 @@
             <button data-action="owned" title="Mark Owned">✔</button>
         {% endif %}
 
-        {% if deck.format == "commander" and card.name == commander_name %}
+        {% if deck.format == "commander" %}
             <button 
                 data-action="set-commander"
                 data-deck="{{ deck.id }}"
