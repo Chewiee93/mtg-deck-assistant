@@ -117,6 +117,7 @@ class ImportCard(Base):
     name = Column(String)
     quantity = Column(Integer)
     data = Column(Text)
+    image_url = Column(String)
     is_sideboard = Column(Integer, default=0)
 
 Base.metadata.create_all(engine)
@@ -212,6 +213,7 @@ def import_deck():
             name=data["name"],
             quantity=qty,
             data=json.dumps(data)
+            image_url=data.get("image_uris", {}).get("normal")
         ))
 
     g.db.commit()
@@ -270,6 +272,27 @@ def confirm_import():
 
     return redirect(f"/deck/{deck.id}")
 
+@main_bp.route("/collection")
+def collection():
+    cards = g.db.query(Card).all()
+    return render_template("index.html", cards=cards, added=None)
+
+
+@main_bp.route("/decks")
+def decks():
+    decks = g.db.query(Deck).all()
+
+    # TEMP: no image logic yet
+    for d in decks:
+        d.image = "/static/placeholder.jpg"
+
+    return render_template("decks.html", decks=decks)
+
+
+@main_bp.route("/rules")
+def rules():
+    return render_template("rules.html")
+
 # =========================
 # 8. ROUTES (DECKS)
 # =========================
@@ -279,7 +302,25 @@ deck_bp = Blueprint("deck", __name__)
 @deck_bp.route("/deck/<int:deck_id>")
 def view_deck(deck_id):
     deck = g.db.get(Deck, deck_id)
-    return render_template("deck.html", deck=deck)
+
+    return render_template(
+        "deck.html",
+        deck=deck,
+        creatures=[],
+        lands=[],
+        others=[],
+        sideboard=[],
+        stats={"total": 0, "creatures": 0, "lands": 0, "others": 0},
+        curve_labels=[],
+        curve_values=[],
+        commander_image=None,
+        archetype_parts=[],
+        identity={"title": "", "description": "", "strengths": [], "weaknesses": []},
+        format_issues=[],
+        warnings=[],
+        recommended=[],
+        suggestions=[]
+    )
 
 # =========================
 # 9. API ROUTES
