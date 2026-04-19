@@ -366,52 +366,81 @@ def analyze_deck(deck_id):
     strengths = []
 
     # =========================
-    # BASIC VALIDATION
+    # FORMAT VALIDATION (CLEAN)
     # =========================
 
-    # Deck size
-    if rules.get("deck_size") and total_cards != rules["deck_size"]:
-        format_issues.append(f"Deck should have {rules['deck_size']} cards (currently {total_cards})")
+    rules = FORMAT_RULES.get(deck.format, {})
 
-    # Max copies
-    if rules.get("max_copies"):
+    basic_lands = {"plains", "island", "swamp", "mountain", "forest"}
 
-        basic_lands = {"plains", "island", "swamp", "mountain", "forest"}
+    # -------------------------
+    # COMMANDER (SPECIAL RULESET)
+    # -------------------------
+    if deck.format == "commander":
 
+        # Deck size
+        if total_cards != 100:
+            format_issues.append(
+                f"Commander decks must have 100 cards (currently {total_cards})"
+            )
+
+        # Singleton rule (ignore basic lands)
         for dc in deck_cards:
             card = g.db.get(Card, dc.card_id)
-
             if not card:
                 continue
 
-            # ✅ IGNORE BASIC LANDS
             if "basic land" in (card.type_line or "").lower():
                 continue
 
-            if dc.quantity > rules["max_copies"]:
+            if dc.quantity > 1:
                 format_issues.append(
-                    f"{card.name}: too many copies ({dc.quantity})"
+                    f"{card.name}: only 1 copy allowed in Commander"
                 )
-
-    # Banned cards
-    banned = BANNED_CARDS.get(deck.format, [])
-    for dc in deck_cards:
-        card = g.db.get(Card, dc.card_id)
-
-        if not card:
-            continue  # skip broken reference
-
-        if card.name in banned:
-            format_issues.append(f"{card.name} is banned in {deck.format}")
-
-    # =========================
-    # COMMANDER RULES
-    # =========================
-    if deck.format == "commander":
 
         # Commander presence
         if not deck.commander:
             format_issues.append("No commander selected")
+
+    # -------------------------
+    # NON-COMMANDER FORMATS
+    # -------------------------
+    else:
+
+        # Deck size
+        if rules.get("deck_size") and total_cards < rules["deck_size"]:
+            format_issues.append(
+                f"Deck should have at least {rules['deck_size']} cards (currently {total_cards})"
+            )
+
+        # Max copies
+        if rules.get("max_copies"):
+            for dc in deck_cards:
+                card = g.db.get(Card, dc.card_id)
+                if not card:
+                    continue
+
+                if "basic land" in (card.type_line or "").lower():
+                    continue
+
+                if dc.quantity > rules["max_copies"]:
+                    format_issues.append(
+                        f"{card.name}: too many copies ({dc.quantity})"
+                    )
+
+    # =========================
+    # BANNED CARDS (ALL FORMATS)
+    # =========================
+    banned = BANNED_CARDS.get(deck.format, [])
+
+    for dc in deck_cards:
+        card = g.db.get(Card, dc.card_id)
+
+        if not card:
+            continue
+
+        if card.name in banned:
+            format_issues.append(f"{card.name} is banned in {deck.format}")
 
     # =========================
     # ROLE ANALYSIS
