@@ -279,14 +279,13 @@ def import_deck():
         if not data:
             data = search_card(clean_name)
 
-        # 3️⃣ Try original raw name
-        if not data:
-            data = get_card_data(name)
-
         # 4️⃣ 🔥 FINAL fallback (partial match)
         if not data and " " in clean_name:
-            partial = clean_name.split(" ")[-1]  # last word
-            data = search_card(partial)
+            partial = clean_name.split(" ")[-1]
+
+            # avoid useless 1-letter garbage
+            if len(partial) > 2:
+                data = search_card(partial)
 
         # ❌ still failed
         if not data:
@@ -303,6 +302,9 @@ def import_deck():
         ))
 
     g.db.commit()
+
+    import time
+    time.sleep(0.08)
 
     import_session.invalid_lines = json.dumps(invalid_lines)
 
