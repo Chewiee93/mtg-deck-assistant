@@ -160,6 +160,26 @@ def search_card(name):
 
     except:
         return None
+    
+def clean_card_name(name):
+    name = name.strip()
+
+    # remove extra symbols
+    name = name.replace("x", "")
+    name = name.replace("*", "")
+
+    # remove anything after " - "
+    if " - " in name:
+        name = name.split(" - ")[0]
+
+    # remove anything in brackets
+    if "(" in name:
+        name = name.split("(")[0]
+
+    # remove double spaces
+    name = " ".join(name.split())
+
+    return name.strip()
 
 # =========================
 # 6. IMPORT LOGIC
@@ -183,7 +203,7 @@ def parse_deck_list(text):
             continue
 
         # Handle "4x Card Name"
-        line = line.replace("x ", " ")
+        line = line.replace("x", " ")
 
         parts = line.split(" ", 1)
 
@@ -234,11 +254,18 @@ def import_deck():
     parsed = parse_deck_list(request.form.get("deck_list", ""))
 
     for qty, name, is_sideboard in parsed:
-        data = get_card_data(name)
 
-        # 🔥 FALLBACK SEARCH
+        clean_name = clean_card_name(name)
+
+        data = get_card_data(clean_name)
+
+        # fallback
         if not data:
-            data = search_card(name)
+            data = search_card(clean_name)
+
+        # LAST RESORT (try original)
+        if not data:
+            data = get_card_data(name)
 
         if not data:
             invalid_lines.append(name)
