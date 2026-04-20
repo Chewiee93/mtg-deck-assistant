@@ -148,24 +148,39 @@ def get_card_data(name):
         return None
     
 def search_card(name):
-    url = f"https://api.scryfall.com/cards/search?q={name}"
     try:
+        # 🔥 exact name search
+        url = f'https://api.scryfall.com/cards/search?q=!"{name}"'
         res = requests.get(url, timeout=5)
 
-        if res.status_code != 200:
-            return None
+        if res.status_code == 200:
+            data = res.json().get("data", [])
+            if data:
+                return data[0]
 
-        data = res.json().get("data", [])
-        return data[0] if data else None
+        # 🔥 fallback broader search
+        url = f"https://api.scryfall.com/cards/search?q={name}"
+        res = requests.get(url, timeout=5)
+
+        if res.status_code == 200:
+            data = res.json().get("data", [])
+            if data:
+                return data[0]
 
     except:
         return None
+
+    return None
     
 def clean_card_name(name):
     name = name.strip()
 
-    # remove extra symbols
-    name = name.replace("x", "")
+    # only remove leading quantity markers like "4x"
+    if name.lower().startswith("x "):
+        name = name[2:]
+
+    # remove patterns like "4x "
+    name = name.replace("x ", " ")
     name = name.replace("*", "")
 
     # remove anything after " - "
@@ -257,16 +272,23 @@ def import_deck():
 
         clean_name = clean_card_name(name)
 
+        # 1️⃣ Best case: clean exact match
         data = get_card_data(clean_name)
 
-        # fallback
+        # 2️⃣ Exact search fallback
         if not data:
             data = search_card(clean_name)
 
-        # LAST RESORT (try original)
+        # 3️⃣ Try original raw name
         if not data:
             data = get_card_data(name)
 
+        # 4️⃣ 🔥 FINAL fallback (partial match)
+        if not data and " " in clean_name:
+            partial = clean_name.split(" ")[-1]  # last word
+            data = search_card(partial)
+
+        # ❌ still failed
         if not data:
             invalid_lines.append(name)
             continue
