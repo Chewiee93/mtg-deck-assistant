@@ -301,12 +301,12 @@ def import_deck():
             is_sideboard=1 if is_sideboard else 0
         ))
 
-    g.db.commit()
-
-    import time
-    time.sleep(0.08)
+        import time
+        time.sleep(0.08)
 
     import_session.invalid_lines = json.dumps(invalid_lines)
+    
+    g.db.commit()
 
     return redirect(f"/import_review/{import_session.id}")
 
