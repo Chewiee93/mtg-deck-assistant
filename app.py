@@ -146,6 +146,20 @@ def get_card_data(name):
         return res.json()
     except:
         return None
+    
+def search_card(name):
+    url = f"https://api.scryfall.com/cards/search?q={name}"
+    try:
+        res = requests.get(url, timeout=5)
+
+        if res.status_code != 200:
+            return None
+
+        data = res.json().get("data", [])
+        return data[0] if data else None
+
+    except:
+        return None
 
 # =========================
 # 6. IMPORT LOGIC
@@ -155,10 +169,21 @@ def parse_deck_list(text):
     lines = text.split("\n")
     parsed = []
 
+    is_sideboard = False
+
     for line in lines:
         line = line.strip()
+
+        # Detect sideboard section
+        if line.lower() in ["sideboard", "sb:", "// sideboard"]:
+            is_sideboard = True
+            continue
+
         if not line:
             continue
+
+        # Handle "4x Card Name"
+        line = line.replace("x ", " ")
 
         parts = line.split(" ", 1)
 
@@ -169,7 +194,11 @@ def parse_deck_list(text):
             qty = 1
             name = line
 
-        parsed.append((qty, name))
+        # Remove set codes (Lightning Bolt (M11))
+        if "(" in name:
+            name = name.split("(")[0].strip()
+
+        parsed.append((qty, name, is_sideboard))
 
     return parsed
 
@@ -204,8 +233,12 @@ def import_deck():
 
     parsed = parse_deck_list(request.form.get("deck_list", ""))
 
-    for qty, name in parsed:
+    for qty, name, is_sideboard in parsed:
         data = get_card_data(name)
+
+        # 🔥 FALLBACK SEARCH
+        if not data:
+            data = search_card(name)
 
         if not data:
             invalid_lines.append(name)
@@ -216,7 +249,8 @@ def import_deck():
             name=data["name"],
             quantity=qty,
             data=json.dumps(data),
-            image_url=data.get("image_uris", {}).get("normal")
+            image_url=data.get("image_uris", {}).get("normal"),
+            is_sideboard=1 if is_sideboard else 0
         ))
 
     g.db.commit()
@@ -282,7 +316,8 @@ def confirm_import():
         g.db.add(DeckCard(
             deck_id=deck.id,
             card_id=card.id,
-            quantity=c.quantity
+            quantity=c.quantity,
+            is_sideboard=c.is_sideboard
         ))
 
     g.db.commit()
@@ -357,6 +392,11 @@ def view_deck(deck_id):
     card_map = {c.id: c for c in cards}
 
     # =========================
+    # SIDEBOARD
+    # =========================
+    sideboard = []
+
+    # =========================
     # CARD GROUPS
     # =========================
     groups = {
@@ -378,6 +418,13 @@ def view_deck(deck_id):
             continue
 
         card.quantity = dc.quantity
+
+        # =========================
+        # SIDEBOARD SPLIT
+        # =========================
+        if dc.is_sideboard:
+            sideboard.append(card)
+            continue
 
         type_line = card.type_line or ""
 
@@ -473,7 +520,7 @@ def view_deck(deck_id):
         planeswalkers=groups["planeswalkers"],
         battles=groups["battles"],
         others=groups["others"],
-        sideboard=[],
+        sideboard=sideboard,
         stats=stats,
         curve_labels=curve_labels,
         curve_values=curve_values,
