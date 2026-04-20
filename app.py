@@ -217,8 +217,9 @@ def parse_deck_list(text):
         if not line:
             continue
 
-        # Handle "4x Card Name"
-        line = line.replace("x", " ")
+        # only fix patterns like "4x "
+        if "x " in line:
+            line = line.replace("x ", " ")
 
         parts = line.split(" ", 1)
 
@@ -297,7 +298,9 @@ def import_deck():
             name=data["name"],
             quantity=qty,
             data=json.dumps(data),
-            image_url=data.get("image_uris", {}).get("normal"),
+            iimage_url=(
+                data.get("image_uris", {}) or {}
+            ).get("normal"),
             is_sideboard=1 if is_sideboard else 0
         ))
 
@@ -357,8 +360,10 @@ def confirm_import():
                 type_line=data.get("type_line", ""),
                 cmc=int(data.get("cmc", 0)),
                 color_identity="".join(data.get("color_identity", [])),
-                image_url=data.get("image_uris", {}).get("normal"),
-                image_large=data.get("image_uris", {}).get("large")
+                image_data = data.get("image_uris") or {}
+                
+                image_url=image_data.get("normal"),
+                image_large=image_data.get("large")
             )
 
             g.db.add(card)
