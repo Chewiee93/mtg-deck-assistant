@@ -156,7 +156,13 @@ def search_card(name):
         if res.status_code == 200:
             data = res.json().get("data", [])
             if data:
-                return data[0]
+                card = data[0]
+
+                # reject tokens / weird results
+                if card.get("layout") in ["token", "emblem"]:
+                    return None
+
+                return card
 
         # 🔥 fallback broader search
         url = f"https://api.scryfall.com/cards/search?q={name}"
@@ -165,7 +171,13 @@ def search_card(name):
         if res.status_code == 200:
             data = res.json().get("data", [])
             if data:
-                return data[0]
+                card = data[0]
+
+                # reject tokens / weird results
+                if card.get("layout") in ["token", "emblem"]:
+                    return None
+
+                return card
 
     except:
         return None
@@ -175,30 +187,31 @@ def search_card(name):
 def clean_card_name(name):
     name = name.strip()
 
-    # only remove leading quantity markers like "4x"
-    if name.lower().startswith("x "):
-        name = name[2:]
-
-    # remove patterns like "4x "
-    name = name.replace("x ", " ")
+    # remove weird characters
     name = name.replace("*", "")
+    name = name.replace("•", "")
 
-    # remove anything after " - "
-    if " - " in name:
-        name = name.split(" - ")[0]
-
-    # remove anything in brackets
-    if "(" in name:
-        name = name.split("(")[0]
-
-    # remove double spaces
+    # normalize spacing
     name = " ".join(name.split())
 
-    return name.strip()
+    return name
+
+def is_confident_match(input_name, result_name):
+    input_name = input_name.lower().strip()
+    result_name = result_name.lower().strip()
+
+    # direct match or very close match
+    return (
+        input_name == result_name
+        or input_name in result_name
+        or result_name in input_name
+    )
 
 # =========================
 # 6. IMPORT LOGIC
 # =========================
+
+import re
 
 def parse_deck_list(text):
     lines = text.split("\n")
@@ -206,35 +219,49 @@ def parse_deck_list(text):
 
     is_sideboard = False
 
-    for line in lines:
-        line = line.strip()
-
-        # Detect sideboard section
-        if line.lower() in ["sideboard", "sb:", "// sideboard"]:
-            is_sideboard = True
-            continue
+    for raw in lines:
+        line = raw.strip()
 
         if not line:
             continue
 
-        # only fix patterns like "4x "
-        if "x " in line:
-            line = line.replace("x ", " ")
+        # Detect sideboard
+        if re.match(r"^(sideboard|sb:|// sideboard)", line.lower()):
+            is_sideboard = True
+            continue
 
-        parts = line.split(" ", 1)
+        if line.lower() in ["mainboard", "// main", "deck"]:
+            is_sideboard = False
+            continue
 
-        if len(parts) == 2 and parts[0].isdigit():
-            qty = int(parts[0])
-            name = parts[1]
-        else:
-            qty = 1
-            name = line
+        # Remove comments
+        line = re.sub(r"#.*", "", line)
 
-        # Remove set codes (Lightning Bolt (M11))
-        if "(" in name:
-            name = name.split("(")[0].strip()
+        # Patterns:
+        # "4 Lightning Bolt"
+        # "4x Lightning Bolt"
+        # "Lightning Bolt x4"
+        # "Lightning Bolt"
 
-        parsed.append((qty, name, is_sideboard))
+        qty = 1
+        name = line
+
+        # 4x Card
+        m = re.match(r"^(\d+)x?\s+(.+)", line)
+        if m:
+            qty = int(m.group(1))
+            name = m.group(2)
+
+        # Card x4
+        m = re.match(r"^(.+?)\s+x(\d+)$", line)
+        if m:
+            name = m.group(1)
+            qty = int(m.group(2))
+
+        # Clean set codes
+        name = re.sub(r"\(.*?\)", "", name)
+
+        parsed.append((qty, name.strip(), is_sideboard))
 
     return parsed
 
@@ -273,20 +300,28 @@ def import_deck():
 
         clean_name = clean_card_name(name)
 
-        # 1️⃣ Best case: clean exact match
         data = get_card_data(clean_name)
 
-        # 2️⃣ Exact search fallback
         if not data:
             data = search_card(clean_name)
 
-        # 4️⃣ 🔥 FINAL fallback (partial match)
-        if not data and " " in clean_name:
-            partial = clean_name.split(" ")[-1]
+        # ✅ NEW: validate match
+        if data and not is_confident_match(clean_name, data.get("name", "")):
+            data = None
 
-            # avoid useless 1-letter garbage
-            if len(partial) > 2:
-                data = search_card(partial)
+        # 🔥 smarter fallback
+        if not data and len(clean_name.split()) > 1:
+            words = clean_name.split()
+
+            for i in range(len(words)):
+                partial = " ".join(words[i:])
+                result = search_card(partial)
+
+                if result and is_confident_match(clean_name, result.get("name", "")):
+                    data = result
+                    break
+                else:
+                    data = None
 
         # ❌ still failed
         if not data:
@@ -304,7 +339,6 @@ def import_deck():
             is_sideboard=1 if is_sideboard else 0
         ))
 
-        import time
         time.sleep(0.08)
 
     import_session.invalid_lines = json.dumps(invalid_lines)

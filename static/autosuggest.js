@@ -107,7 +107,9 @@ export const ImportSuggest = {
         let name = line;
         const parts = line.split(" ");
 
-        if (parts.length > 1 && !isNaN(parts[0])) {
+        const qty = parts[0].toLowerCase().replace("x", "");
+
+        if (parts.length > 1 && !isNaN(qty)) {
             name = parts.slice(1).join(" ");
         }
 
@@ -146,7 +148,9 @@ export const ImportSuggest = {
         const parts = line.split(" ");
 
         let qty = "";
-        if (parts.length > 1 && !isNaN(parts[0])) {
+        const qty = parts[0].toLowerCase().replace("x", "");
+
+        if (parts.length > 1 && !isNaN(qty)) {
             qty = parts[0] + " ";
         }
 
