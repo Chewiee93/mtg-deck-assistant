@@ -293,14 +293,14 @@ def import_deck():
             invalid_lines.append(name)
             continue
 
+        image_data = data.get("image_uris") or {}
+
         g.db.add(ImportCard(
             import_id=import_session.id,
             name=data["name"],
             quantity=qty,
             data=json.dumps(data),
-            iimage_url=(
-                data.get("image_uris", {}) or {}
-            ).get("normal"),
+            image_url=image_data.get("normal"),
             is_sideboard=1 if is_sideboard else 0
         ))
 
@@ -354,14 +354,14 @@ def confirm_import():
         card = g.db.query(Card).filter_by(name=c.name).first()
 
         if not card:
+            image_data = data.get("image_uris") or {}
+
             card = Card(
                 name=c.name,
-                quantity=0,  # deck uses DeckCard quantity
+                quantity=0,
                 type_line=data.get("type_line", ""),
                 cmc=int(data.get("cmc", 0)),
                 color_identity="".join(data.get("color_identity", [])),
-                image_data = data.get("image_uris") or {}
-                
                 image_url=image_data.get("normal"),
                 image_large=image_data.get("large")
             )
