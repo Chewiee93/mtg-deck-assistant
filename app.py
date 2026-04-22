@@ -208,6 +208,38 @@ def is_confident_match(input_name, result_name):
     )
 
 # =========================
+# BATCH FETCH (DEV: PERFORMANCE FIX)
+# =========================
+
+def chunked(lst, size=75):
+    for i in range(0, len(lst), size):
+        yield lst[i:i + size]
+
+def get_cards_batch(names):
+    url = "https://api.scryfall.com/cards/collection"
+    result = {}
+
+    for chunk in chunked(names, 75):
+        payload = {
+            "identifiers": [{"name": n} for n in chunk]
+        }
+
+        try:
+            res = requests.post(url, json=payload, timeout=10)
+        except requests.RequestException:
+            continue
+
+        if res.status_code != 200:
+            continue
+
+        data = res.json()
+
+        for card in data.get("data", []):
+            result[card["name"].lower()] = card
+
+    return result
+
+# =========================
 # 6. IMPORT LOGIC
 # =========================
 
@@ -296,6 +328,13 @@ def import_deck():
 
     parsed = parse_deck_list(request.form.get("deck_list", ""))
 
+    # =========================
+    # DEV: PREPARE BATCH REQUEST
+    # =========================
+    names = [clean_card_name(name) for _, name, _ in parsed]
+
+    card_map = get_cards_batch(names)
+
     MAX_CARDS = 120  # safety limit
 
     for i, (qty, name, is_sideboard) in enumerate(parsed):
@@ -304,16 +343,26 @@ def import_deck():
 
         clean_name = clean_card_name(name)
 
-        data = get_card_data(clean_name)
+        # =========================
+        # DEV: USE BATCH FIRST (FAST)
+        # =========================
+        data = card_map.get(clean_name.lower())
 
+        # =========================
+        # DEV: FALLBACK ONLY IF MISSING
+        # =========================
         if not data:
-            data = search_card(clean_name)
+            data = get_card_data(clean_name)
 
-        # validate
+        # =========================
+        # DEV: VALIDATE MATCH
+        # =========================
         if data and not is_confident_match(clean_name, data.get("name", "")):
             data = None
 
-        # ❌ still failed
+        # =========================
+        # DEV: FINAL FAIL
+        # =========================
         if not data:
             invalid_lines.append(name)
             continue
@@ -328,8 +377,6 @@ def import_deck():
             image_url=image_data.get("normal"),
             is_sideboard=1 if is_sideboard else 0
         ))
-
-        time.sleep(0.05)
 
     import_session.invalid_lines = json.dumps(invalid_lines)
     
