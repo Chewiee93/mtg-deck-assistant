@@ -191,6 +191,15 @@ def clean_card_name(name):
     name = name.replace("*", "")
     name = name.replace("•", "")
 
+    # =========================
+    # DEV: FIX SPLIT CARD FORMAT
+    # =========================
+    # convert "Card/Card" → "Card // Card"
+    if "/" in name and "//" not in name:
+        parts = [p.strip() for p in name.split("/")]
+        if len(parts) == 2:
+            name = f"{parts[0]} // {parts[1]}"
+
     # normalize spacing
     name = " ".join(name.split())
 
