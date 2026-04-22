@@ -296,7 +296,11 @@ def import_deck():
 
     parsed = parse_deck_list(request.form.get("deck_list", ""))
 
-    for qty, name, is_sideboard in parsed:
+    MAX_CARDS = 120  # safety limit
+
+    for i, (qty, name, is_sideboard) in enumerate(parsed):
+        if i > MAX_CARDS:
+            break
 
         clean_name = clean_card_name(name)
 
@@ -305,23 +309,9 @@ def import_deck():
         if not data:
             data = search_card(clean_name)
 
-        # ✅ NEW: validate match
+        # validate
         if data and not is_confident_match(clean_name, data.get("name", "")):
             data = None
-
-        # 🔥 smarter fallback
-        if not data and len(clean_name.split()) > 1:
-            words = clean_name.split()
-
-            for i in range(len(words)):
-                partial = " ".join(words[i:])
-                result = search_card(partial)
-
-                if result and is_confident_match(clean_name, result.get("name", "")):
-                    data = result
-                    break
-                else:
-                    data = None
 
         # ❌ still failed
         if not data:
@@ -339,7 +329,7 @@ def import_deck():
             is_sideboard=1 if is_sideboard else 0
         ))
 
-        time.sleep(0.08)
+        time.sleep(0.05)
 
     import_session.invalid_lines = json.dumps(invalid_lines)
     

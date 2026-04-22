@@ -147,14 +147,14 @@ export const ImportSuggest = {
         const line = text.substring(start, end === -1 ? text.length : end);
         const parts = line.split(" ");
 
-        let qty = "";
+        let qtyPrefix = "";
         const qty = parts[0].toLowerCase().replace("x", "");
 
         if (parts.length > 1 && !isNaN(qty)) {
-            qty = parts[0] + " ";
+            qtyPrefix = parts[0] + " ";
         }
 
-        const newLine = `${qty}${name}`;
+        const newLine = `${qtyPrefix}${name}`;
 
         this.input.value =
             text.substring(0, start) +
