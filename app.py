@@ -591,14 +591,17 @@ def view_deck(deck_id):
         else:
             groups["others"].append(card)
 
-    total_cards = sum(len(v) for v in groups.values())
+    total_cards = sum(
+        card.quantity for group in groups.values() for card in group
+    )
 
     stats = {
         "total": total_cards,
-        "creatures": len(groups["creatures"]),
-        "lands": len(groups["lands"]),
+        "creatures": sum(card.quantity for card in groups["creatures"]),
+        "lands": sum(card.quantity for card in groups["lands"]),
         "others": total_cards - (
-            len(groups["creatures"]) + len(groups["lands"])
+            sum(card.quantity for card in groups["creatures"]) +
+            sum(card.quantity for card in groups["lands"])
         )
     }
 
