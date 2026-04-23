@@ -165,7 +165,7 @@ def search_card(name):
                 return card
 
         # 🔥 fallback broader search
-        url = f"https://api.scryfall.com/cards/search?q={name}"
+        url = f"https://api.scryfall.com/cards/search?q={name}~"
         res = requests.get(url, timeout=5)
 
         if res.status_code == 200:
