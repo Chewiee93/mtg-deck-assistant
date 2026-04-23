@@ -11,6 +11,30 @@ document.addEventListener("DOMContentLoaded", () => {
     Filters.init();
 
     // =========================
+    // SAVE IMPORT TEXT
+    // =========================
+    const importForm = document.querySelector("form[action='/import_deck']");
+    if (importForm) {
+        importForm.addEventListener("submit", () => {
+            const input = document.getElementById("deckInput");
+            if (input) {
+                sessionStorage.setItem("last_import", input.value);
+            }
+        });
+    }
+
+    // =========================
+    // RESTORE IMPORT TEXT
+    // =========================
+    const deckInput = document.getElementById("deckInput");
+    if (deckInput) {
+        const saved = sessionStorage.getItem("last_import");
+        if (saved) {
+            deckInput.value = saved;
+        }
+    }
+
+    // =========================
     // DECK NAVIGATION
     // ========================
 
@@ -150,6 +174,39 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    // =========================
+    // IMPORT FIX BUTTONS
+    // =========================
+    document.querySelectorAll(".fix-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+
+            const original = btn.dataset.original;
+            const fix = btn.dataset.fix;
+
+            const text = sessionStorage.getItem("last_import");
+
+            if (!text) {
+                alert("No import data found. Please re-import.");
+                return;
+            }
+
+            const updated = text
+                .split("\n")
+                .map(line => {
+                    if (line.includes(original)) {
+                        return line.replace(original, fix);
+                    }
+                    return line;
+                })
+                .join("\n");
+
+            sessionStorage.setItem("last_import", updated);
+
+            // go back to import page
+            window.location = "/import";
+        });
+    });
 
     // =========================
     // SET COMMANDER

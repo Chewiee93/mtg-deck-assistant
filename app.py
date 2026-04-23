@@ -376,9 +376,15 @@ def import_deck():
             suggestion = search_card(clean_name)
 
             if suggestion:
-                invalid_lines.append(f"{name} → did you mean: {suggestion['name']}")
+                invalid_lines.append({
+                    "original": name,
+                    "suggestion": suggestion["name"]
+                })
             else:
-                invalid_lines.append(name)
+                invalid_lines.append({
+                    "original": name,
+                    "suggestion": None
+                })
             continue
 
         image_data = data.get("image_uris") or {}

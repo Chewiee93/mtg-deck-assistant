@@ -52,8 +52,23 @@
     {% if invalid_lines %}
             <div class="panel panel-warning">
                 <strong>⚠ Failed to import:</strong>
-                {% for line in invalid_lines %}
-                    <div>• {{ line }}</div>
+                {% for item in invalid_lines %}
+                    <div>
+                        • {{ item.original }}
+
+                        {% if item.suggestion %}
+                            → {{ item.suggestion }}
+
+                            <button 
+                                type="button"
+                                class="fix-btn"
+                                data-original="{{ item.original }}"
+                                data-fix="{{ item.suggestion }}"
+                            >
+                                Fix
+                            </button>
+                        {% endif %}
+                    </div>
                 {% endfor %}
             </div>
             {% endif %}
