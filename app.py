@@ -37,6 +37,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base, scoped_session
 import requests
 import json
 import time
+import difflib
 
 # =========================
 # 2. APP + DB SETUP
@@ -149,7 +150,9 @@ def get_card_data(name):
     
 def search_card(name):
     try:
-        # 🔥 exact name search
+        # =========================
+        # 1. Exact match
+        # =========================
         url = f'https://api.scryfall.com/cards/search?q=!"{name}"'
         res = requests.get(url, timeout=5)
 
@@ -157,14 +160,12 @@ def search_card(name):
             data = res.json().get("data", [])
             if data:
                 card = data[0]
+                if card.get("layout") not in ["token", "emblem"]:
+                    return card
 
-                # reject tokens / weird results
-                if card.get("layout") in ["token", "emblem"]:
-                    return None
-
-                return card
-
-        # 🔥 fallback broader search
+        # =========================
+        # 2. Fuzzy search
+        # =========================
         url = f"https://api.scryfall.com/cards/search?q={name}~"
         res = requests.get(url, timeout=5)
 
@@ -172,12 +173,19 @@ def search_card(name):
             data = res.json().get("data", [])
             if data:
                 card = data[0]
+                if card.get("layout") not in ["token", "emblem"]:
+                    return card
 
-                # reject tokens / weird results
-                if card.get("layout") in ["token", "emblem"]:
-                    return None
+        # =========================
+        # 3. Autocomplete fallback (KEY FIX)
+        # =========================
+        url = f"https://api.scryfall.com/cards/autocomplete?q={name}"
+        res = requests.get(url, timeout=5)
 
-                return card
+        if res.status_code == 200:
+            names = res.json().get("data", [])
+            if names:
+                return {"name": names[0]}
 
     except:
         return None
@@ -215,6 +223,15 @@ def is_confident_match(input_name, result_name):
         or input_name in result_name
         or result_name in input_name
     )
+
+def get_local_suggestion(name):
+    # get known card names from DB
+    cards = g.db.query(Card.name).all()
+    names = [c[0] for c in cards]
+
+    matches = difflib.get_close_matches(name, names, n=1, cutoff=0.6)
+
+    return matches[0] if matches else None
 
 # =========================
 # BATCH FETCH (DEV: PERFORMANCE FIX)
@@ -374,6 +391,12 @@ def import_deck():
         # =========================
         if not data:
             suggestion = search_card(clean_name)
+
+            # 🔥 fallback if Scryfall fails
+            if not suggestion:
+                local = get_local_suggestion(clean_name)
+                if local:
+                    suggestion = {"name": local}
 
             if suggestion:
                 invalid_lines.append({
