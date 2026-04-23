@@ -373,7 +373,12 @@ def import_deck():
         # DEV: FINAL FAIL
         # =========================
         if not data:
-            invalid_lines.append(name)
+            suggestion = search_card(clean_name)
+
+            if suggestion:
+                invalid_lines.append(f"{name} → did you mean: {suggestion['name']}")
+            else:
+                invalid_lines.append(name)
             continue
 
         image_data = data.get("image_uris") or {}
