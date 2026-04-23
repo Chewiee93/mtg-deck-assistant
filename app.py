@@ -151,20 +151,7 @@ def get_card_data(name):
 def search_card(name):
     try:
         # =========================
-        # 1. Exact match
-        # =========================
-        url = f'https://api.scryfall.com/cards/search?q=!"{name}"'
-        res = requests.get(url, timeout=5)
-
-        if res.status_code == 200:
-            data = res.json().get("data", [])
-            if data:
-                card = data[0]
-                if card.get("layout") not in ["token", "emblem"]:
-                    return card
-
-        # =========================
-        # 2. Fuzzy search
+        # 1. FUZZY SEARCH
         # =========================
         url = f"https://api.scryfall.com/cards/search?q={name}~"
         res = requests.get(url, timeout=5)
@@ -172,12 +159,10 @@ def search_card(name):
         if res.status_code == 200:
             data = res.json().get("data", [])
             if data:
-                card = data[0]
-                if card.get("layout") not in ["token", "emblem"]:
-                    return card
+                return {"name": data[0]["name"]}
 
         # =========================
-        # 3. Autocomplete fallback (KEY FIX)
+        # 2. AUTOCOMPLETE
         # =========================
         url = f"https://api.scryfall.com/cards/autocomplete?q={name}"
         res = requests.get(url, timeout=5)
@@ -188,7 +173,7 @@ def search_card(name):
                 return {"name": names[0]}
 
     except:
-        return None
+        pass
 
     return None
     
@@ -217,12 +202,7 @@ def is_confident_match(input_name, result_name):
     input_name = input_name.lower().strip()
     result_name = result_name.lower().strip()
 
-    # direct match or very close match
-    return (
-        input_name == result_name
-        or input_name in result_name
-        or result_name in input_name
-    )
+    return difflib.SequenceMatcher(None, input_name, result_name).ratio() > 0.75
 
 def get_local_suggestion(name):
     # get known card names from DB
