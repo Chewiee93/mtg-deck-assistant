@@ -21,6 +21,14 @@
 
 <div class="section">
 
+    <div class="panel">
+        <strong>How to import:</strong>
+        <div>• One card per line</div>
+        <div>• Format: "4 Lightning Bolt"</div>
+        <div>• Supports "4x" or "Card x4"</div>
+        <div>• Sideboard: use "Sideboard"</div>
+    </div>
+
     <form action="/import_deck" method="POST">
 
         <label>Deck Name</label><br>
@@ -47,12 +55,16 @@
             <textarea 
                 id="deckInput"
                 name="deck_list" 
-                rows="12"
+                rows="20"
                 placeholder="4 Lightning Bolt
 3 Counterspell
 2 Island"
                 class="input"
             ></textarea>
+
+            <div id="cardCount" class="text-muted mt-6">
+                Cards: 0
+            </div>
 
             <div id="importSuggestions" class="suggestions-box hidden"></div>
         

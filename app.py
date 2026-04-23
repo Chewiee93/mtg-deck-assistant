@@ -134,6 +134,18 @@ FORMAT_RULES = {
     "casual": {}
 }
 
+BANNED = {
+    "modern": ["Black Lotus"],
+    "standard": [],
+    "commander": [],
+}
+
+RESTRICTED = {
+    "modern": [],
+    "standard": [],
+    "commander": [],
+}
+
 # =========================
 # 5. SERVICES
 # =========================
@@ -420,7 +432,9 @@ def import_review(import_id):
         all_owned=bool(session_data.all_owned),
         detected_format=session_data.format,
         commander_name=session_data.commander_name,
-        invalid_lines=json.loads(session_data.invalid_lines or "[]")
+        invalid_lines=json.loads(session_data.invalid_lines or "[]"),
+        banned=BANNED,
+        restricted=RESTRICTED
     )
 
 @main_bp.route("/confirm_import", methods=["POST"])

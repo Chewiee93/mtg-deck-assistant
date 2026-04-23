@@ -203,8 +203,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             sessionStorage.setItem("last_import", updated);
 
-            // go back to import page
-            window.location = "/import";
+            btn.closest("div").innerHTML =
+                `• ${fix} <span class="text-muted">(fixed)</span>`;
         });
     });
 
@@ -230,6 +230,50 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.reload();
         });
     });
+
+    // =========================
+    // LIVE CARD COUNT
+    // =========================
+    const deckInputEl = document.getElementById("deckInput");
+    const cardCountEl = document.getElementById("cardCount");
+
+    function updateCardCount() {
+        if (!deckInputEl || !cardCountEl) return;
+
+        const lines = deckInputEl.value.split("\n");
+
+        let total = 0;
+
+        lines.forEach(line => {
+            line = line.trim();
+            if (!line) return;
+
+            const match = line.match(/^(\d+)x?\s+/i);
+            if (match) {
+                total += parseInt(match[1]);
+            } else {
+                total += 1;
+            }
+        });
+
+        cardCountEl.textContent = `Cards: ${total} ${getTarget()}`;
+    }
+
+    deckInputEl?.addEventListener("input", updateCardCount);
+    updateCardCount();
+
+    const formatSelect = document.querySelector("select[name='format']");
+
+    function getTarget() {
+        if (!formatSelect) return "";
+
+        const f = formatSelect.value;
+
+        if (f === "commander") return "/ 100";
+        if (f === "modern" || f === "standard") return "/ 60+";
+
+        return "";
+    }
 
 });
 

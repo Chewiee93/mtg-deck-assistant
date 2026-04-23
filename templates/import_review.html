@@ -96,7 +96,10 @@
          ========================= -->
     <div class="grid">
     {% for card in cards %}
-        <div class="grid-card">
+        <div class="grid-card
+                {% if card.name in banned.get(detected_format, []) %}banned{% endif %}
+                {% if card.name in restricted.get(detected_format, []) %}restricted{% endif %}
+            ">
 
             <!-- Card image (if available) -->
             {% if card.image_url %}
