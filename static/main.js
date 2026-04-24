@@ -184,27 +184,44 @@ document.addEventListener("DOMContentLoaded", () => {
             const original = btn.dataset.original;
             const fix = btn.dataset.fix;
 
+            // =========================
+            // UPDATE SESSION STORAGE (keep this)
+            // =========================
             const text = sessionStorage.getItem("last_import");
 
-            if (!text) {
-                alert("No import data found. Please re-import.");
-                return;
+            if (text) {
+                const updated = text
+                    .split("\n")
+                    .map(line => line.includes(original)
+                        ? line.replace(original, fix)
+                        : line
+                    )
+                    .join("\n");
+
+                sessionStorage.setItem("last_import", updated);
             }
 
-            const updated = text
-                .split("\n")
-                .map(line => {
-                    if (line.includes(original)) {
-                        return line.replace(original, fix);
-                    }
-                    return line;
-                })
-                .join("\n");
-
-            sessionStorage.setItem("last_import", updated);
-
+            // =========================
+            // UPDATE ERROR PANEL (UI)
+            // =========================
             btn.closest("div").innerHTML =
                 `• ${fix} <span class="text-muted">(fixed)</span>`;
+
+            // =========================
+            // 🔥 UPDATE CARD GRID (REAL FIX)
+            // =========================
+            document.querySelectorAll(".grid-card").forEach(card => {
+
+                const textEl = card.querySelector(".card-info strong");
+
+                if (!textEl) return;
+
+                if (textEl.textContent.includes(original)) {
+                    textEl.textContent =
+                        textEl.textContent.replace(original, fix);
+                }
+            });
+
         });
     });
 
@@ -259,10 +276,13 @@ document.addEventListener("DOMContentLoaded", () => {
         cardCountEl.textContent = `Cards: ${total} ${getTarget()}`;
     }
 
-    deckInputEl?.addEventListener("input", updateCardCount);
-    updateCardCount();
-
     const formatSelect = document.querySelector("select[name='format']");
+
+    deckInputEl?.addEventListener("input", updateCardCount);
+    formatSelect?.addEventListener("change", updateCardCount);
+
+    // run AFTER both exist
+    updateCardCount();
 
     function getTarget() {
         if (!formatSelect) return "";
