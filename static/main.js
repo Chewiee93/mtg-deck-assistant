@@ -194,7 +194,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({
                     import_id: importId,
                     original: original,
-                    fixed: fix
+                    fixed: fix,
+                    qty: btn.dataset.qty
                 })
             });
 

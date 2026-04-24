@@ -393,7 +393,9 @@ def import_deck():
             if suggestion:
                 invalid_lines.append({
                     "original": name,
-                    "suggestion": suggestion["name"]
+                    "suggestion": suggestion["name"],
+                    "qty": qty,
+                    "is_sideboard": is_sideboard
                 })
             else:
                 invalid_lines.append({
@@ -745,19 +747,8 @@ def fix_card():
     data = request.get_json()
 
     import_id = data.get("import_id")
-    original = data.get("original")
     fixed = data.get("fixed")
-
-    # =========================
-    # FIND BROKEN ENTRY
-    # =========================
-    card = g.db.query(ImportCard).filter_by(
-        import_id=import_id,
-        name=original
-    ).first()
-
-    if not card:
-        return jsonify({"success": False})
+    qty = int(data.get("qty", 1))
 
     # =========================
     # FETCH CORRECT DATA
@@ -770,11 +761,26 @@ def fix_card():
     image_data = new_data.get("image_uris") or {}
 
     # =========================
-    # UPDATE DB
+    # ADD NEW CARD (NOT UPDATE)
     # =========================
-    card.name = new_data["name"]
-    card.data = json.dumps(new_data)
-    card.image_url = image_data.get("normal")
+    g.db.add(ImportCard(
+        import_id=import_id,
+        name=new_data["name"],
+        quantity=qty,
+        data=json.dumps(new_data),
+        image_url=image_data.get("normal"),
+        is_sideboard=0
+    ))
+
+    # =========================
+    # REMOVE FROM INVALID LIST
+    # =========================
+    session = g.db.get(ImportSession, import_id)
+    invalid = json.loads(session.invalid_lines or "[]")
+
+    invalid = [i for i in invalid if i["suggestion"] != fixed]
+
+    session.invalid_lines = json.dumps(invalid)
 
     g.db.commit()
 
