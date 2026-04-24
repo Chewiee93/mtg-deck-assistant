@@ -35,6 +35,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================
+    // CLEAR IMPORT LIST
+    // =========================
+    const clearBtn = document.getElementById("clearImportBtn");
+
+    clearBtn?.addEventListener("click", () => {
+        if (!deckInput) return;
+
+        deckInput.value = "";
+        sessionStorage.removeItem("last_import");
+
+        // update UI immediately
+        const event = new Event("input");
+        deckInput.dispatchEvent(event);
+    });
+
+    // =========================
     // DECK NAVIGATION
     // ========================
 
