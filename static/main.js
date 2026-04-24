@@ -179,49 +179,36 @@ document.addEventListener("DOMContentLoaded", () => {
     // IMPORT FIX BUTTONS
     // =========================
     document.querySelectorAll(".fix-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
+        btn.addEventListener("click", async () => {
 
             const original = btn.dataset.original;
             const fix = btn.dataset.fix;
+            const importId = btn.dataset.import;
 
             // =========================
-            // UPDATE SESSION STORAGE (keep this)
+            // CALL BACKEND FIX
             // =========================
-            const text = sessionStorage.getItem("last_import");
+            const res = await fetch("/api/fix_card", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    import_id: importId,
+                    original: original,
+                    fixed: fix
+                })
+            });
 
-            if (text) {
-                const updated = text
-                    .split("\n")
-                    .map(line => line.includes(original)
-                        ? line.replace(original, fix)
-                        : line
-                    )
-                    .join("\n");
+            const data = await res.json();
 
-                sessionStorage.setItem("last_import", updated);
+            if (!data.success) {
+                alert("Fix failed");
+                return;
             }
 
             // =========================
-            // UPDATE ERROR PANEL (UI)
+            // CLEAN UX: reload review
             // =========================
-            btn.closest("div").innerHTML =
-                `• ${fix} <span class="text-muted">(fixed)</span>`;
-
-            // =========================
-            // 🔥 UPDATE CARD GRID (REAL FIX)
-            // =========================
-            document.querySelectorAll(".grid-card").forEach(card => {
-
-                const textEl = card.querySelector(".card-info strong");
-
-                if (!textEl) return;
-
-                if (textEl.textContent.includes(original)) {
-                    textEl.textContent =
-                        textEl.textContent.replace(original, fix);
-                }
-            });
-
+            window.location.reload();
         });
     });
 

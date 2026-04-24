@@ -740,6 +740,46 @@ def suggest():
 
     return jsonify(res.json().get("data", []))
 
+@api_bp.route("/api/fix_card", methods=["POST"])
+def fix_card():
+    data = request.get_json()
+
+    import_id = data.get("import_id")
+    original = data.get("original")
+    fixed = data.get("fixed")
+
+    # =========================
+    # FIND BROKEN ENTRY
+    # =========================
+    card = g.db.query(ImportCard).filter_by(
+        import_id=import_id,
+        name=original
+    ).first()
+
+    if not card:
+        return jsonify({"success": False})
+
+    # =========================
+    # FETCH CORRECT DATA
+    # =========================
+    new_data = get_card_data(fixed)
+
+    if not new_data:
+        return jsonify({"success": False})
+
+    image_data = new_data.get("image_uris") or {}
+
+    # =========================
+    # UPDATE DB
+    # =========================
+    card.name = new_data["name"]
+    card.data = json.dumps(new_data)
+    card.image_url = image_data.get("normal")
+
+    g.db.commit()
+
+    return jsonify({"success": True})
+
 # =========================
 # 10. INIT
 # =========================
