@@ -250,21 +250,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const lines = deckInputEl.value.split("\n");
 
-        let total = 0;
+        let mainTotal = 0;
+        let sideTotal = 0;
+        let isSideboard = false
+
+        let isSideboard = false;
 
         lines.forEach(line => {
             line = line.trim();
             if (!line) return;
 
+            const lower = line.toLowerCase();
+
+            // Detect sideboard start
+            if (lower.match(/^(sideboard|sb:|\/\/ sideboard)/)) {
+                isSideboard = true;
+                return;
+            }
+
+            // Detect mainboard reset
+            if (["mainboard", "// main", "deck"].includes(lower)) {
+                isSideboard = false;
+                return;
+            }
+
             const match = line.match(/^(\d+)x?\s+/i);
-            if (match) {
-                total += parseInt(match[1]);
+            const qty = match ? parseInt(match[1]) : 1;
+
+            if (isSideboard) {
+                sideTotal += qty;
             } else {
-                total += 1;
+                mainTotal += qty;
             }
         });
 
-        cardCountEl.textContent = `Cards: ${total} ${getTarget()}`;
+        const validation = getValidation(mainTotal);
+
+        cardCountEl.textContent =
+            `Main: ${mainTotal} ${getTarget()} ${validation} | Sideboard: ${sideTotal}`;
+
     }
 
     const formatSelect = document.querySelector("select[name='format']");
@@ -285,6 +309,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
         return "";
     }
+
+    function getValidation(mainTotal) {
+            if (!formatSelect) return "";
+
+            const f = formatSelect.value;
+
+            if (f === "commander") {
+                if (mainTotal === 100) return "✅ Valid";
+                if (mainTotal > 100) return "❌ Too many cards";
+                return "❌ Too few cards";
+            }
+
+            if (f === "modern" || f === "standard") {
+                if (mainTotal >= 60) return "✅ Valid";
+                return "❌ Too small";
+            }
+
+            return ""; // casual = no rules
+        }
 
 });
 
