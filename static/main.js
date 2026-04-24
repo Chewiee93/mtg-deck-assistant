@@ -252,8 +252,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let mainTotal = 0;
         let sideTotal = 0;
-        let isSideboard = false
-
         let isSideboard = false;
 
         lines.forEach(line => {
