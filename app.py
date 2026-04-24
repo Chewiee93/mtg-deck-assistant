@@ -749,6 +749,7 @@ def fix_card():
     import_id = data.get("import_id")
     fixed = data.get("fixed")
     qty = int(data.get("qty", 1))
+    is_sideboard = int(data.get("is_sideboard", 0))
 
     # =========================
     # FETCH CORRECT DATA
@@ -761,16 +762,25 @@ def fix_card():
     image_data = new_data.get("image_uris") or {}
 
     # =========================
-    # ADD NEW CARD (NOT UPDATE)
+    # CHECK FOR EXISTING CARD
     # =========================
-    g.db.add(ImportCard(
+    existing = g.db.query(ImportCard).filter_by(
         import_id=import_id,
         name=new_data["name"],
-        quantity=qty,
-        data=json.dumps(new_data),
-        image_url=image_data.get("normal"),
-        is_sideboard=0
-    ))
+        is_sideboard=is_sideboard
+    ).first()
+
+    if existing:
+        existing.quantity += qty
+    else:
+        g.db.add(ImportCard(
+            import_id=import_id,
+            name=new_data["name"],
+            quantity=qty,
+            data=json.dumps(new_data),
+            image_url=image_data.get("normal"),
+            is_sideboard=is_sideboard
+        ))
 
     # =========================
     # REMOVE FROM INVALID LIST

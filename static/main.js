@@ -181,6 +181,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".fix-btn").forEach(btn => {
         btn.addEventListener("click", async () => {
 
+            btn.disabled = true;
+            btn.textContent = "Fixing...";
+
             const original = btn.dataset.original;
             const fix = btn.dataset.fix;
             const importId = btn.dataset.import;
@@ -193,9 +196,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
                     import_id: importId,
-                    original: original,
                     fixed: fix,
-                    qty: btn.dataset.qty
+                    qty: btn.dataset.qty,
+                    is_sideboard: btn.dataset.sideboard
                 })
             });
 

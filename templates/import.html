@@ -23,10 +23,12 @@
 
     <div class="panel">
         <strong>How to import:</strong>
+        <div>• Type in a deck name</div>
+        <div>• Choose deck format</div>
         <div>• One card per line</div>
         <div>• Format: "4 Lightning Bolt"</div>
         <div>• Supports "4x" or "Card x4"</div>
-        <div>• Sideboard: use "Sideboard"</div>
+        <div>• Sideboard: use "Sideboard" then type cards in lines underneath</div>
     </div>
 
     <form action="/import_deck" method="POST">
@@ -55,7 +57,7 @@
             <textarea 
                 id="deckInput"
                 name="deck_list" 
-                rows="20"
+                rows="30"
                 placeholder="4 Lightning Bolt
 3 Counterspell
 2 Island"
