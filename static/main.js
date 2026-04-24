@@ -198,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     import_id: importId,
                     fixed: fix,
                     qty: btn.dataset.qty,
-                    is_sideboard: btn.dataset.sideboard
+                    is_sideboard: btn.dataset.sideboard === "True" ? 1 : 0
                 })
             });
 

@@ -749,7 +749,8 @@ def fix_card():
     import_id = data.get("import_id")
     fixed = data.get("fixed")
     qty = int(data.get("qty", 1))
-    is_sideboard = int(data.get("is_sideboard", 0))
+    raw = data.get("is_sideboard", 0)
+    is_sideboard = 1 if str(raw) in ["1", "True", "true"] else 0
 
     # =========================
     # FETCH CORRECT DATA
