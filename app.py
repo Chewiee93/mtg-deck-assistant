@@ -447,9 +447,32 @@ def import_review(import_id):
             if total_main < rules["deck_size"]:
                 issues.append(f"Deck must have at least {rules['deck_size']} cards (currently {total_main})")
 
-    # Copy limit check
+    # Copy limit check (ignore basic lands + special rules)
     if "max_copies" in rules:
         for c in main_cards:
+
+            data = json.loads(c.data)
+
+            type_line = data.get("type_line", "").lower()
+            oracle_text = data.get("oracle_text", "").lower()
+
+            # =========================
+            # SKIP BASIC LANDS
+            # =========================
+            if "basic land" in type_line:
+                continue
+
+            # =========================
+            # COMMANDER SPECIAL RULE
+            # "you can have any number of..."
+            # =========================
+            if session_data.format == "commander":
+                if "any number of" in oracle_text:
+                    continue
+
+            # =========================
+            # STANDARD COPY LIMIT CHECK
+            # =========================
             if c.quantity > rules["max_copies"]:
                 issues.append(f"{c.name} exceeds copy limit ({c.quantity}/{rules['max_copies']})")
 
