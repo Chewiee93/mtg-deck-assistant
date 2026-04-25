@@ -886,6 +886,33 @@ def remove_import_card():
 
     return jsonify({"success": True})
 
+@api_bp.route("/api/update_import_quantity", methods=["POST"])
+def update_import_quantity():
+    data = request.get_json()
+
+    card_id = data.get("card_id")
+    change = int(data.get("change", 0))
+
+    card = g.db.get(ImportCard, card_id)
+
+    if not card:
+        return jsonify({"success": False})
+
+    card.quantity += change
+
+    # prevent negative
+    if card.quantity <= 0:
+        g.db.delete(card)
+        g.db.commit()
+        return jsonify({"success": True, "removed": True})
+
+    g.db.commit()
+
+    return jsonify({
+        "success": True,
+        "quantity": card.quantity
+    })
+
 # =========================
 # 10. INIT
 # =========================

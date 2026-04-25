@@ -40,6 +40,10 @@
             </div>
         {% endif %}
 
+        <div id="importTotals" class="text-muted mt-6">
+            Total cards: 0
+        </div>
+
         {% if validation_issues %}
         <div class="panel panel-warning">
             <strong>⚠ Deck Issues:</strong>
@@ -125,7 +129,17 @@
 
             <!-- Card info -->
             <div class="card-info">
-                <strong>{{ card.quantity }}x {{ card.name }}</strong>
+                <strong>{{ card.name }}</strong>
+            </div>
+
+            <div class="card-controls">
+                <button class="import-qty-btn" data-id="{{ card.id }}" data-change="-1">-</button>
+
+                <span id="import-qty-{{ card.id }}">
+                    {{ card.quantity }}
+                </span>
+
+                <button class="import-qty-btn" data-id="{{ card.id }}" data-change="1">+</button>
             </div>
 
             <div class="card-actions">

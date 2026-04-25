@@ -260,6 +260,45 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // =========================
+    // IMPORT QUANTITY BUTTONS
+    // =========================
+    document.querySelectorAll(".import-qty-btn").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+
+            const id = btn.dataset.id;
+            const change = parseInt(btn.dataset.change);
+
+            const res = await fetch("/api/update_import_quantity", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    card_id: id,
+                    change: change
+                })
+            });
+
+            const data = await res.json();
+
+            if (!data.success) return;
+
+            // removed case
+            if (data.removed) {
+                const el = btn.closest(".grid-card");
+                if (el) el.remove();
+                updateImportTotals();
+                return;
+            }
+
+            // update quantity
+            const el = document.getElementById(`import-qty-${id}`);
+            if (el) el.textContent = data.quantity;
+
+            updateImportTotals();
+        });
+    });
+
+    // =========================
     // SET COMMANDER
     // =========================
     document.querySelectorAll("[data-action='set-commander']").forEach(btn => {
@@ -339,6 +378,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // run AFTER both exist
     updateCardCount();
+    updateImportTotals();
 
     function getTarget() {
         if (!formatSelect) return "";
@@ -369,6 +409,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
             return ""; // casual = no rules
         }
+
+    function updateImportTotals() {
+        const qtyEls = document.querySelectorAll("[id^='import-qty-']");
+
+        let total = 0;
+
+        qtyEls.forEach(el => {
+            total += parseInt(el.textContent) || 0;
+        });
+
+        const totalEl = document.getElementById("importTotals");
+        if (totalEl) {
+            totalEl.textContent = `Total cards: ${total}`;
+        }
+    }
 
 });
 
