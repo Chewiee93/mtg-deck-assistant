@@ -844,9 +844,19 @@ def fix_card():
     # REMOVE FROM INVALID LIST
     # =========================
     session = g.db.get(ImportSession, import_id)
-    invalid = json.loads(session.invalid_lines or "[]")
 
-    invalid = [i for i in invalid if i.get("suggestion") != fixed]
+    if not session:
+        return jsonify({"success": False})
+
+    try:
+        invalid = json.loads(session.invalid_lines or "[]")
+    except:
+        invalid = []
+
+    invalid = [
+        i for i in invalid
+        if isinstance(i, dict) and i.get("suggestion") != fixed
+    ]
 
     session.invalid_lines = json.dumps(invalid)
 
