@@ -443,11 +443,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const name = card.dataset.name;
             const isSideboard = card.dataset.sideboard === "1";
 
-            if (isSideboard) return;
-
-            total += qty;
-
+            // count ALL cards (main + sideboard for copy rules)
             counts[name] = (counts[name] || 0) + qty;
+
+            // only mainboard affects deck size
+            if (!isSideboard) {
+                total += qty;
+            }
         });
 
         // =========================
@@ -467,8 +469,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (format === "modern" || format === "standard") {
             if (total < 60) {
                 issues.push(`Deck too small (${total}/60+)`);
-            } else if (total > 250) { // safety cap
-                issues.push(`Deck unusually large (${total})`);
+            } else if (total > 70) {
+                issues.push(`Deck too large (${total}/60+)`);
             }
         }
 
@@ -527,9 +529,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const name = card.dataset.name;
             const isSideboard = card.dataset.sideboard === "1";
 
+            // count ALL for copy limits
+            counts[name] = (counts[name] || 0) + qty;
+
+            // only mainboard affects total
             if (!isSideboard) {
                 total += qty;
-                counts[name] = (counts[name] || 0) + qty;
             }
         });
 
@@ -553,9 +558,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 card.classList.contains("restricted")) {
                 return;
             }
-
-            // skip sideboard
-            if (card.dataset.sideboard === "1") return;
 
             const qty = counts[name] || 0;
 
