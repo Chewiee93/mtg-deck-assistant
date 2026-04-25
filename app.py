@@ -450,6 +450,7 @@ def import_review(import_id):
     # Copy limit check (ignore basic lands + special rules)
     if "max_copies" in rules:
         for c in main_cards:
+            c.copy_invalid = False
 
             data = json.loads(c.data)
 
@@ -475,6 +476,11 @@ def import_review(import_id):
             # =========================
             if c.quantity > rules["max_copies"]:
                 issues.append(f"{c.name} exceeds copy limit ({c.quantity}/{rules['max_copies']})")
+
+                # 🔥 mark card for UI
+                c.copy_invalid = True
+            else:
+                c.copy_invalid = False
 
     return render_template(
         "import_review.html",
@@ -832,6 +838,22 @@ def fix_card():
             image_url=image_data.get("normal"),
             is_sideboard=is_sideboard
         ))
+
+@api_bp.route("/api/remove_import_card", methods=["POST"])
+def remove_import_card():
+    data = request.get_json()
+
+    card_id = data.get("card_id")
+
+    card = g.db.get(ImportCard, card_id)
+
+    if not card:
+        return jsonify({"success": False})
+
+    g.db.delete(card)
+    g.db.commit()
+
+    return jsonify({"success": True})
 
     # =========================
     # REMOVE FROM INVALID LIST

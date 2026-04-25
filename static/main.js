@@ -233,6 +233,33 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // =========================
+    // REMOVE IMPORT CARD
+    // =========================
+    document.querySelectorAll(".remove-import-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+
+            const id = btn.dataset.id;
+
+            const res = await fetch("/api/remove_import_card", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ card_id: id })
+            });
+
+            const data = await res.json();
+
+            if (!data.success) {
+                alert("Failed to remove");
+                return;
+            }
+
+            // remove card from UI
+            const cardEl = btn.closest(".grid-card");
+            if (cardEl) cardEl.remove();
+        });
+    });
+
+    // =========================
     // SET COMMANDER
     // =========================
     document.querySelectorAll("[data-action='set-commander']").forEach(btn => {

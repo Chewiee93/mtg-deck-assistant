@@ -109,9 +109,10 @@
     <div class="grid">
     {% for card in cards %}
         <div class="grid-card
-                {% if card.name in banned.get(detected_format, []) %}banned{% endif %}
-                {% if card.name in restricted.get(detected_format, []) %}restricted{% endif %}
-            ">
+            {% if card.name in banned.get(detected_format, []) %}banned{% endif %}
+            {% elif card.name in restricted.get(detected_format, []) %}restricted{% endif %}
+            {% elif card.copy_invalid %}copy-invalid{% endif %}
+        ">
 
             <!-- Card image (if available) -->
             {% if card.image_url %}
@@ -121,6 +122,16 @@
             <!-- Card info -->
             <div class="card-info">
                 <strong>{{ card.quantity }}x {{ card.name }}</strong>
+            </div>
+
+            <div class="card-actions">
+                <button 
+                    type="button"
+                    class="remove-import-btn"
+                    data-id="{{ card.id }}"
+                    title="Remove card">
+                    🗑
+                </button>
             </div>
 
             <!-- Ownership toggle -->

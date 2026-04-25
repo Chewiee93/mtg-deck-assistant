@@ -97,3 +97,7 @@
 .restricted {
     border: 2px solid orange;
 }
+
+.copy-invalid {
+    border: 2px solid #f1c40f;
+}
