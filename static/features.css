@@ -106,3 +106,7 @@
     border: 2px solid #f1c40f;
     box-shadow: 0 0 8px rgba(241, 196, 15, 0.6);
 }
+
+.deck-invalid-live {
+    outline: 3px solid red;
+}

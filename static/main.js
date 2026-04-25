@@ -457,14 +457,18 @@ document.addEventListener("DOMContentLoaded", () => {
         const format = formatEl?.textContent?.toLowerCase() || "casual";
 
         if (format === "commander") {
-            if (total !== 100) {
-                issues.push(`Deck must have exactly 100 cards (currently ${total})`);
+            if (total > 100) {
+                issues.push(`Deck has too many cards (${total}/100)`);
+            } else if (total < 100) {
+                issues.push(`Deck has too few cards (${total}/100)`);
             }
         }
 
         if (format === "modern" || format === "standard") {
             if (total < 60) {
-                issues.push(`Deck must have at least 60 cards (currently ${total})`);
+                issues.push(`Deck too small (${total}/60+)`);
+            } else if (total > 250) { // safety cap
+                issues.push(`Deck unusually large (${total})`);
             }
         }
 
@@ -571,6 +575,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 card.classList.add("copy-invalid-live");
             }
         });
+    }
+
+    // =========================
+    // DECK SIZE VISUAL
+    // =========================
+    const container = document.querySelector(".grid");
+
+    if (container) {
+        container.classList.remove("deck-invalid-live");
+
+        const formatEl = document.getElementById("importFormat");
+        const format = formatEl?.textContent?.toLowerCase() || "casual";
+
+        if (format === "commander" && total !== 100) {
+            container.classList.add("deck-invalid-live");
+        }
+
+        if ((format === "modern" || format === "standard") && total < 60) {
+            container.classList.add("deck-invalid-live");
+        }
     }
 
 });
