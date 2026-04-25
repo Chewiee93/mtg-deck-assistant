@@ -464,35 +464,24 @@ def import_review(import_id):
             type_line = data.get("type_line", "").lower()
             oracle_text = data.get("oracle_text", "").lower()
 
-            # =========================
-            # SKIP BASIC LANDS
-            # =========================
             if "basic land" in type_line:
                 continue
 
-            # =========================
-            # COMMANDER SPECIAL RULE
-            # "you can have any number of..."
-            # =========================
             if session_data.format == "commander":
                 if "any number of" in oracle_text:
                     continue
 
-            # =========================
-            # STANDARD COPY LIMIT CHECK
-            # =========================
             if c.quantity > rules["max_copies"]:
                 issues.append(f"{c.name} exceeds copy limit ({c.quantity}/{rules['max_copies']})")
-
-                # 🔥 mark card for UI
                 c.copy_invalid = True
             else:
                 c.copy_invalid = False
 
-        try:
-            invalid_lines = json.loads(session_data.invalid_lines or "[]")
-        except:
-            invalid_lines = []
+    # ✅ ALWAYS DEFINE invalid_lines
+    try:
+        invalid_lines = json.loads(session_data.invalid_lines or "[]")
+    except:
+        invalid_lines = []
 
     return render_template(
         "import_review.html",
