@@ -425,6 +425,10 @@ def import_deck():
 def import_review(import_id):
 
     session_data = g.db.get(ImportSession, import_id)
+
+    if not session_data:
+        return redirect("/import")
+
     cards = g.db.query(ImportCard).filter_by(import_id=import_id).all()
 
     # =========================
@@ -485,6 +489,11 @@ def import_review(import_id):
             else:
                 c.copy_invalid = False
 
+        try:
+            invalid_lines = json.loads(session_data.invalid_lines or "[]")
+        except:
+            invalid_lines = []
+
     return render_template(
         "import_review.html",
         cards=cards,
@@ -492,7 +501,7 @@ def import_review(import_id):
         all_owned=bool(session_data.all_owned),
         detected_format=session_data.format,
         commander_name=session_data.commander_name,
-        invalid_lines=json.loads(session_data.invalid_lines or "[]"),
+        invalid_lines=invalid_lines,
         validation_issues=issues,
         banned=BANNED,
         restricted=RESTRICTED
