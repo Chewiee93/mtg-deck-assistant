@@ -111,7 +111,7 @@
         <div class="grid-card
             {% if card.name in banned.get(detected_format, []) %}banned{% endif %}
             {% elif card.name in restricted.get(detected_format, []) %}restricted{% endif %}
-            {% elif card.copy_invalid %}copy-invalid{% endif %}
+            {% elif card.copy_invalid is defined and card.copy_invalid %}copy-invalid{% endif %}
         ">
 
             <!-- Card image (if available) -->

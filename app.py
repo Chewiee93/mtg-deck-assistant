@@ -442,6 +442,9 @@ def import_review(import_id):
 
     issues = []
 
+    for c in main_cards:
+        c.copy_invalid = False
+
     # Deck size check
     if "deck_size" in rules:
         if session_data.format == "commander":
