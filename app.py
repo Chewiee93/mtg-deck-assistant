@@ -427,6 +427,32 @@ def import_review(import_id):
     session_data = g.db.get(ImportSession, import_id)
     cards = g.db.query(ImportCard).filter_by(import_id=import_id).all()
 
+    # =========================
+    # FORMAT VALIDATION
+    # =========================
+    rules = FORMAT_RULES.get(session_data.format, {})
+
+    main_cards = [c for c in cards if not c.is_sideboard]
+
+    total_main = sum(c.quantity for c in main_cards)
+
+    issues = []
+
+    # Deck size check
+    if "deck_size" in rules:
+        if session_data.format == "commander":
+            if total_main != 100:
+                issues.append(f"Deck must have exactly 100 cards (currently {total_main})")
+        else:
+            if total_main < rules["deck_size"]:
+                issues.append(f"Deck must have at least {rules['deck_size']} cards (currently {total_main})")
+
+    # Copy limit check
+    if "max_copies" in rules:
+        for c in main_cards:
+            if c.quantity > rules["max_copies"]:
+                issues.append(f"{c.name} exceeds copy limit ({c.quantity}/{rules['max_copies']})")
+
     return render_template(
         "import_review.html",
         cards=cards,
@@ -435,6 +461,7 @@ def import_review(import_id):
         detected_format=session_data.format,
         commander_name=session_data.commander_name,
         invalid_lines=json.loads(session_data.invalid_lines or "[]"),
+        validation_issues=issues,
         banned=BANNED,
         restricted=RESTRICTED
     )

@@ -39,6 +39,15 @@
                 (Auto-detected may differ based on deck contents)
             </div>
         {% endif %}
+
+        {% if validation_issues %}
+        <div class="panel panel-warning">
+            <strong>⚠ Deck Issues:</strong>
+            {% for issue in validation_issues %}
+                <div>• {{ issue }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
 
     <br><br>
