@@ -101,3 +101,8 @@
 .copy-invalid {
     border: 2px solid #f1c40f;
 }
+
+.copy-invalid-live {
+    border: 2px solid #f1c40f;
+    box-shadow: 0 0 8px rgba(241, 196, 15, 0.6);
+}

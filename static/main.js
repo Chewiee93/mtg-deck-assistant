@@ -287,6 +287,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 const el = btn.closest(".grid-card");
                 if (el) el.remove();
                 updateImportTotals();
+                updateImportValidation();
+                updateImportHighlights();
                 return;
             }
 
@@ -380,6 +382,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateCardCount();
     updateImportTotals();
     updateImportValidation();
+    updateImportHighlights();
 
     function getTarget() {
         if (!formatSelect) return "";
@@ -493,6 +496,67 @@ document.addEventListener("DOMContentLoaded", () => {
         panel.innerHTML =
             "<strong>⚠ Deck Issues:</strong>" +
             issues.map(i => `<div>• ${i}</div>`).join("");
+    }
+
+    function updateImportHighlights() {
+        const cards = document.querySelectorAll(".grid-card");
+
+        const counts = {};
+        let total = 0;
+
+        cards.forEach(card => {
+            const qtyEl = card.querySelector("[id^='import-qty-']");
+            if (!qtyEl) return;
+
+            const qty = parseInt(qtyEl.textContent) || 0;
+            const name = card.dataset.name;
+            const isSideboard = card.dataset.sideboard === "1";
+
+            if (!isSideboard) {
+                total += qty;
+                counts[name] = (counts[name] || 0) + qty;
+            }
+        });
+
+        // detect format safely
+        const formatEl = document.getElementById("importFormat");
+        const format = formatEl?.textContent?.toLowerCase() || "casual";
+
+        const maxCopies = format === "commander" ? 1 : 4;
+
+        // =========================
+        // APPLY HIGHLIGHTS
+        // =========================
+        cards.forEach(card => {
+            const name = card.dataset.name;
+
+            // remove existing dynamic highlight
+            card.classList.remove("copy-invalid-live");
+
+            // skip if backend already marked banned/restricted
+            if (card.classList.contains("banned") ||
+                card.classList.contains("restricted")) {
+                return;
+            }
+
+            // skip sideboard
+            if (card.dataset.sideboard === "1") return;
+
+            const qty = counts[name] || 0;
+
+            // basic land check (simple)
+            const isBasic = name.toLowerCase().includes("plains") ||
+                            name.toLowerCase().includes("island") ||
+                            name.toLowerCase().includes("swamp") ||
+                            name.toLowerCase().includes("mountain") ||
+                            name.toLowerCase().includes("forest");
+
+            if (isBasic) return;
+
+            if (qty > maxCopies) {
+                card.classList.add("copy-invalid-live");
+            }
+        });
     }
 
 });
