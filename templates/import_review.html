@@ -63,8 +63,10 @@
             </div>
             {% endif %}
 
+            <div id="liveValidationPanel" class="panel panel_warning"></div>
+
     {% if invalid_lines %}
-            <div id="validationPanel" class="panel panel-warning">
+            <div id="invalidPanel" class="panel panel-warning">
                 <strong>⚠ Failed to import:</strong>
                 {% for item in invalid_lines %}
                     <div>

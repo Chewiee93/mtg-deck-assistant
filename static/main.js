@@ -469,18 +469,19 @@ document.addEventListener("DOMContentLoaded", () => {
         // =========================
         // COPY LIMITS
         // =========================
-        const maxCopies = format === "commander" ? 1 : 4;
+        cards.forEach(card => {
+            const isInvalid = card.dataset.copyInvalid === "1";
+            const name = card.dataset.name;
 
-        Object.entries(counts).forEach(([name, qty]) => {
-            if (qty > maxCopies) {
-                issues.push(`${name} exceeds copy limit (${qty}/${maxCopies})`);
+            if (isInvalid) {
+                issues.push(`${name} exceeds copy limit`);
             }
         });
 
         // =========================
         // UPDATE UI
         // =========================
-        const panel = document.getElementById("validationPanel");
+        const panel = document.getElementById("liveValidationPanel");
 
         if (!panel) return;
 
