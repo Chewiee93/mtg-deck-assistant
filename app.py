@@ -845,7 +845,7 @@ def fix_card():
     session = g.db.get(ImportSession, import_id)
     invalid = json.loads(session.invalid_lines or "[]")
 
-    invalid = [i for i in invalid if i["suggestion"] != fixed]
+    invalid = [i for i in invalid if i.get("suggestion") != fixed]
 
     session.invalid_lines = json.dumps(invalid)
 
