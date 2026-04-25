@@ -839,6 +839,23 @@ def fix_card():
             is_sideboard=is_sideboard
         ))
 
+    # =========================
+    # REMOVE FROM INVALID LIST
+    # =========================
+    session = g.db.get(ImportSession, import_id)
+    invalid = json.loads(session.invalid_lines or "[]")
+
+    invalid = [i for i in invalid if i["suggestion"] != fixed]
+
+    session.invalid_lines = json.dumps(invalid)
+
+    # =========================
+    # COMMIT + RETURN (FIX)
+    # =========================
+    g.db.commit()
+
+    return jsonify({"success": True})
+
 @api_bp.route("/api/remove_import_card", methods=["POST"])
 def remove_import_card():
     data = request.get_json()
@@ -851,20 +868,6 @@ def remove_import_card():
         return jsonify({"success": False})
 
     g.db.delete(card)
-    g.db.commit()
-
-    return jsonify({"success": True})
-
-    # =========================
-    # REMOVE FROM INVALID LIST
-    # =========================
-    session = g.db.get(ImportSession, import_id)
-    invalid = json.loads(session.invalid_lines or "[]")
-
-    invalid = [i for i in invalid if i["suggestion"] != fixed]
-
-    session.invalid_lines = json.dumps(invalid)
-
     g.db.commit()
 
     return jsonify({"success": True})
