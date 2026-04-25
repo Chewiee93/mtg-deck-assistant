@@ -451,7 +451,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // =========================
         // FORMAT RULES
         // =========================
-        const formatEl = document.querySelector("strong");
+        const formatEl = document.getElementById("importFormat");
         const format = formatEl?.textContent?.toLowerCase() || "casual";
 
         if (format === "commander") {

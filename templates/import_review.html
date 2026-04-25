@@ -33,7 +33,7 @@
     <input type="hidden" name="import_id" value="{{ import_id }}">
 
     <div class="panel">
-        Using format: <strong>{{ detected_format }}</strong>
+        Using format: <strong id="importFormat">{{ detected_format }}</strong>
 
         {% if detected_format != "casual" %}
             <div class="text-muted">
@@ -63,7 +63,7 @@
             </div>
             {% endif %}
 
-            <div id="liveValidationPanel" class="panel panel_warning"></div>
+            <div id="liveValidationPanel" class="panel panel-warning"></div>
 
     {% if invalid_lines %}
             <div id="invalidPanel" class="panel panel-warning">
