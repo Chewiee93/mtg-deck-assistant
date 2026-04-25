@@ -452,7 +452,10 @@ def import_review(import_id):
         for c in main_cards:
             c.copy_invalid = False
 
-            data = json.loads(c.data)
+            try:
+                data = json.loads(c.data)
+            except:
+                data = {}
 
             type_line = data.get("type_line", "").lower()
             oracle_text = data.get("oracle_text", "").lower()
