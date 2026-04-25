@@ -109,9 +109,13 @@
     <div class="grid">
     {% for card in cards %}
         <div class="grid-card
-            {% if card.name in banned.get(detected_format or 'casual', []) %}banned{% endif %}
-            {% elif card.name in restricted.get(detected_format or 'casual', []) %}restricted{% endif %}
-            {% elif card.copy_invalid is defined and card.copy_invalid %}copy-invalid{% endif %}
+            {% if card.name in banned.get(detected_format or 'casual', []) %}
+                banned
+            {% elif card.name in restricted.get(detected_format or 'casual', []) %}
+                restricted
+            {% elif card.copy_invalid is defined and card.copy_invalid %}
+                copy-invalid
+            {% endif %}
         ">
 
             <!-- Card image (if available) -->
