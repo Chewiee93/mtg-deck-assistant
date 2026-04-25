@@ -379,6 +379,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // run AFTER both exist
     updateCardCount();
     updateImportTotals();
+    updateImportValidation();
 
     function getTarget() {
         if (!formatSelect) return "";
@@ -423,6 +424,74 @@ document.addEventListener("DOMContentLoaded", () => {
         if (totalEl) {
             totalEl.textContent = `Total cards: ${total}`;
         }
+    }
+
+    function updateImportValidation() {
+        const cards = document.querySelectorAll(".grid-card");
+
+        let total = 0;
+        const counts = {};
+        const issues = [];
+
+        cards.forEach(card => {
+            const qtyEl = card.querySelector("[id^='import-qty-']");
+            if (!qtyEl) return;
+
+            const qty = parseInt(qtyEl.textContent) || 0;
+            const name = card.dataset.name;
+            const isSideboard = card.dataset.sideboard === "1";
+
+            if (isSideboard) return;
+
+            total += qty;
+
+            counts[name] = (counts[name] || 0) + qty;
+        });
+
+        // =========================
+        // FORMAT RULES
+        // =========================
+        const formatEl = document.querySelector("strong");
+        const format = formatEl?.textContent?.toLowerCase() || "casual";
+
+        if (format === "commander") {
+            if (total !== 100) {
+                issues.push(`Deck must have exactly 100 cards (currently ${total})`);
+            }
+        }
+
+        if (format === "modern" || format === "standard") {
+            if (total < 60) {
+                issues.push(`Deck must have at least 60 cards (currently ${total})`);
+            }
+        }
+
+        // =========================
+        // COPY LIMITS
+        // =========================
+        const maxCopies = format === "commander" ? 1 : 4;
+
+        Object.entries(counts).forEach(([name, qty]) => {
+            if (qty > maxCopies) {
+                issues.push(`${name} exceeds copy limit (${qty}/${maxCopies})`);
+            }
+        });
+
+        // =========================
+        // UPDATE UI
+        // =========================
+        const panel = document.getElementById("validationPanel");
+
+        if (!panel) return;
+
+        if (!issues.length) {
+            panel.innerHTML = "<strong>✅ Deck is valid</strong>";
+            return;
+        }
+
+        panel.innerHTML =
+            "<strong>⚠ Deck Issues:</strong>" +
+            issues.map(i => `<div>• ${i}</div>`).join("");
     }
 
 });

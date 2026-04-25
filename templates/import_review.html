@@ -16,6 +16,7 @@
     <a href="/">Home</a>
     <a href="/collection">Collection</a>
     <a href="/import">Import</a>
+    <a href="/decks">Decks</a>
 </div>
 
 <!-- =========================
@@ -63,7 +64,7 @@
             {% endif %}
 
     {% if invalid_lines %}
-            <div class="panel panel-warning">
+            <div id="validationPanel" class="panel panel-warning">
                 <strong>⚠ Failed to import:</strong>
                 {% for item in invalid_lines %}
                     <div>
@@ -120,7 +121,10 @@
             {% elif card.copy_invalid is defined and card.copy_invalid %}
                 copy-invalid
             {% endif %}
-        ">
+        "
+        data-name="{{ card.name }}"
+        data-sideboard="{{ card.is_sideboard }}"
+        data-copy-invalid="{{ 1 if card.copy_invalid else 0 }}">
 
             <!-- Card image (if available) -->
             {% if card.image_url %}
