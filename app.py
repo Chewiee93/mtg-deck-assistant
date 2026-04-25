@@ -494,7 +494,7 @@ def import_review(import_id):
         detected_format=session_data.format,
         commander_name=session_data.commander_name,
         invalid_lines=invalid_lines,
-        validation_issues=issues,
+        validation_issues=issues or [],
         banned=BANNED,
         restricted=RESTRICTED
     )
