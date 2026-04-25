@@ -297,6 +297,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (el) el.textContent = data.quantity;
 
             updateImportTotals();
+            updateImportValidation();
+            updateImportHighlights();
         });
     });
 
@@ -380,9 +382,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // run AFTER both exist
     updateCardCount();
-    updateImportTotals();
-    updateImportValidation();
-    updateImportHighlights();
 
     function getTarget() {
         if (!formatSelect) return "";
