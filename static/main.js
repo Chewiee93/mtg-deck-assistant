@@ -471,12 +471,24 @@ document.addEventListener("DOMContentLoaded", () => {
         // =========================
         // COPY LIMITS
         // =========================
-        cards.forEach(card => {
-            const isInvalid = card.dataset.copyInvalid === "1";
-            const name = card.dataset.name;
+        const maxCopies = format === "commander" ? 1 : 4;
 
-            if (isInvalid) {
-                issues.push(`${name} exceeds copy limit`);
+        Object.entries(counts).forEach(([name, qty]) => {
+
+            // basic land check (same as highlight)
+            const lower = name.toLowerCase();
+
+            const isBasic =
+                lower === "plains" ||
+                lower === "island" ||
+                lower === "swamp" ||
+                lower === "mountain" ||
+                lower === "forest";
+
+            if (isBasic) return;
+
+            if (qty > maxCopies) {
+                issues.push(`${name} exceeds copy limit (${qty}/${maxCopies})`);
             }
         });
 
@@ -544,11 +556,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const qty = counts[name] || 0;
 
             // basic land check (simple)
-            const isBasic = name.toLowerCase().includes("plains") ||
-                            name.toLowerCase().includes("island") ||
-                            name.toLowerCase().includes("swamp") ||
-                            name.toLowerCase().includes("mountain") ||
-                            name.toLowerCase().includes("forest");
+            const lower = name.toLowerCase();
+
+            const isBasic =
+                lower === "plains" ||
+                lower === "island" ||
+                lower === "swamp" ||
+                lower === "mountain" ||
+                lower === "forest";
 
             if (isBasic) return;
 
