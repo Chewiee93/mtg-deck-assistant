@@ -39,13 +39,28 @@
     <!-- YEAR FILTER -->
     <select id="yearFilter" class="input">
         <option value="">All Years</option>
-        {% for set in sets %}
-            {% if set.released_at %}
-                <option value="{{ set.released_at[:4] }}">
-                    {{ set.released_at[:4] }}
-                </option>
-            {% endif %}
+
+        {% set years = sets 
+            | selectattr("released_at") 
+            | map(attribute="released_at") 
+            | map("slice", 0, 4) 
+            | list 
+        %}
+
+        {% for year in years | unique | sort(reverse=True) %}
+            <option value="{{ year }}">{{ year }}</option>
         {% endfor %}
+    </select>
+
+    <!-- SET TYPE FILTER -->
+     <select id="typeFilter" class="input">
+        <option value="">All Types</option>
+        <option value="core">Core</option>
+        <option value="expansion">Expansion</option>
+        <option value="masters">Masters</option>
+        <option value="commander">Commander</option>
+        <option value="draft_innovation">Draft</option>
+        <option value="funny">Funny</option>
     </select>
 
     <!-- MODERN FILTER -->
@@ -64,7 +79,8 @@
         <div class="grid-card"
             data-name="{{ set.name | lower }}"
             data-code="{{ set.code | upper }}"
-            data-year="{{ set.released_at[:4] if set.released_at else '' }}">
+            data-year="{{ set.released_at[:4] if set.released_at else '' }}"
+            data-type="{{ set.set_type }}">
 
             <!-- SYMBOL -->
             {% if set.icon_svg_uri %}

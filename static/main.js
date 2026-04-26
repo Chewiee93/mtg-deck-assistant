@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const year = document.getElementById("yearFilter");
         const sort = document.getElementById("setSort");
         const modern = document.getElementById("modernOnly");
+        const type = document.getElementById("typeFilter");
 
         if (!search || !year || !sort) return;
 
@@ -30,12 +31,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const searchVal = search.value.toLowerCase();
             const yearVal = year.value;
             const modernOnly = modern?.checked;
+            const typeVal = type?.value;
 
             let filtered = cards.filter(card => {
 
                 const name = card.dataset.name;
                 const cardYear = card.dataset.year;
-                const code = card.dataset.code;
+                const cardType = card.dataset.type;
 
                 // SEARCH
                 if (searchVal && !name.includes(searchVal)) return false;
@@ -43,7 +45,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 // YEAR
                 if (yearVal && cardYear !== yearVal) return false;
 
-                // MODERN (simple heuristic)
+                // TYPE
+                if (typeVal && cardType !== typeVal) return false;
+
+                // MODERN
                 if (modernOnly) {
                     if (!cardYear || parseInt(cardYear) < 2003) return false;
                 }
@@ -71,6 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
         year.addEventListener("change", apply);
         sort.addEventListener("change", apply);
         modern?.addEventListener("change", apply);
+        type?.addEventListener("change", apply);
 
     }
 
