@@ -110,3 +110,16 @@
 .deck-invalid-live {
     outline: 3px solid red;
 }
+
+/* =========================
+   SET SYMBOL FIX
+   ========================= */
+.set-symbol {
+    width: 60px !important;
+    height: 60px !important;
+    object-fit: contain;
+    background: white; /* KEY FIX */
+    padding: 6px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
