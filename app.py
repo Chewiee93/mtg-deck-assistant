@@ -437,8 +437,13 @@ def import_review(import_id):
     rules = FORMAT_RULES.get(session_data.format, {})
 
     main_cards = [c for c in cards if not c.is_sideboard]
-
     total_main = sum(c.quantity for c in main_cards)
+
+    sideboard_cards = [c for c in cards if c.is_sideboard]
+    total_side = sum(c.quantity for c in sideboard_cards)
+    
+    if total_side > 15:
+        issues.append(f"Sideboard exceeds 15 cards ({total_side}/15)")
 
     issues = []
 

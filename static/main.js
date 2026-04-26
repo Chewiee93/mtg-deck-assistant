@@ -414,17 +414,29 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
     function updateImportTotals() {
-        const qtyEls = document.querySelectorAll("[id^='import-qty-']");
+        const cards = document.querySelectorAll(".grid-card");
 
-        let total = 0;
+        let main = 0;
+        let side = 0;
 
-        qtyEls.forEach(el => {
-            total += parseInt(el.textContent) || 0;
+        cards.forEach(card => {
+            const qtyEl = card.querySelector("[id^='import-qty-']");
+            if (!qtyEl) return;
+
+            const qty = parseInt(qtyEl.textContent) || 0;
+            const isSideboard = card.dataset.sideboard === "1";
+
+            if (isSideboard) {
+                side += qty;
+            } else {
+                main += qty;
+            }
         });
 
         const totalEl = document.getElementById("importTotals");
+
         if (totalEl) {
-            totalEl.textContent = `Total cards: ${total}`;
+            totalEl.textContent = `Main: ${main} | Sideboard: ${side}`;
         }
     }
 
@@ -434,6 +446,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let total = 0;
         const counts = {};
         const issues = [];
+        let sideTotal = 0;
 
         cards.forEach(card => {
             const qtyEl = card.querySelector("[id^='import-qty-']");
@@ -449,6 +462,8 @@ document.addEventListener("DOMContentLoaded", () => {
             // only mainboard affects deck size
             if (!isSideboard) {
                 total += qty;
+            } else {
+                sideTotal += qty;
             }
         });
 
@@ -472,6 +487,13 @@ document.addEventListener("DOMContentLoaded", () => {
             } else if (total > 70) {
                 issues.push(`Deck too large (${total}/60+)`);
             }
+        }
+
+        // =========================
+        // SIDEBBOARD SIZE RULE
+        // =========================
+        if (sideTotal > 15) {
+            issues.push(`Sideboard too large (${sideTotal}/15)`);
         }
 
         // =========================
