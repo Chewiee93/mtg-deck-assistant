@@ -113,7 +113,11 @@
     <!-- =========================
         MAIN DECK
         ========================= -->
-    <h3>Main Deck</h3>
+    <h3 id="mainHeader">
+        Main Deck (
+        {{ cards | rejectattr("is_sideboard") | sum(attribute='quantity') }}
+        )
+    </h3>
     <div class="grid">
     {% for card in cards if not card.is_sideboard %}
         <div class="grid-card

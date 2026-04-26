@@ -455,6 +455,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (header) {
             header.textContent = `Sideboard (${side} / 15)`;
         }
+
+        // =========================
+        // UPDATE MAIN HEADER
+        // =========================
+        const mainHeader = document.getElementById("mainHeader");
+        if (mainHeader) {
+            mainHeader.textContent = `Main Deck (${main})`;
+        }
     }
 
     function updateImportValidation() {
