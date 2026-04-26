@@ -383,6 +383,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // run AFTER both exist
     updateCardCount();
 
+    // =========================
+    // INIT IMPORT REVIEW STATE
+    // =========================
+    updateImportTotals();
+    updateImportValidation();
+    updateImportHighlights();
+
     function getTarget() {
         if (!formatSelect) return "";
 
