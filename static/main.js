@@ -599,28 +599,27 @@ document.addEventListener("DOMContentLoaded", () => {
                 card.classList.add("copy-invalid-live");
             }
         });
-    }
 
-    // =========================
-    // DECK SIZE VISUAL
-    // =========================
-    const container = document.querySelector(".grid");
+        // =========================
+        // DECK SIZE VISUAL
+        // =========================
+        const container = document.querySelector(".grid");
 
-    if (container) {
-        container.classList.remove("deck-invalid-live");
+        if (container) {
+            container.classList.remove("deck-invalid-live");
 
-        const formatEl = document.getElementById("importFormat");
-        const format = formatEl?.textContent?.toLowerCase() || "casual";
+            const formatEl = document.getElementById("importFormat");
+            const format = formatEl?.textContent?.toLowerCase() || "casual";
 
-        if (format === "commander" && total !== 100) {
-            container.classList.add("deck-invalid-live");
+            if (format === "commander" && total !== 100) {
+                container.classList.add("deck-invalid-live");
+            }
+
+            if ((format === "modern" || format === "standard") && total < 60) {
+                container.classList.add("deck-invalid-live");
+            }
         }
-
-        if ((format === "modern" || format === "standard") && total < 60) {
-            container.classList.add("deck-invalid-live");
-        }
     }
-
 });
 
 // expose globally ONLY if needed
