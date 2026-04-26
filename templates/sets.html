@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MTG Sets</title>
+
+    <link rel="stylesheet" href="/static/base.css">
+    <link rel="stylesheet" href="/static/layout.css">
+    <link rel="stylesheet" href="/static/components.css">
+    <link rel="stylesheet" href="/static/features.css">
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="/">Home</a>
+    <a href="/decks">Decks</a>
+    <a href="/collection">Collection</a>
+    <a href="/import">Import</a>
+    <a href="/rules">Rules</a>
+</div>
+
+<h1>Magic Sets</h1>
+
+<div class="section">
+
+    <div class="grid">
+
+        {% for set in sets %}
+        <div class="grid-card">
+
+            <!-- SYMBOL -->
+            {% if set.icon_svg_uri %}
+                <img src="{{ set.icon_svg_uri }}" style="height:50px;">
+            {% endif %}
+
+            <!-- NAME -->
+            <div class="card-info">
+                <strong>{{ set.name }}</strong>
+            </div>
+
+            <!-- CODE -->
+            <div class="card-meta">
+                ({{ set.code | upper }})
+            </div>
+
+        </div>
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<script type="module" src="{{ url_for('static', filename='main.js') }}"></script>
+
+</body>
+</html>

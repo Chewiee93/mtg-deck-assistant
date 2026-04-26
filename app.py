@@ -594,6 +594,19 @@ def decks():
 def rules():
     return render_template("rules.html")
 
+@main_bp.route("/sets")
+def sets_page():
+    try:
+        res = requests.get("https://api.scryfall.com/sets", timeout=5)
+        data = res.json().get("data", [])
+    except:
+        data = []
+
+    # sort newest first (optional but nicer)
+    data = sorted(data, key=lambda x: x.get("released_at", ""), reverse=True)
+
+    return render_template("sets.html", sets=data)
+
 # =========================
 # 8. ROUTES (DECKS)
 # =========================
