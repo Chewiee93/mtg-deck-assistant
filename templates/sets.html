@@ -21,12 +21,50 @@
 
 <h1>Magic Sets</h1>
 
+<div class="flex mb-15">
+
+    <!-- SEARCH -->
+    <input 
+        id="searchInput"
+        placeholder="Search sets..."
+        class="input"
+    >
+
+    <!-- SORT -->
+    <select id="setSort" class="input">
+        <option value="newest">Newest</option>
+        <option value="az">A–Z</option>
+    </select>
+
+    <!-- YEAR FILTER -->
+    <select id="yearFilter" class="input">
+        <option value="">All Years</option>
+        {% for set in sets %}
+            {% if set.released_at %}
+                <option value="{{ set.released_at[:4] }}">
+                    {{ set.released_at[:4] }}
+                </option>
+            {% endif %}
+        {% endfor %}
+    </select>
+
+    <!-- MODERN FILTER -->
+    <label>
+        <input type="checkbox" id="modernOnly">
+        Modern-relevant
+    </label>
+
+</div>
+
 <div class="section">
 
     <div class="grid">
 
         {% for set in sets %}
-        <div class="grid-card">
+        <div class="grid-card"
+            data-name="{{ set.name | lower }}"
+            data-code="{{ set.code | upper }}"
+            data-year="{{ set.released_at[:4] if set.released_at else '' }}">
 
             <!-- SYMBOL -->
             {% if set.icon_svg_uri %}

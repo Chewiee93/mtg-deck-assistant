@@ -11,6 +11,72 @@ document.addEventListener("DOMContentLoaded", () => {
     Filters.init();
 
     // =========================
+    // SETS FILTER / SORT
+    // =========================
+    function initSetFilters() {
+
+        const search = document.getElementById("searchInput");
+        const year = document.getElementById("yearFilter");
+        const sort = document.getElementById("setSort");
+        const modern = document.getElementById("modernOnly");
+
+        if (!search || !year || !sort) return;
+
+        const grid = document.querySelector(".grid");
+        const cards = Array.from(document.querySelectorAll(".grid-card"));
+
+        function apply() {
+
+            const searchVal = search.value.toLowerCase();
+            const yearVal = year.value;
+            const modernOnly = modern?.checked;
+
+            let filtered = cards.filter(card => {
+
+                const name = card.dataset.name;
+                const cardYear = card.dataset.year;
+                const code = card.dataset.code;
+
+                // SEARCH
+                if (searchVal && !name.includes(searchVal)) return false;
+
+                // YEAR
+                if (yearVal && cardYear !== yearVal) return false;
+
+                // MODERN (simple heuristic)
+                if (modernOnly) {
+                    if (!cardYear || parseInt(cardYear) < 2003) return false;
+                }
+
+                return true;
+            });
+
+            // SORT
+            if (sort.value === "az") {
+                filtered.sort((a, b) =>
+                    a.dataset.name.localeCompare(b.dataset.name)
+                );
+            } else {
+                filtered.sort((a, b) =>
+                    (b.dataset.year || "").localeCompare(a.dataset.year || "")
+                );
+            }
+
+            // REBUILD GRID
+            grid.innerHTML = "";
+            filtered.forEach(card => grid.appendChild(card));
+        }
+
+        search.addEventListener("input", apply);
+        year.addEventListener("change", apply);
+        sort.addEventListener("change", apply);
+        modern?.addEventListener("change", apply);
+
+    }
+
+    initSetFilters();
+
+    // =========================
     // SAVE IMPORT TEXT
     // =========================
     const importForm = document.querySelector("form[action='/import_deck']");
