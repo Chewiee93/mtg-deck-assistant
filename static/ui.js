@@ -33,7 +33,9 @@ export const UI = {
 
         const preview = document.getElementById("previewImage");
 
-        // ✅ SAFE LOAD (handles broken URLs)
+        // 🚫 STOP if preview modal doesn't exist
+        if (!preview) return;
+
         preview.onerror = () => {
             preview.src = "/static/placeholder.jpg";
         };
