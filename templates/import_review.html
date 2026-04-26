@@ -111,10 +111,11 @@
     {% endif %}
 
     <!-- =========================
-         CARD LIST
-         ========================= -->
+        MAIN DECK
+        ========================= -->
+    <h3>Main Deck</h3>
     <div class="grid">
-    {% for card in cards %}
+    {% for card in cards if not card.is_sideboard %}
         <div class="grid-card
             {% if card.name in banned.get(detected_format or 'casual', []) %}
                 banned
@@ -128,12 +129,10 @@
         data-sideboard="{{ card.is_sideboard }}"
         data-copy-invalid="{{ 1 if card.copy_invalid else 0 }}">
 
-            <!-- Card image (if available) -->
             {% if card.image_url %}
                 <img src="{{ card.image_url }}">
             {% endif %}
 
-            <!-- Card info -->
             <div class="card-info">
                 <strong>{{ card.name }}</strong>
             </div>
@@ -152,26 +151,59 @@
                 <button 
                     type="button"
                     class="remove-import-btn"
-                    data-id="{{ card.id }}"
-                    title="Remove card">
+                    data-id="{{ card.id }}">
                     🗑
                 </button>
             </div>
-
-            <!-- Ownership toggle -->
-            <div class="card-info">
-                <label>
-                    {% if not all_owned %}
-                        <input type="checkbox" name="owned_{{ loop.index0 }}">
-                    {% else %}
-                        <div>Owned</div>
-                    {% endif %}
-                </label>
-            </div>
-
         </div>
     {% endfor %}
     </div>
+
+
+    <!-- =========================
+        SIDEBOARD
+        ========================= -->
+    {% set side_cards = cards | selectattr("is_sideboard") | list %}
+
+    {% if side_cards %}
+    <h3>Sideboard</h3>
+    <div class="grid">
+    {% for card in side_cards %}
+        <div class="grid-card"
+            data-name="{{ card.name }}"
+            data-sideboard="{{ card.is_sideboard }}"
+            data-copy-invalid="{{ 1 if card.copy_invalid else 0 }}">
+
+            {% if card.image_url %}
+                <img src="{{ card.image_url }}">
+            {% endif %}
+
+            <div class="card-info">
+                <strong>{{ card.name }}</strong>
+            </div>
+
+            <div class="card-controls">
+                <button type="button" class="import-qty-btn" data-id="{{ card.id }}" data-change="-1">-</button>
+
+                <span id="import-qty-{{ card.id }}">
+                    {{ card.quantity }}
+                </span>
+
+                <button type="button" class="import-qty-btn" data-id="{{ card.id }}" data-change="1">+</button>
+            </div>
+
+            <div class="card-actions">
+                <button 
+                    type="button"
+                    class="remove-import-btn"
+                    data-id="{{ card.id }}">
+                    🗑
+                </button>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+    {% endif %}
 
     <!-- Submit -->
     <button type="submit">Confirm Import</button>
