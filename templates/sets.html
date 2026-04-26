@@ -40,12 +40,13 @@
     <select id="yearFilter" class="input">
         <option value="">All Years</option>
 
-        {% set years = sets 
-            | selectattr("released_at") 
-            | map(attribute="released_at") 
-            | map("slice", 0, 4) 
-            | list 
-        %}
+        {% set years = [] %}
+
+        {% for s in sets %}
+            {% if s.released_at %}
+                {% set _ = years.append(s.released_at[:4]) %}
+            {% endif %}
+        {% endfor %}
 
         {% for year in years | unique | sort(reverse=True) %}
             <option value="{{ year }}">{{ year }}</option>
@@ -80,7 +81,7 @@
             data-name="{{ set.name | lower }}"
             data-code="{{ set.code | upper }}"
             data-year="{{ set.released_at[:4] if set.released_at else '' }}"
-            data-type="{{ set.set_type }}">
+            data-type="{{ set.set_type or '' }}">
 
             <!-- SYMBOL -->
             {% if set.icon_svg_uri %}
