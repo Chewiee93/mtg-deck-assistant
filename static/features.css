@@ -112,14 +112,16 @@
 }
 
 /* =========================
-   SET SYMBOL FIX
+   SET SYMBOL FIX (STRONG OVERRIDE)
    ========================= */
-.set-symbol {
+.grid-card img.set-symbol {
     width: 60px !important;
     height: 60px !important;
     object-fit: contain;
-    background: white; /* KEY FIX */
+
+    background: #fff !important;   /* 🔥 override dark bg */
     padding: 6px;
     border-radius: 6px;
+
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
