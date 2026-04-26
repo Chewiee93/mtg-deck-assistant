@@ -440,10 +440,20 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
+        // =========================
+        // UPDATE TOTALS DISPLAY
+        // =========================
         const totalEl = document.getElementById("importTotals");
-
         if (totalEl) {
             totalEl.textContent = `Main: ${main} | Sideboard: ${side}`;
+        }
+
+        // =========================
+        // UPDATE SIDEBOARD HEADER
+        // =========================
+        const header = document.getElementById("sideboardHeader");
+        if (header) {
+            header.textContent = `Sideboard (${side} / 15)`;
         }
     }
 

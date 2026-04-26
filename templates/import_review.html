@@ -166,7 +166,11 @@
     {% set side_cards = cards | selectattr("is_sideboard") | list %}
 
     {% if side_cards %}
-    <h3>Sideboard</h3>
+    <h3 id="sideboardHeader">
+        Sideboard (
+        {{ side_cards | sum(attribute='quantity') }} / 15
+        )
+    </h3>
     <div class="grid">
     {% for card in side_cards %}
         <div class="grid-card"
