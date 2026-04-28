@@ -742,6 +742,32 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     }
+
+    // =========================
+    // ADD CARD FROM SET VIEW
+    // =========================
+    document.querySelectorAll(".add-set-card-btn").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+
+            const name = btn.dataset.name;
+
+            const res = await fetch("/api/add_card", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ name })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                btn.textContent = "✔";
+                btn.disabled = true;
+            } else {
+                alert("Failed to add card");
+            }
+        });
+    });
 });
 
 // expose globally ONLY if needed
