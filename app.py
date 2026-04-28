@@ -590,9 +590,9 @@ def decks():
     return render_template("decks.html", decks=decks)
 
 
-@main_bp.route("/rules")
+@main_bp.route("/game_formats")
 def rules():
-    return render_template("rules.html")
+    return render_template("game_formats.html")
 
 @main_bp.route("/sets")
 def sets_page():
