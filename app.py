@@ -611,7 +611,7 @@ def sets_page():
 def view_set(set_code):
 
     try:
-        url = f"https://api.scryfall.com/cards/search?q=e:{set_code}&unique=prints"
+        url = f"https://api.scryfall.com/cards/search?q=e:{set_code}&unique=cards"
         res = requests.get(url, timeout=5)
         data = res.json()
         cards = data.get("data", [])
