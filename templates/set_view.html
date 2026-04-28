@@ -28,6 +28,10 @@
 
             {% if card.image_uris %}
                 <img src="{{ card.image_uris.normal }}">
+            {% elif card.card_faces and card.card_faces[0].image_uris %}
+                <img src="{{ card.card_faces[0].image_uris.normal }}">
+            {% else %}
+                <img src="/static/placeholder.jpg">
             {% endif %}
 
             <div class="card-info">
