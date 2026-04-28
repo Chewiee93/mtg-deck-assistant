@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const search = document.getElementById("searchInput");
         const year = document.getElementById("yearFilter");
         const sort = document.getElementById("setSort");
-        const modern = document.getElementById("modernOnly");
+        const formatFilter = document.getElementById("formatFilter");
         const type = document.getElementById("typeFilter");
 
         if (!search || !year || !sort) return;
@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const searchVal = search.value.toLowerCase();
             const yearVal = year.value;
-            const modernOnly = modern?.checked;
+            const formatVal = formatFilter?.value;
             const typeVal = type?.value;
 
             let filtered = cards.filter(card => {
@@ -48,9 +48,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 // TYPE
                 if (typeVal && cardType !== typeVal) return false;
 
-                // MODERN
-                if (modernOnly) {
+                // =========================
+                // FORMAT FILTER
+                // =========================
+                if (formatVal === "modern") {
                     if (!cardYear || parseInt(cardYear) < 2003) return false;
+                }
+
+                if (formatVal === "standard") {
+                    const yearNum = parseInt(cardYear || "0");
+                    const currentYear = new Date().getFullYear();
+
+                    // approx standard window (last 3 years)
+                    if (!yearNum || yearNum < currentYear - 3) return false;
                 }
 
                 return true;
@@ -75,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
         search.addEventListener("input", apply);
         year.addEventListener("change", apply);
         sort.addEventListener("change", apply);
-        modern?.addEventListener("change", apply);
+        formatFilter?.addEventListener("change", apply);
         type?.addEventListener("change", apply);
 
     }
