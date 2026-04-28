@@ -531,9 +531,11 @@ def confirm_import():
         if not card:
             image_data = data.get("image_uris") or {}
 
+            owned_qty = c.quantity if session_data.all_owned else 0
+
             card = Card(
                 name=c.name,
-                quantity=0,
+                quantity=owned_qty,
                 type_line=data.get("type_line", ""),
                 cmc=int(data.get("cmc", 0)),
                 color_identity="".join(data.get("color_identity", [])),
@@ -543,6 +545,10 @@ def confirm_import():
 
             g.db.add(card)
             g.db.flush()
+
+        else:
+            if session_data.all_owned:
+                card.quantity += c.quantity
 
         g.db.add(DeckCard(
             deck_id=deck.id,
@@ -824,6 +830,43 @@ def set_commander(deck_id):
 # =========================
 
 api_bp = Blueprint("api", __name__)
+
+@api_bp.route("/api/add_card", methods=["POST"])
+def add_card():
+    data = request.get_json()
+    name = data.get("name")
+
+    if not name:
+        return jsonify({"success": False})
+
+    card_data = get_card_data(name)
+
+    if not card_data:
+        return jsonify({"success": False})
+
+    existing = g.db.query(Card).filter_by(name=card_data["name"]).first()
+
+    if existing:
+        existing.quantity += 1
+    else:
+        image_data = card_data.get("image_uris") or {}
+
+        card = Card(
+            name=card_data["name"],
+            quantity=1,
+            type_line=card_data.get("type_line", ""),
+            cmc=int(card_data.get("cmc", 0)),
+            color_identity="".join(card_data.get("color_identity", [])),
+            image_url=image_data.get("normal"),
+            image_large=image_data.get("large"),
+            owned=1
+        )
+
+        g.db.add(card)
+
+    g.db.commit()
+
+    return jsonify({"success": True})
 
 @api_bp.route("/api/card_suggest")
 def suggest():
