@@ -10,38 +10,53 @@
 </head>
 
 <body>
+
 <h1 class="home-title">MTG Deck Builder</h1>
 
+<div class="section">
+    <div class="text-muted">
+        Build, import, and analyse your Magic decks.
+    </div>
+
+    <div class="mt-6">
+        👉 Start by importing a deck or adding cards to your collection.
+    </div>
+</div>
+
 <div class="home-grid">
+
+    <a href="/import" class="home-card primary">
+        <div class="home-icon">📥</div>
+        <div class="home-label">Import Deck</div>
+        <div class="text-muted">Fastest way to get started</div>
+    </a>
 
     <a href="/collection" class="home-card">
         <div class="home-icon">📦</div>
         <div class="home-label">Collection</div>
+        <div class="text-muted">Track your cards</div>
     </a>
 
     <a href="/decks" class="home-card">
         <div class="home-icon">🃏</div>
         <div class="home-label">Decks</div>
-    </a>
-
-    <a href="/import" class="home-card">
-        <div class="home-icon">📥</div>
-        <div class="home-label">Import Deck</div>
+        <div class="text-muted">View & manage decks</div>
     </a>
 
     <a href="/rules" class="home-card">
         <div class="home-icon">🧠</div>
         <div class="home-label">Rules</div>
+        <div class="text-muted">Understand formats</div>
     </a>
 
     <a href="/sets" class="home-card">
         <div class="home-icon">🧩</div>
         <div class="home-label">Sets</div>
+        <div class="text-muted">Browse expansions</div>
     </a>
 
 </div>
 
-<!-- MAIN JS -->
 <script type="module" src="{{ url_for('static', filename='main.js') }}"></script>
 
 </body>
