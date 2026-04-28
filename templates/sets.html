@@ -80,7 +80,7 @@
     <div class="grid">
 
         {% for set in sets %}
-        <div class="grid-card"
+        <a href="/set/{{ set.code }}" class="grid-card"
             data-name="{{ set.name | lower }}"
             data-code="{{ set.code | upper }}"
             data-year="{{ set.released_at[:4] if set.released_at else '' }}"
@@ -101,7 +101,7 @@
                 ({{ set.code | upper }})
             </div>
 
-        </div>
+        </a>
         {% endfor %}
 
     </div>

@@ -607,7 +607,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (total < 60) {
                 issues.push(`Deck too small (${total}/60+)`);
             } else if (total > 90) {
-                issues.push(`Deck too large (${total}/60+)`);
+                issues.push(`Deck unusually large (${total}/60+)`);
             }
         }
 

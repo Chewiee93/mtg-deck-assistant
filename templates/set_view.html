@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ set_code }} Cards</title>
+
+    <link rel="stylesheet" href="/static/base.css">
+    <link rel="stylesheet" href="/static/layout.css">
+    <link rel="stylesheet" href="/static/components.css">
+    <link rel="stylesheet" href="/static/features.css">
+</head>
+
+<body>
+
+<div class="nav">
+    <a href="/">Home</a>
+    <a href="/sets">Sets</a>
+</div>
+
+<h1>{{ set_code }} – Cards</h1>
+
+<div class="section">
+    <div class="grid">
+
+        {% for card in cards %}
+        <div class="grid-card"
+            data-name="{{ card.name | lower }}"
+            data-preview="{{ card.image_uris.normal if card.image_uris else '' }}">
+
+            {% if card.image_uris %}
+                <img src="{{ card.image_uris.normal }}">
+            {% endif %}
+
+            <div class="card-info">
+                <strong>{{ card.name }}</strong>
+            </div>
+
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+
+<script type="module" src="{{ url_for('static', filename='main.js') }}"></script>
+
+</body>
+</html>

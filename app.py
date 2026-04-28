@@ -607,6 +607,23 @@ def sets_page():
 
     return render_template("sets.html", sets=data)
 
+@main_bp.route("/set/<set_code>")
+def view_set(set_code):
+
+    try:
+        url = f"https://api.scryfall.com/cards/search?q=e:{set_code}&unique=prints"
+        res = requests.get(url, timeout=5)
+        data = res.json()
+        cards = data.get("data", [])
+    except:
+        cards = []
+
+    return render_template(
+        "set_view.html",
+        cards=cards,
+        set_code=set_code.upper()
+    )
+
 # =========================
 # 8. ROUTES (DECKS)
 # =========================
