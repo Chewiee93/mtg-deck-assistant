@@ -139,3 +139,23 @@
     width: 100%;
     max-width: 500px;
 }
+
+/* =========================
+   HOME PAGE FULL CENTER
+   ========================= */
+
+.home-page {
+    min-height: 85vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.home-content {
+    width: 100%;
+    text-align: center;
+}
+
+.home-content .home-wrapper {
+    margin-top: 20px;
+}

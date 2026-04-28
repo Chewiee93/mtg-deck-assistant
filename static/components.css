@@ -235,3 +235,22 @@ button {
 .home-card.primary {
     border: 2px solid #007BFF;
 }
+
+/* =========================
+   HOME INTRO (CENTERED)
+   ========================= */
+
+.home-intro {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.home-title {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.home-intro .section {
+    max-width: 400px;
+    margin: 0 auto;
+}
