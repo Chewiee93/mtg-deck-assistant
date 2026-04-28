@@ -49,18 +49,33 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (typeVal && cardType !== typeVal) return false;
 
                 // =========================
-                // FORMAT FILTER
+                // FORMAT FILTER (IMPROVED)
                 // =========================
                 if (formatVal === "modern") {
-                    if (!cardYear || parseInt(cardYear) < 2003) return false;
+                    const yearNum = parseInt(cardYear || "0");
+
+                    // Must be modern-era AND real playable set types
+                    if (
+                        !yearNum ||
+                        yearNum < 2003 ||
+                        !["core", "expansion"].includes(cardType)
+                    ) {
+                        return false;
+                    }
                 }
 
                 if (formatVal === "standard") {
                     const yearNum = parseInt(cardYear || "0");
                     const currentYear = new Date().getFullYear();
 
-                    // approx standard window (last 3 years)
-                    if (!yearNum || yearNum < currentYear - 3) return false;
+                    // Only recent + standard-style sets
+                    if (
+                        !yearNum ||
+                        yearNum < currentYear - 3 ||
+                        !["core", "expansion"].includes(cardType)
+                    ) {
+                        return false;
+                    }
                 }
 
                 return true;
