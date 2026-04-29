@@ -18,6 +18,13 @@
 
 <h1>{{ set_code }} – Cards</h1>
 
+<div>
+    <input 
+    id="searchInput"
+    placeholder="Search cards..."
+    class="input">
+</div>
+
 <div class="section">
 
     <select id="typeFilter" class="input">
@@ -31,6 +38,15 @@
         <option value="Planeswalker">Planeswalker</option>
     </select>
 
+    <select id="colorFilter" class="input">
+        <option value="">All Colors</option>
+        <option value="W">White</option>
+        <option value="U">Blue</option>
+        <option value="B">Black</option>
+        <option value="R">Red</option>
+        <option value="G">Green</option>
+    </select>
+
 </div>
 
 <div class="section">
@@ -40,6 +56,7 @@
         <div class="grid-card"
             data-type="{{ card.type_line }}"
             data-name="{{ card.name | lower }}"
+            data-color="{{ card.color_identity | join('') if card.color_identity else '' }}"
             data-preview="{{ card.image_uris.normal if card.image_uris else '' }}">
 
             {% if card.image_uris %}
@@ -63,17 +80,16 @@
         </div>
         {% endfor %}
 
-        {% if has_more %}
-        <div class="section" style="text-align:center;">
-            <button 
-                class="button load-more-btn"
-                data-next="{{ next_page }}">
-                Load More →
-            </button>
-        </div>
-        {% endif %}
-
     </div>
+    {% if has_more %}
+    <div class="section" style="text-align:center;">
+        <button 
+            class="button load-more-btn"
+            data-next="{{ next_page }}">
+            Load More →
+        </button>
+    </div>
+    {% endif %}
 </div>
 
 <script type="module" src="{{ url_for('static', filename='main.js') }}"></script>

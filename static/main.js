@@ -821,6 +821,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const grid = document.querySelector(".grid");
 
+                // insert BEFORE button container
+                const container = btn.parentElement;
+
                 newCards.forEach(card => {
                     grid.appendChild(card);
                 });
@@ -830,10 +833,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (nextBtn) {
                     btn.dataset.next = nextBtn.dataset.next;
+
+                    // keep button at bottom (no gap)
+                    container.appendChild(btn);
+
                     btn.disabled = false;
                     btn.textContent = "Load More →";
                 } else {
-                    btn.remove(); // no more pages
+                    container.remove(); // remove whole section
                 }
 
             } catch (err) {
