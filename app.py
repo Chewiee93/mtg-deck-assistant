@@ -616,7 +616,7 @@ def sets_page():
 @main_bp.route("/set/<set_code>")
 def view_set(set_code):
 
-    page_url = request.args.get("page")
+    page_url = request.args.get("page_url")
 
     try:
         if page_url:
