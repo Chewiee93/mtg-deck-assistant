@@ -42,7 +42,7 @@ export const UI = {
 
         preview.src = img;
 
-        this.openModal("previewModal");
+        document.getElementById("previewModal")?.classList.remove("hidden");
     },
 
     async removeCard(deckId, cardId) {

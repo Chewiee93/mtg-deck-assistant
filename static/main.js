@@ -209,7 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
             clearTimeout(hoverTimer);
 
             leaveTimer = setTimeout(() => {
-                UI.closeModal("previewModal");
+                document.getElementById("previewModal")?.classList.add("hidden");
                 currentPreview = null;
             }, 200);
         });
