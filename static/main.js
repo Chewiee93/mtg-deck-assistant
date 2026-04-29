@@ -768,6 +768,33 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
+
+    // =========================
+    // SET TYPE FILTER
+    // =========================
+    function initSetTypeFilter() {
+
+        const filter = document.getElementById("typeFilter");
+        if (!filter) return;
+
+        const cards = document.querySelectorAll(".grid-card");
+
+        filter.addEventListener("change", () => {
+            const val = filter.value;
+
+            cards.forEach(card => {
+                const type = card.dataset.type || "";
+
+                if (!val || type.includes(val)) {
+                    card.style.display = "";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        });
+    }
+
+    initSetTypeFilter();
 });
 
 // expose globally ONLY if needed

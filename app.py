@@ -616,18 +616,32 @@ def sets_page():
 @main_bp.route("/set/<set_code>")
 def view_set(set_code):
 
+    page_url = request.args.get("page")
+
     try:
-        url = f"https://api.scryfall.com/cards/search?q=e:{set_code}&unique=cards"
-        res = requests.get(url, timeout=5)
+        if page_url:
+            res = requests.get(page_url, timeout=5)
+        else:
+            url = f"https://api.scryfall.com/cards/search?q=e:{set_code}&unique=cards"
+            res = requests.get(url, timeout=5)
+
         data = res.json()
+
         cards = data.get("data", [])
+        next_page = data.get("next_page")
+        has_more = data.get("has_more", False)
+
     except:
         cards = []
+        next_page = None
+        has_more = False
 
     return render_template(
         "set_view.html",
         cards=cards,
-        set_code=set_code.upper()
+        set_code=set_code.upper(),
+        next_page=next_page,
+        has_more=has_more
     )
 
 # =========================
