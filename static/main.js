@@ -185,7 +185,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // HOVER ENTER
-        card.addEventListener("mouseenter", () => {
+        card.addEventListener("pointerenter", (e) => {
+
+            // 🔥 ignore internal movement
+            if (card.contains(e.relatedTarget)) return;
 
             clearTimeout(leaveTimer);
 
@@ -195,18 +198,20 @@ document.addEventListener("DOMContentLoaded", () => {
             hoverTimer = setTimeout(() => {
                 UI.preview(card);
                 currentPreview = card;
-            }, 180);
+            }, 250);
         });
 
         // HOVER LEAVE
-        card.addEventListener("mouseleave", () => {
+        card.addEventListener("pointerleave", (e) => {
+
+            if (card.contains(e.relatedTarget)) return;
 
             clearTimeout(hoverTimer);
 
             leaveTimer = setTimeout(() => {
                 UI.closeModal("previewModal");
                 currentPreview = null;
-            }, 150);
+            }, 200);
         });
 
     });
