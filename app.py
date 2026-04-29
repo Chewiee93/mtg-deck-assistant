@@ -44,7 +44,15 @@ import difflib
 # =========================
 app = Flask(__name__)
 
-engine = create_engine("sqlite:///cards.db")
+import os
+
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///cards.db")
+
+# Render sometimes gives postgres:// which SQLAlchemy doesn’t like
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+engine = create_engine(DATABASE_URL)
 Session = scoped_session(sessionmaker(bind=engine))
 Base = declarative_base()
 

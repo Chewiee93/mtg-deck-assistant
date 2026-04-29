@@ -828,6 +828,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     grid.appendChild(card);
                 });
 
+                // 🔥 RE-APPLY FILTERS AFTER ADDING NEW CARDS
+                Filters.apply();
+
                 // update next page
                 const nextBtn = doc.querySelector(".load-more-btn");
 
