@@ -795,6 +795,55 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     initSetTypeFilter();
+
+    // =========================
+    // LOAD MORE (SET VIEW)
+    // =========================
+    document.querySelectorAll(".load-more-btn").forEach(btn => {
+
+        btn.addEventListener("click", async () => {
+
+            const url = btn.dataset.next;
+            if (!url) return;
+
+            btn.disabled = true;
+            btn.textContent = "Loading...";
+
+            try {
+                const res = await fetch(`/set/temp?page_url=${encodeURIComponent(url)}`);
+                const html = await res.text();
+
+                // parse returned HTML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, "text/html");
+
+                const newCards = doc.querySelectorAll(".grid-card");
+
+                const grid = document.querySelector(".grid");
+
+                newCards.forEach(card => {
+                    grid.appendChild(card);
+                });
+
+                // update next page
+                const nextBtn = doc.querySelector(".load-more-btn");
+
+                if (nextBtn) {
+                    btn.dataset.next = nextBtn.dataset.next;
+                    btn.disabled = false;
+                    btn.textContent = "Load More →";
+                } else {
+                    btn.remove(); // no more pages
+                }
+
+            } catch (err) {
+                console.error("Load more failed:", err);
+                btn.textContent = "Error";
+            }
+
+        });
+
+    });
 });
 
 // expose globally ONLY if needed

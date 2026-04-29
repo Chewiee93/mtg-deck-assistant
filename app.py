@@ -644,6 +644,32 @@ def view_set(set_code):
         has_more=has_more
     )
 
+@main_bp.route("/set/temp")
+def load_more_set():
+
+    page_url = request.args.get("page_url")
+
+    try:
+        res = requests.get(page_url, timeout=5)
+        data = res.json()
+
+        cards = data.get("data", [])
+        next_page = data.get("next_page")
+        has_more = data.get("has_more", False)
+
+    except:
+        cards = []
+        next_page = None
+        has_more = False
+
+    return render_template(
+        "set_view.html",
+        cards=cards,
+        set_code="",
+        next_page=next_page,
+        has_more=has_more
+    )
+
 # =========================
 # 8. ROUTES (DECKS)
 # =========================

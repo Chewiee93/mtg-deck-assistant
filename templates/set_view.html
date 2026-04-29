@@ -65,9 +65,11 @@
 
         {% if has_more %}
         <div class="section" style="text-align:center;">
-            <a href="/set/{{ set_code }}?page_url={{ next_page | urlencode }}" class="btn">
+            <button 
+                class="button load-more-btn"
+                data-next="{{ next_page }}">
                 Load More →
-            </a>
+            </button>
         </div>
         {% endif %}
 
