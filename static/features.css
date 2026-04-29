@@ -68,6 +68,15 @@
     border-radius: 10px;
 }
 
+.preview-modal {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.preview-modal:not(.hidden) {
+    opacity: 1;
+}
+
 /* =========================
    COMMANDER
    ========================= */

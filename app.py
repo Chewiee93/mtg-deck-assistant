@@ -158,6 +158,9 @@ RESTRICTED = {
 # 5. SERVICES
 # =========================
 
+SET_CACHE = {}
+CARD_CACHE = {}
+
 def get_card_data(name):
     url = f"https://api.scryfall.com/cards/named?fuzzy={name}"
     try:
@@ -174,7 +177,12 @@ def search_card(name):
         # 1. FUZZY SEARCH
         # =========================
         url = f"https://api.scryfall.com/cards/search?q={name}~"
-        res = requests.get(url, timeout=5)
+        if url in SET_CACHE:
+            data = SET_CACHE[url]
+        else:
+            res = requests.get(url, timeout=5)
+            data = res.json()
+            SET_CACHE[url] = data
 
         if res.status_code == 200:
             data = res.json().get("data", [])
@@ -185,7 +193,12 @@ def search_card(name):
         # 2. AUTOCOMPLETE
         # =========================
         url = f"https://api.scryfall.com/cards/autocomplete?q={name}"
-        res = requests.get(url, timeout=5)
+        if url in SET_CACHE:
+            data = SET_CACHE[url]
+        else:
+            res = requests.get(url, timeout=5)
+            data = res.json()
+            SET_CACHE[url] = data
 
         if res.status_code == 200:
             names = res.json().get("data", [])
@@ -572,7 +585,7 @@ def confirm_import():
 @main_bp.route("/collection")
 def collection():
     cards = g.db.query(Card).all()
-    return render_template("index.html", cards=cards, added=None)
+    return render_template("collection.html", cards=cards, added=None)
 
 
 @main_bp.route("/decks")

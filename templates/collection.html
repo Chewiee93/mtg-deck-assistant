@@ -80,6 +80,11 @@
 
     </div>
 
+    <div class="panel">
+        Total cards: {{ cards | sum(attribute='quantity') }}  
+        Unique cards: {{ cards | length }}
+    </div>
+
 
     <!-- ===== Card Grid ===== -->
     <div id="collection">

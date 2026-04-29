@@ -173,6 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // =========================
     let hoverTimer = null;
     let leaveTimer = null;
+    let currentPreview = null;
 
     document.querySelectorAll(".card, .grid-card").forEach(card => {
 
@@ -180,32 +181,32 @@ document.addEventListener("DOMContentLoaded", () => {
         card.addEventListener("click", (e) => {
             if (e.target.closest("button")) return;
             UI.preview(card);
+            currentPreview = card;
         });
 
         // HOVER ENTER
         card.addEventListener("mouseenter", () => {
 
-            // Cancel any closing
             clearTimeout(leaveTimer);
 
-            // Start hover delay
+            // 🔥 don't reopen same card
+            if (currentPreview === card) return;
+
             hoverTimer = setTimeout(() => {
                 UI.preview(card);
-            }, 150); // ⏱ delay before showing
-
+                currentPreview = card;
+            }, 180);
         });
 
         // HOVER LEAVE
         card.addEventListener("mouseleave", () => {
 
-            // Cancel hover if not triggered yet
             clearTimeout(hoverTimer);
 
-            // Delay closing slightly (prevents flicker)
             leaveTimer = setTimeout(() => {
                 UI.closeModal("previewModal");
-            }, 120);
-
+                currentPreview = null;
+            }, 150);
         });
 
     });
