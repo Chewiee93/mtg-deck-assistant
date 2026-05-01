@@ -171,59 +171,47 @@ document.addEventListener("DOMContentLoaded", () => {
     // =========================
     // CARD PREVIEW (SMOOTH HOVER)
     // =========================
-    let hoverTimer = null;
-    let leaveTimer = null;
-    let currentPreview = null;
-
     let isTouchDevice = false;
 
     window.addEventListener("touchstart", () => {
         isTouchDevice = true;
     }, { once: true });
 
+    const previewModal = document.getElementById("previewModal");
+
     document.querySelectorAll(".card img, .grid-card img").forEach(img => {
 
         const card = img.closest(".card, .grid-card");
 
-        // CLICK (mobile only)
+        // =========================
+        // DESKTOP HOVER (IMAGE ONLY)
+        // =========================
+        img.addEventListener("mouseenter", () => {
+            if (isTouchDevice) return;
+
+            UI.preview(card);
+        });
+
+        img.addEventListener("mouseleave", () => {
+            if (isTouchDevice) return;
+
+            previewModal?.classList.add("hidden");
+        });
+
+        // =========================
+        // MOBILE CLICK
+        // =========================
         card.addEventListener("click", (e) => {
             if (!isTouchDevice) return;
+
+            // ignore buttons
             if (e.target.closest("button")) return;
 
             UI.preview(card);
-            currentPreview = card;
-        });
-
-        // HOVER ENTER
-        img.addEventListener("pointerenter", (e) => {
-
-            if (card.contains(e.relatedTarget)) return;
-
-            clearTimeout(leaveTimer);
-
-            if (currentPreview === card) return;
-
-            hoverTimer = setTimeout(() => {
-                UI.preview(card);
-                currentPreview = card;
-            }, 250);
-        });
-
-        // HOVER LEAVE
-        img.addEventListener("pointerleave", (e) => {
-
-            if (card.contains(e.relatedTarget)) return;
-
-            clearTimeout(hoverTimer);
-
-            leaveTimer = setTimeout(() => {
-                document.getElementById("previewModal")?.classList.add("hidden");
-                currentPreview = null;
-            }, 150);
         });
 
     });
-    
+        
     // =========================
     // QUANTITY BUTTONS
     // =========================
