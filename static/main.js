@@ -175,19 +175,20 @@ document.addEventListener("DOMContentLoaded", () => {
     let leaveTimer = null;
     let currentPreview = null;
 
+    let isTouchDevice = false;
+
+    window.addEventListener("touchstart", () => {
+        isTouchDevice = true;
+    }, { once: true });
+
     document.querySelectorAll(".card img, .grid-card img").forEach(img => {
 
-        let isTouchDevice = false;
+        const card = img.closest(".card, .grid-card");
 
-        window.addEventListener("touchstart", () => {
-            isTouchDevice = true;
-        }, { once: true });
-
+        // CLICK (mobile only)
         card.addEventListener("click", (e) => {
             if (!isTouchDevice) return;
             if (e.target.closest("button")) return;
-
-            const card = img.closest(".card, .grid-card");
 
             UI.preview(card);
             currentPreview = card;
