@@ -194,12 +194,14 @@ document.addEventListener("DOMContentLoaded", () => {
         // HOVER ENTER
         card.addEventListener("pointerenter", (e) => {
 
-            // 🔥 ignore internal movement
+            // 🚫 IGNORE BUTTON / CONTROLS
+            if (e.target.closest("button")) return;
+            if (e.target.closest(".card-controls")) return;
+
             if (card.contains(e.relatedTarget)) return;
 
             clearTimeout(leaveTimer);
 
-            // 🔥 don't reopen same card
             if (currentPreview === card) return;
 
             hoverTimer = setTimeout(() => {
@@ -210,6 +212,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // HOVER LEAVE
         card.addEventListener("pointerleave", (e) => {
+
+            if (e.target.closest("button")) return;
+            if (e.target.closest(".card-controls")) return;
 
             if (card.contains(e.relatedTarget)) return;
 
