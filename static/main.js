@@ -175,7 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let leaveTimer = null;
     let currentPreview = null;
 
-    document.querySelectorAll(".card, .grid-card").forEach(card => {
+    document.querySelectorAll(".card img, .grid-card img").forEach(img => {
 
         let isTouchDevice = false;
 
@@ -187,16 +187,14 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!isTouchDevice) return;
             if (e.target.closest("button")) return;
 
+            const card = img.closest(".card, .grid-card");
+
             UI.preview(card);
             currentPreview = card;
         });
 
         // HOVER ENTER
-        card.addEventListener("pointerenter", (e) => {
-
-            // 🚫 IGNORE BUTTON / CONTROLS
-            if (e.target.closest("button")) return;
-            if (e.target.closest(".card-controls")) return;
+        img.addEventListener("pointerenter", (e) => {
 
             if (card.contains(e.relatedTarget)) return;
 
@@ -211,10 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // HOVER LEAVE
-        card.addEventListener("pointerleave", (e) => {
-
-            if (e.target.closest("button")) return;
-            if (e.target.closest(".card-controls")) return;
+        img.addEventListener("pointerleave", (e) => {
 
             if (card.contains(e.relatedTarget)) return;
 
