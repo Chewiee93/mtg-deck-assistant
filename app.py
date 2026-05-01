@@ -587,7 +587,6 @@ def collection():
     cards = g.db.query(Card).all()
     return render_template("collection.html", cards=cards, added=None)
 
-
 @main_bp.route("/decks")
 def decks():
     decks = g.db.query(Deck).all()
@@ -928,6 +927,32 @@ def add_card():
     g.db.commit()
 
     return jsonify({"success": True})
+
+@api_bp.route("/api/update_quantity", methods=["POST"])
+def update_quantity():
+    data = request.get_json()
+
+    card_id = data.get("card_id")
+    change = int(data.get("change", 0))
+
+    card = g.db.get(Card, card_id)
+
+    if not card:
+        return jsonify({"success": False})
+
+    card.quantity += change
+
+    if card.quantity <= 0:
+        g.db.delete(card)
+        g.db.commit()
+        return jsonify({"success": True, "quantity": 0})
+
+    g.db.commit()
+
+    return jsonify({
+        "success": True,
+        "quantity": card.quantity
+    })
 
 @api_bp.route("/api/card_suggest")
 def suggest():
