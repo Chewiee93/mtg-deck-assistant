@@ -192,7 +192,8 @@ document.addEventListener("DOMContentLoaded", () => {
             UI.preview(card);
         });
 
-        img.addEventListener("mouseleave", () => {
+        // ✅ MOVE LEAVE TO CARD (not image)
+        card.addEventListener("mouseleave", () => {
             if (isTouchDevice) return;
 
             previewModal?.classList.add("hidden");
