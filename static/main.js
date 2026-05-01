@@ -204,14 +204,19 @@ document.addEventListener("DOMContentLoaded", () => {
         // HOVER LEAVE
         card.addEventListener("pointerleave", (e) => {
 
+            if (e.target.closest(".card-controls")) return;
+            if (e.target.closest("button")) return;
+
             if (card.contains(e.relatedTarget)) return;
 
-            clearTimeout(hoverTimer);
+            clearTimeout(leaveTimer);
 
-            leaveTimer = setTimeout(() => {
-                document.getElementById("previewModal")?.classList.add("hidden");
-                currentPreview = null;
-            }, 200);
+            if (currentPreview === card) return;
+
+            hoverTimer = setTimeout(() => {
+                UI.preview(card);
+                currentPreview = card;
+            }, 250);
         });
 
     });
