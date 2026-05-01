@@ -177,9 +177,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll(".card, .grid-card").forEach(card => {
 
-        // CLICK (mobile safe)
+        let isTouchDevice = false;
+
+        window.addEventListener("touchstart", () => {
+            isTouchDevice = true;
+        }, { once: true });
+
         card.addEventListener("click", (e) => {
+            if (!isTouchDevice) return;
             if (e.target.closest("button")) return;
+
             UI.preview(card);
             currentPreview = card;
         });
@@ -204,19 +211,14 @@ document.addEventListener("DOMContentLoaded", () => {
         // HOVER LEAVE
         card.addEventListener("pointerleave", (e) => {
 
-            if (e.target.closest(".card-controls")) return;
-            if (e.target.closest("button")) return;
-
             if (card.contains(e.relatedTarget)) return;
 
-            clearTimeout(leaveTimer);
+            clearTimeout(hoverTimer);
 
-            if (currentPreview === card) return;
-
-            hoverTimer = setTimeout(() => {
-                UI.preview(card);
-                currentPreview = card;
-            }, 250);
+            leaveTimer = setTimeout(() => {
+                document.getElementById("previewModal")?.classList.add("hidden");
+                currentPreview = null;
+            }, 150);
         });
 
     });
